@@ -1,0 +1,80 @@
+// Components
+import { Form } from "@/components";
+
+// Hooks
+import { useToast } from "@/hooks";
+
+// APSs
+import {
+  createOne as createGroup,
+  updateOne as updatGroup,
+} from "@/api/services/group";
+
+// Redux
+import { useSelector } from "react-redux";
+
+const GroupForm = ({
+  currentData,
+  updateMode,
+  setLoading,
+  getData,
+  loading,
+  handleClose,
+}) => {
+  const toast = useToast();
+
+  const { _id } = useSelector((state) => state.user);
+
+  const addData = async (callback) => {
+    setLoading(true);
+
+    try {
+      callback.user = _id;
+
+      await createGroup(callback);
+
+      toast("Group created");
+      handleClose();
+
+      getData();
+    } catch (error) {
+      toast(error.message);
+    }
+
+    setLoading(false);
+  };
+
+  const updateData = async (data) => {
+    setLoading(true);
+
+    try {
+      await updatGroup(data._id, data);
+
+      toast("Group updated");
+      handleClose();
+
+      getData();
+    } catch (error) {
+      toast(error.message);
+    }
+
+    setLoading(false);
+  };
+
+  return (
+    <Form
+      name="group"
+      callback={updateMode ? updateData : addData}
+      disables={[]}
+      btnStyle={{
+        fullWidth: false,
+        disabled: loading,
+        color: "primary",
+      }}
+      def={updateMode ? currentData : {}}
+      button={updateMode ? "Update" : "Create"}
+    />
+  );
+};
+
+export default GroupForm;

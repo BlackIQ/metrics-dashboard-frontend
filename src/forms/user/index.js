@@ -32,7 +32,7 @@ const UserForm = ({
     try {
       await updateUser(data._id, data);
 
-      toast("User updated");
+      toast("Information updated");
       handleClose();
 
       getData();

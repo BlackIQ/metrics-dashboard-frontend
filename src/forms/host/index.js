@@ -10,6 +10,9 @@ import {
   updateOne as updateHost,
 } from "@/api/services/host";
 
+// Redux
+import { useSelector } from "react-redux";
+
 const HostForm = ({
   currentData,
   updateMode,
@@ -19,6 +22,8 @@ const HostForm = ({
   handleClose,
 }) => {
   const toast = useToast();
+
+  const { _id } = useSelector((state) => state.user);
 
   const addData = async (callback) => {
     setLoading(true);
@@ -50,6 +55,8 @@ const HostForm = ({
     }
 
     try {
+      callback.user = _id;
+
       await createHost(callback);
 
       toast("Host created");
