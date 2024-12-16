@@ -312,7 +312,7 @@ const FormsComponent = ({
             onClick={handleSubmit(onSubmit)}
             sx={{
               color: "white",
-              mt: 1.5,
+              mt: 2,
               p: 1.5,
               borderRadius: 1,
             }}
