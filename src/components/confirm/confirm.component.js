@@ -25,10 +25,10 @@ const ConfirmComponent = ({ isOpen, handleOpen, onConfirm }) => {
           Yes
         </Button>
         <Button
-          variant="text"
+          variant="outlined"
           color="primary"
           size="large"
-          sx={{ ml: 1 }}
+          sx={{ ml: 2 }}
           onClick={handleOpen}
           disableElevation
         >

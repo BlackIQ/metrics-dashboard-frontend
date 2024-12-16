@@ -311,6 +311,7 @@ const FormsComponent = ({
             type="submit"
             onClick={handleSubmit(onSubmit)}
             sx={{
+              color: "white",
               mt: 1.5,
               p: 1.5,
               borderRadius: 1,
