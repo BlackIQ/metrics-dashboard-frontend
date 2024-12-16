@@ -19,12 +19,11 @@ const tables = {
     title: "Hosts",
     fields: {
       name: "Hostname",
-      status: "_id",
+      agentAvailable: "Status",
       ip: "IP",
       dns: "DNS",
       port: "Port",
       ipCommunication: "Communication",
-      "user._id": "User",
     },
   },
   user: {

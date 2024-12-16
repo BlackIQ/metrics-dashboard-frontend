@@ -1,3 +1,5 @@
+import { communicationTypes } from "@/data";
+
 const forms = {
   login: {
     email: {
@@ -172,6 +174,53 @@ const forms = {
       advanced: {
         required: true,
       },
+    },
+  },
+  host: {
+    name: {
+      type: "text",
+      label: "Hostname",
+      placeholder: "Enter host name",
+      secure: false,
+      advanced: {
+        required: true,
+      },
+    },
+    ip: {
+      type: "text",
+      label: "IP",
+      placeholder: "Enter host IP",
+      secure: false,
+      // advanced: {
+      //   required: true,
+      // },
+    },
+    dns: {
+      type: "text",
+      label: "DNS",
+      placeholder: "Enter host DNS",
+      secure: false,
+      // advanced: {
+      //   required: true,
+      // },
+    },
+    port: {
+      type: "text",
+      label: "Port",
+      placeholder: "Enter host port",
+      secure: false,
+      advanced: {
+        required: true,
+      },
+    },
+    ipCommunication: {
+      type: "select",
+      label: "Communication",
+      placeholder: "Choose agent communication",
+      options: communicationTypes,
+      // advanced: {
+      //   required: true,
+      // },
     },
   },
 };
