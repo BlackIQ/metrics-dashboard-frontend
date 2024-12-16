@@ -38,13 +38,13 @@ const HostForm = ({
     }
 
     if (ipCommunication && !ip) {
-      toast("IP is required when ipCommunication is true.");
+      toast("IP is required when communication is IP.");
       setLoading(false);
       return;
     }
 
     if (!ipCommunication && !dns) {
-      toast("DNS is required when ipCommunication is false.");
+      toast("IP is required when communication is DNS.");
       setLoading(false);
       return;
     }
@@ -81,13 +81,13 @@ const HostForm = ({
     }
 
     if (ipCommunication && !ip) {
-      toast("IP is required when ipCommunication is true.");
+      toast("IP is required when communication is IP.");
       setLoading(false);
       return;
     }
 
     if (!ipCommunication && !dns) {
-      toast("DNS is required when ipCommunication is false.");
+      toast("IP is required when communication is DNS.");
       setLoading(false);
       return;
     }
