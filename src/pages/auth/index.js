@@ -1,13 +1,25 @@
-import { useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { useState } from "react";
+
+import { setSession } from "@/redux/actions/session";
+import { setUser } from "@/redux/actions/user";
 
 import { Form } from "@/components";
+import { useAuth } from "@/hooks";
+import { login } from "@/api/services/auth";
 
-import { Box, Typography, Grid, Container, Button } from "@mui/material";
+import { Box, Typography, Button, Container } from "@mui/material";
 import Head from "next/head";
 
-const Auth = () => {
-  useEffect(() => {}, []);
+import { useToast } from "@/hooks";
 
+const Auth = () => {
+  useAuth();
+
+  const dispatch = useDispatch();
+  const toast = useToast();
+
+  // Loading
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState("login");
 
@@ -15,36 +27,36 @@ const Auth = () => {
     setMode(mode === "login" ? "register" : "login");
   };
 
-  const fnc_login = async (callback) => {
+  const doLogin = async (callback) => {
     setLoading(true);
 
     try {
-      console.log(callback);
+      const result = await login(callback);
 
-      // const result = await login(callback);
-      // const { user, token } = result;
-      // dispatch(setUser(user));
-      // dispatch(setSession(token));
+      const { user, token } = result;
+
+      dispatch(setUser(user));
+      dispatch(setSession(token));
     } catch (error) {
-      createSnack(error.message, "error");
+      toast(error.message);
     }
 
     setLoading(false);
   };
 
-  const fnc_register = async (callback) => {
+  const doRegister = async (callback) => {
     setLoading(true);
 
-    try {
-      console.log(callback);
+    // try {
+    //   console.log(callback);
 
-      // const result = await login(callback);
-      // const { user, token } = result;
-      // dispatch(setUser(user));
-      // dispatch(setSession(token));
-    } catch (error) {
-      createSnack(error.message, "error");
-    }
+    //   // const result = await login(callback);
+    //   // const { user, token } = result;
+    //   // dispatch(setUser(user));
+    //   // dispatch(setSession(token));
+    // } catch (error) {
+    //   alert(error.message);
+    // }
 
     setLoading(false);
   };
@@ -83,7 +95,7 @@ const Auth = () => {
             </Typography>
             <Form
               name={mode}
-              callback={mode === "login" ? fnc_login : fnc_register}
+              callback={mode === "login" ? doLogin : doRegister}
               button={mode === "login" ? "Login" : "Register"}
               btnStyle={{
                 fullWidth: true,
