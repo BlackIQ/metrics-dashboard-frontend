@@ -1,4 +1,4 @@
-const key = "extudent-storage";
+const key = "amir-monitoring-storage";
 
 export const loadState = () => {
   try {

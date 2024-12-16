@@ -12,8 +12,7 @@ store.subscribe(() =>
   saveState({
     user: store.getState().user,
     session: store.getState().session,
-    locale: store.getState().locale,
-    theme: store.getState().theme,
+    toast: store.getState().toast,
   })
 );
 
