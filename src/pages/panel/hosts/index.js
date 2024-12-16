@@ -2,6 +2,9 @@
 import { useState, useEffect } from "react";
 import Head from "next/head";
 
+// Redux
+import { useSelector } from "react-redux";
+
 // Material UI
 import { Box, Dialog, DialogContent, DialogTitle } from "@mui/material";
 
@@ -28,6 +31,8 @@ const Index = () => {
 
   const toast = useToast();
 
+  const { role, _id } = useSelector((state) => state.user);
+
   useEffect(() => {
     getData();
   }, []);
@@ -35,8 +40,14 @@ const Index = () => {
   const getData = async () => {
     setLoading(true);
 
+    const filter = {};
+
+    if (role?.value === "user") {
+      filter["user"] = _id;
+    }
+
     try {
-      const { hosts } = await allHosts();
+      const { hosts } = await allHosts(filter);
 
       setHosts(hosts);
 
