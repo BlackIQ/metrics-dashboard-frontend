@@ -1,4 +1,4 @@
-import { communicationTypes } from "@/data";
+import { communicationTypes, activeTypes } from "@/data";
 
 const forms = {
   login: {
@@ -259,6 +259,15 @@ const forms = {
       label: "Communication",
       placeholder: "Choose agent communication",
       options: communicationTypes,
+      // advanced: {
+      //   required: true,
+      // },
+    },
+    isActive: {
+      type: "select",
+      label: "Active / Inactive",
+      placeholder: "Is agent active or not!?",
+      options: activeTypes,
       // advanced: {
       //   required: true,
       // },
