@@ -7,6 +7,8 @@ const urls = {
   role: "roles",
   user: "users",
   host: "hosts",
+  tag: "tags",
+  group: "groups",
 };
 
 export default urls;

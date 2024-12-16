@@ -1,11 +1,11 @@
 import API from "@/api";
 import URLs from "@/api/urls";
 
-const { host } = URLs;
+const { group } = URLs;
 
 export const all = async (filter) => {
   try {
-    const response = await API.get(host, {
+    const response = await API.get(group, {
       params: filter,
     });
 
@@ -17,7 +17,7 @@ export const all = async (filter) => {
 
 export const singleOne = async (id) => {
   try {
-    const response = await API.get(`${host}/${id}`);
+    const response = await API.get(`${group}/${id}`);
 
     return Promise.resolve(response.data);
   } catch (error) {
@@ -27,7 +27,7 @@ export const singleOne = async (id) => {
 
 export const createOne = async (data) => {
   try {
-    const response = await API.post(host, data);
+    const response = await API.post(group, data);
 
     return Promise.resolve(response.data);
   } catch (error) {
@@ -37,7 +37,7 @@ export const createOne = async (data) => {
 
 export const deleteOne = async (id) => {
   try {
-    const response = await API.delete(`${host}/${id}`);
+    const response = await API.delete(`${group}/${id}`);
 
     return Promise.resolve(response.data);
   } catch (error) {
@@ -47,7 +47,7 @@ export const deleteOne = async (id) => {
 
 export const updateOne = async (id, data) => {
   try {
-    const response = await API.patch(`${host}/${id}`, data);
+    const response = await API.patch(`${group}/${id}`, data);
 
     return Promise.resolve(response.data);
   } catch (error) {
