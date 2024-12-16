@@ -11,7 +11,6 @@ const tables = {
     title: "Permissions",
     fields: {
       label: "Name",
-      value: "Sign",
       delete: "Delete",
     },
   },
@@ -32,6 +31,20 @@ const tables = {
       firstName: "Firstname",
       lastName: "Lastname",
       "role.label": "Role",
+    },
+  },
+  tag: {
+    title: "Tags",
+    fields: {
+      label: "Name",
+      delete: "Delete",
+    },
+  },
+  group: {
+    title: "Groups",
+    fields: {
+      label: "Name",
+      delete: "Delete",
     },
   },
 };

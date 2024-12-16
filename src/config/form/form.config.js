@@ -106,7 +106,35 @@ const forms = {
       },
     },
   },
-
+  userProfileMe: {
+    firstName: {
+      type: "text",
+      label: "Firstname",
+      placeholder: "Enter user firstname",
+      secure: false,
+      advanced: {
+        required: true,
+      },
+    },
+    lastName: {
+      type: "text",
+      label: "Lastname",
+      placeholder: "Enter user lastname",
+      secure: false,
+      advanced: {
+        required: true,
+      },
+    },
+    email: {
+      type: "text",
+      label: "Email",
+      placeholder: "Enter user email",
+      secure: false,
+      advanced: {
+        required: true,
+      },
+    },
+  },
   changePassword: {
     newPassword: {
       type: "text",
@@ -137,15 +165,6 @@ const forms = {
         required: true,
       },
     },
-    value: {
-      type: "text",
-      label: "Sign",
-      placeholder: "Enter permission sign",
-      secure: false,
-      advanced: {
-        required: true,
-      },
-    },
   },
   role: {
     label: {
@@ -170,6 +189,28 @@ const forms = {
       type: "checkData",
       label: "Permissions",
       placeholder: "Choose permissions",
+      secure: false,
+      advanced: {
+        required: true,
+      },
+    },
+  },
+  tag: {
+    label: {
+      type: "text",
+      label: "Name",
+      placeholder: "Enter tag name",
+      secure: false,
+      advanced: {
+        required: true,
+      },
+    },
+  },
+  group: {
+    label: {
+      type: "text",
+      label: "Name",
+      placeholder: "Enter group name",
       secure: false,
       advanced: {
         required: true,
