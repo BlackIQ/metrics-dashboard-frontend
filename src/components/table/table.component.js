@@ -12,6 +12,7 @@ import {
   Button,
   Pagination,
   colors,
+  Chip,
 } from "@mui/material";
 
 import { format as dateFormat } from "date-fns";
@@ -111,6 +112,14 @@ const TableComponent = ({
       case "createdAt":
       case "updatedAt":
         return formatterData(new Date(d["createdAt"]), "yyyy/MM/dd");
+      case "ipCommunication":
+        return d["ipCommunication"] ? "IP" : "DNS";
+      case "agentAvailable":
+        return d["agentAvailable"] ? (
+          <Chip label="Connect" color="success" />
+        ) : (
+          <Chip label="Disonnect" color="error" />
+        );
       default:
         return v;
     }

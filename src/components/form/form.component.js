@@ -206,7 +206,7 @@ const FormsComponent = ({
                     label={field.label}
                   >
                     {field.options.map((option) => (
-                      <MenuItem key={option.value} value={option._id}>
+                      <MenuItem key={option.value} value={option.value}>
                         {option.label}
                       </MenuItem>
                     ))}
