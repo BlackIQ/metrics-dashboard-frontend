@@ -2,14 +2,17 @@ import { Box } from "@mui/material";
 import { ThemeProvider, CssBaseline } from "@mui/material";
 
 import theme from "@/theme";
-
-console.log(theme);
+import { Toast } from "@/components";
 
 const AuthLayout = ({ children }) => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box>{children}</Box>
+      <Box>
+        {children}
+
+        <Toast />
+      </Box>
     </ThemeProvider>
   );
 };
