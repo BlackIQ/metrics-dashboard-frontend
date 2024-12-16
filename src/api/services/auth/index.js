@@ -13,12 +13,12 @@ export const login = async (data) => {
   }
 };
 
-// export const register = async (data) => {
-//   try {
-//     const response = await API.post(auth.register, data);
+export const register = async (data) => {
+  try {
+    const response = await API.post(auth.register, data);
 
-//     return Promise.resolve(response.data);
-//   } catch (error) {
-//     return Promise.reject(error.response.data);
-//   }
-// };
+    return Promise.resolve(response.data);
+  } catch (error) {
+    return Promise.reject(error.response.data);
+  }
+};
