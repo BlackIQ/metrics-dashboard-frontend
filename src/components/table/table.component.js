@@ -115,10 +115,14 @@ const TableComponent = ({
       case "ipCommunication":
         return d["ipCommunication"] ? "IP" : "DNS";
       case "agentAvailable":
-        return d["agentAvailable"] ? (
-          <Chip label="Connect" color="success" />
+        return d["isActive"] ? (
+          d["agentAvailable"] ? (
+            <Chip label="Connect" color="success" />
+          ) : (
+            <Chip label="Disonnect" color="error" />
+          )
         ) : (
-          <Chip label="Disonnect" color="error" />
+          <Chip label="Inactive" color="default" />
         );
       default:
         return v;
