@@ -6,6 +6,7 @@ const urls = {
   permission: "permissions",
   role: "roles",
   user: "users",
+  host: "hosts",
 };
 
 export default urls;
