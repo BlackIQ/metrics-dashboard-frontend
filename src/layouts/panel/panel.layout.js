@@ -26,14 +26,16 @@ import { styled } from "@mui/material/styles";
 
 import {
   Menu as MenuIcon,
-  LogoutOutlined,
-  KeyOutlined,
-  PolicyOutlined,
-  PeopleOutline,
-  WarningOutlined,
   Storage,
   Person,
   Home,
+  LocalOffer,
+  Category,
+  LocalPolice,
+  Key,
+  Groups,
+  Warning,
+  Logout,
 } from "@mui/icons-material";
 
 import { useToast } from "@/hooks";
@@ -166,17 +168,21 @@ const AppLayout = ({ children }) => {
           // </Box>
         );
       case "logout":
-        return <LogoutOutlined sx={{ color: "error.main" }} />;
+        return <Logout sx={{ color: "error.main" }} />;
       case "hosts":
         return <Storage />;
+      case "tags":
+        return <LocalOffer />;
+      case "groups":
+        return <Category />;
       case "roles":
-        return <PolicyOutlined />;
+        return <LocalPolice />;
       case "permissions":
-        return <KeyOutlined />;
+        return <Key />;
       case "users":
-        return <PeopleOutline />;
+        return <Groups />;
       default:
-        return <WarningOutlined />;
+        return <Warning />;
     }
   };
 
