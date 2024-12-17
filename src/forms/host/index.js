@@ -150,7 +150,14 @@ const HostForm = ({
           disabled: loading,
           color: "primary",
         }}
-        def={updateMode ? currentData : {}}
+        def={
+          updateMode
+            ? currentData
+            : {
+                groups: [],
+                tags: [],
+              }
+        }
         button={updateMode ? "Update" : "Create"}
       />
 

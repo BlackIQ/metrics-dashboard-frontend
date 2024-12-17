@@ -109,6 +109,8 @@ const FormsComponent = ({
                   <RadioGroup defaultValue={def && def[name]} row>
                     {selectData[name] &&
                       selectData[name].map((option) => {
+                        console.log(option._id, option.label, def[name]);
+
                         return (
                           <FormControlLabel
                             key={option._id}
