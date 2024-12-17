@@ -1,17 +1,19 @@
 // Components
-import { Form } from "@/components";
+import { Form, Confirm } from "@/components";
 
 // Hooks
-import { useToast } from "@/hooks";
+import { useToast, useDisclosure } from "@/hooks";
 
 // APSs
 import {
   createOne as createHost,
   updateOne as updateHost,
+  deleteOne as deleteHost,
 } from "@/api/services/host";
 
 // Redux
 import { useSelector } from "react-redux";
+import { Box, Button, Divider, Typography } from "@mui/material";
 
 const HostForm = ({
   currentData,
@@ -20,10 +22,13 @@ const HostForm = ({
   getData,
   loading,
   handleClose,
+  extraData,
 }) => {
   const toast = useToast();
 
   const { _id } = useSelector((state) => state.user);
+
+  const { isOpen: confirmOpen, onToggle: handleConfirm } = useDisclosure();
 
   const addData = async (callback) => {
     setLoading(true);
@@ -113,19 +118,74 @@ const HostForm = ({
     setLoading(false);
   };
 
+  const deleteData = async () => {
+    setLoading(true);
+
+    try {
+      await deleteHost(currentData._id);
+
+      toast("Host deleted");
+      handleClose();
+
+      getData();
+    } catch (error) {
+      toast(error.message);
+    }
+
+    setLoading(false);
+  };
+
   return (
-    <Form
-      name="host"
-      callback={updateMode ? updateData : addData}
-      disables={[]}
-      btnStyle={{
-        fullWidth: false,
-        disabled: loading,
-        color: "primary",
-      }}
-      def={updateMode ? currentData : {}}
-      button={updateMode ? "Update" : "Create"}
-    />
+    <>
+      <Form
+        name="host"
+        callback={updateMode ? updateData : addData}
+        selectData={{
+          groups: extraData.groups,
+          tags: extraData.tags,
+        }}
+        disables={[]}
+        btnStyle={{
+          fullWidth: false,
+          disabled: loading,
+          color: "primary",
+        }}
+        def={updateMode ? currentData : {}}
+        button={updateMode ? "Update" : "Create"}
+      />
+
+      {updateMode && (
+        <Box sx={{ mt: 3 }}>
+          <Typography color="error" variant="h6" gutterBottom>
+            Delete
+          </Typography>
+          <Divider color="error" sx={{ mb: 1 }} />
+          <Typography variant="body2" color="error" sx={{ mb: 1 }} gutterBottom>
+            Here you can delete the host you created. Remember that metrics are
+            still available at out databases. If you planned to use this host
+            again, you can <b>Inactive</b> the host.
+          </Typography>
+          <Button
+            variant="contained"
+            color="error"
+            size="medium"
+            onClick={handleConfirm}
+            sx={{
+              borderRadius: 1,
+            }}
+            disableElevation
+          >
+            Delete
+          </Button>
+        </Box>
+      )}
+
+      <Confirm
+        onConfirm={deleteData}
+        isOpen={confirmOpen}
+        handleOpen={handleConfirm}
+      />
+    </>
   );
 };
 
