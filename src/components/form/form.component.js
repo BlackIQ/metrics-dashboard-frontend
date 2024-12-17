@@ -115,9 +115,7 @@ const FormsComponent = ({
                             value={option._id}
                             {...register(name, field.advanced)}
                             error={errors[name]}
-                            label={
-                              field.view ? option[field.view] : option.label
-                            }
+                            label={option.label}
                             control={
                               <Checkbox
                                 defaultChecked={
@@ -161,7 +159,7 @@ const FormsComponent = ({
                           key={`${name}-${option.value}`}
                           value={option._id}
                         >
-                          {field.view ? option[field.view] : option.label}
+                          {option.label}
                         </MenuItem>
                       ))}
                   </Select>
