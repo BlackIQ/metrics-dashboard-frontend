@@ -86,11 +86,13 @@ const Index = () => {
               handleDialog();
             }}
             clk={(data) => {
-              data.permissions = data.permissions.map(
+              const d = { ...data };
+
+              d.permissions = data.permissions.map(
                 (permission) => permission._id
               );
 
-              setCurrentData(data);
+              setCurrentData(d);
               handleDialog();
             }}
             del={(data) => {

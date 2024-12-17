@@ -104,10 +104,12 @@ const Index = () => {
               handleDialog();
             }}
             clk={(data) => {
-              data.groups = data.groups.map((group) => group._id);
-              data.tags = data.tags.map((tag) => tag._id);
+              const d = { ...data };
 
-              setCurrentData(data);
+              d.groups = data?.groups?.map((group) => group._id);
+              d.tags = data?.tags?.map((tag) => tag._id);
+
+              setCurrentData(d);
               handleDialog();
             }}
             del={(data) => {
