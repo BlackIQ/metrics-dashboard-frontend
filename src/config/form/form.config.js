@@ -286,18 +286,18 @@ const forms = {
       label: "Groups",
       placeholder: "Choose groups",
       secure: false,
-      advanced: {
-        required: true,
-      },
+      // advanced: {
+      //   required: true,
+      // },
     },
     tags: {
       type: "checkData",
       label: "Tags",
       placeholder: "Choose tags",
       secure: false,
-      advanced: {
-        required: true,
-      },
+      // advanced: {
+      //   required: true,
+      // },
     },
   },
 };
