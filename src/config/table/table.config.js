@@ -3,7 +3,7 @@ const tables = {
     title: "Roles",
     fields: {
       label: "Name",
-      value: "Sign",
+      value: "Identifier",
       delete: "Delete",
     },
   },
@@ -11,6 +11,7 @@ const tables = {
     title: "Permissions",
     fields: {
       label: "Name",
+      value: "Identifier",
       delete: "Delete",
     },
   },

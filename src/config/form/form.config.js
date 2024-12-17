@@ -165,6 +165,15 @@ const forms = {
         required: true,
       },
     },
+    value: {
+      type: "text",
+      label: "Identifier",
+      placeholder: "Enter identifier name",
+      secure: false,
+      advanced: {
+        required: true,
+      },
+    },
   },
   role: {
     label: {
@@ -178,8 +187,8 @@ const forms = {
     },
     value: {
       type: "text",
-      label: "Sign",
-      placeholder: "Enter role sign",
+      label: "Identifier",
+      placeholder: "Enter identifier name",
       secure: false,
       advanced: {
         required: true,
@@ -271,6 +280,24 @@ const forms = {
       // advanced: {
       //   required: true,
       // },
+    },
+    groups: {
+      type: "checkData",
+      label: "Groups",
+      placeholder: "Choose groups",
+      secure: false,
+      advanced: {
+        required: true,
+      },
+    },
+    tags: {
+      type: "checkData",
+      label: "Tags",
+      placeholder: "Choose tags",
+      secure: false,
+      advanced: {
+        required: true,
+      },
     },
   },
 };
