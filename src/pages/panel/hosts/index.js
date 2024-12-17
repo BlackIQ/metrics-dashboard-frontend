@@ -54,8 +54,8 @@ const Index = () => {
     try {
       const { hosts } = await allHosts(filter);
 
-      const { groups } = await allGroups();
-      const { tags } = await allTags();
+      const { groups } = await allGroups(filter);
+      const { tags } = await allTags(filter);
 
       setHosts(hosts);
 
@@ -106,7 +106,7 @@ const Index = () => {
             clk={(data) => {
               const d = { ...data };
 
-              d.groups = data?.groups?.map((group) => group._id);
+              d.groups = data.groups.map((group) => group._id);
               d.tags = data?.tags?.map((tag) => tag._id);
 
               setCurrentData(d);

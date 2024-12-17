@@ -135,6 +135,8 @@ const HostForm = ({
     setLoading(false);
   };
 
+  console.log(extraData);
+
   return (
     <>
       <Form
