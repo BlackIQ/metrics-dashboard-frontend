@@ -16,12 +16,17 @@ import { useDisclosure, useToast } from "@/hooks";
 
 // APIs
 import { all as allHosts, deleteOne as deleteHost } from "@/api/services/host";
+import { all as allGroups } from "@/api/services/group";
+import { all as allTags } from "@/api/services/tag";
 
 // Forms
 import HostForm from "@/forms/host";
 
 const Index = () => {
   const [hosts, setHosts] = useState([]);
+
+  const [groups, setGroups] = useState([]);
+  const [tags, setTags] = useState([]);
 
   const [loading, setLoading] = useState(true);
   const [currentData, setCurrentData] = useState({});
@@ -49,7 +54,13 @@ const Index = () => {
     try {
       const { hosts } = await allHosts(filter);
 
+      const { groups } = await allGroups();
+      const { tags } = await allTags();
+
       setHosts(hosts);
+
+      setGroups(groups);
+      setTags(tags);
 
       toast("Hosts got");
     } catch (error) {
@@ -93,6 +104,9 @@ const Index = () => {
               handleDialog();
             }}
             clk={(data) => {
+              data.groups = data.groups.map((group) => group._id);
+              data.tags = data.tags.map((tag) => tag._id);
+
               setCurrentData(data);
               handleDialog();
             }}
@@ -120,6 +134,7 @@ const Index = () => {
             loading={loading}
             setLoading={setLoading}
             updateMode={currentData}
+            extraData={{ groups, tags }}
           />
         </DialogContent>
       </Dialog>
