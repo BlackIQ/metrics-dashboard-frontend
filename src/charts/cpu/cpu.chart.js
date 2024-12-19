@@ -41,33 +41,22 @@ const CpuChart = ({ metrics, height }) => {
       {
         label: "Cores",
         data: data
-          .filter((item) => item._field === "total")
+          .filter((item) => item._field === "total_cores")
           .map((item) => item._value),
         borderColor: colors.red[500],
         backgroundColor: `${colors.red[200]}40`,
-        // borderWidth: 1,
+        borderWidth: 1,
         fill: true,
         tension: 0,
       },
       {
-        label: "Available",
+        label: "Frequency",
         data: data
-          .filter((item) => item._field === "available")
-          .map((item) => item._value),
-        borderColor: colors.yellow[500],
-        backgroundColor: `${colors.yellow[200]}40`,
-        // borderWidth: 1,
-        fill: true,
-        tension: 0,
-      },
-      {
-        label: "Used",
-        data: data
-          .filter((item) => item._field === "used")
+          .filter((item) => item._field === "frequency_mhz")
           .map((item) => item._value),
         borderColor: colors.lightBlue[500],
         backgroundColor: `${colors.lightBlue[200]}40`,
-        // borderWidth: 1,
+        borderWidth: 1,
         fill: true,
         tension: 0,
       },
@@ -78,7 +67,7 @@ const CpuChart = ({ metrics, height }) => {
           .map((item) => item._value),
         borderColor: colors.teal[500],
         backgroundColor: `${colors.teal[200]}26`,
-        // borderWidth: 1,
+        borderWidth: 1,
         fill: true,
         tension: 0,
       },

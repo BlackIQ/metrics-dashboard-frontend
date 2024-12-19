@@ -52,7 +52,7 @@ const Index = () => {
       "network_io_metrics",
     ];
     const params = {
-      start: "-1m",
+      start: "-1h",
       end: "now()",
     };
 
