@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import Head from "next/head";
 
 // Material UI
-import { Box, Grid2 as Grid } from "@mui/material";
+import { Box, Button, Grid2 as Grid } from "@mui/material";
 
 // Components
 import { Loading } from "@/components";
@@ -13,6 +13,10 @@ import { useToast } from "@/hooks";
 
 // APIs
 import { READ as readData } from "@/api/services/metrics";
+import { all as allHosts } from "@/api/services/host";
+
+// Redux
+import { useSelector } from "react-redux";
 
 // Charts
 import {
@@ -25,6 +29,9 @@ import {
 
 const Index = () => {
   const [loading, setLoading] = useState(true);
+  const [initLoading, setInitLoading] = useState(true);
+
+  const { role, _id } = useSelector((state) => state.user);
 
   const [systemloadData, setSystemloadData] = useState([]);
   const [memoryData, setMemoryData] = useState([]);
@@ -35,14 +42,120 @@ const Index = () => {
 
   const toast = useToast();
 
-  useEffect(() => {
+  const [hosts, setHosts] = useState([]);
+
+  const [endTimes, setEndTimes] = useState([
+    {
+      label: "1 Minute",
+      value: "-1m",
+      selected: false,
+    },
+    {
+      label: "5 Minutes",
+      value: "-5m",
+      selected: true,
+    },
+    {
+      label: "10 Minutes",
+      value: "-10m",
+      selected: false,
+    },
+    {
+      label: "15 Minutes",
+      value: "-15m",
+      selected: false,
+    },
+    {
+      label: "30 Minutes",
+      value: "-30m",
+      selected: false,
+    },
+    {
+      label: "45 Minutes",
+      value: "-45m",
+      selected: false,
+    },
+    {
+      label: "1 Hour",
+      value: "-1h",
+      selected: false,
+    },
+  ]);
+
+  const changeFilter = (type, value) => {
+    if (type === "host") {
+      setHosts((prevHosts) =>
+        prevHosts.map((host) =>
+          host._id === value
+            ? { ...host, selected: true }
+            : { ...host, selected: false }
+        )
+      );
+    } else if (type === "time") {
+      setEndTimes((prevEndTimes) =>
+        prevEndTimes.map((time) =>
+          time.value === value
+            ? { ...time, selected: true }
+            : { ...time, selected: false }
+        )
+      );
+    }
+
     getData();
+  };
+
+  const getSelected = () => {
+    const selectedHost = hosts.find((host) => host.selected);
+
+    const selectedTime = endTimes.find((time) => time.selected);
+
+    return {
+      host: selectedHost ? selectedHost._id : null,
+      time: selectedTime ? selectedTime.value : null,
+    };
+  };
+
+  useEffect(() => {
+    getHosts();
   }, []);
 
+  const getHosts = async () => {
+    setInitLoading(true);
+
+    const filter = {};
+
+    if (role?.value === "user") {
+      filter["user"] = _id;
+    }
+
+    try {
+      const { hosts } = await allHosts(filter);
+
+      const updatedHosts = hosts.map((host, index) => ({
+        ...host,
+        selected: index === 0,
+      }));
+
+      setHosts(updatedHosts);
+
+      getData();
+
+      toast("Hosts got");
+    } catch (error) {
+      toast(error.message);
+    }
+
+    setInitLoading(false);
+  };
+
   const getData = async () => {
+    const filter = getSelected();
+
+    console.log(filter);
+
     setLoading(true);
 
-    const hostID = "675a7603673d505e643b33ab";
+    const hostID = filter.host;
     const measurements = [
       "system_load_metrics",
       "memory_metrics",
@@ -52,7 +165,7 @@ const Index = () => {
       "network_io_metrics",
     ];
     const params = {
-      start: "-1h",
+      start: filter.time,
       end: "now()",
     };
 
@@ -94,6 +207,8 @@ const Index = () => {
       setDiskData(diskMetrics);
       setNetworkData(networkMetrics);
 
+      console.log(metrics);
+
       toast("Metrics got");
     } catch (error) {
       toast(error.message);
@@ -108,6 +223,46 @@ const Index = () => {
         <title>{"Dashboards"}</title>
       </Head>
       <Box width="100%">
+        {!initLoading ? (
+          <Box>
+            {hosts.map((item, index) => (
+              <Button
+                key={item._id}
+                variant={item.selected ? "contained" : "outlined"}
+                color="primary"
+                size="medium"
+                sx={{
+                  mr: index + 1 !== hosts.length,
+                  color: item.selected ? "white" : "primary.main",
+                }}
+                onClick={() => changeFilter("host", item._id)}
+              >
+                {item.name}
+              </Button>
+            ))}
+            <br />
+            <br />
+            {endTimes.map((item, index) => (
+              <Button
+                key={item.value}
+                variant={item.selected ? "contained" : "outlined"}
+                color="primary"
+                size="medium"
+                sx={{
+                  mr: index + 1 !== endTimes.length,
+                  color: item.selected ? "white" : "primary.main",
+                }}
+                onClick={() => changeFilter("time", item.value)}
+              >
+                {item.label}
+              </Button>
+            ))}
+          </Box>
+        ) : (
+          <Loading />
+        )}
+        <br />
+        <br />
         {!loading ? (
           <Box>
             <Grid container spacing={2}>
