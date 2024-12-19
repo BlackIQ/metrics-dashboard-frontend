@@ -1,9 +1,12 @@
-import { Typography, Container, Toolbar } from "@mui/material";
+import { Typography, Container, Toolbar, Button } from "@mui/material";
+
+import { useRouter } from "next/router";
 
 import Head from "next/head";
 
 export default function Index() {
-  console.log("Anirhossein");
+  const history = useRouter();
+
   return (
     <>
       <Head>
@@ -14,9 +17,22 @@ export default function Index() {
         <Typography color="primary" variant="h2" fontWeight="bold" gutterBottom>
           AMCE Monitoring
         </Typography>
-        <Typography color="secondary" variant="body1">
+        <Typography
+          color="secondary"
+          variant="body1"
+          sx={{ mb: 5 }}
+          gutterBottom
+        >
           And one day I will deploy this bitch online!
         </Typography>
+        <Button
+          variant="outlined"
+          color="primary"
+          onClick={() => history.push("/auth")}
+          size="large"
+        >
+          Continue
+        </Button>
       </Container>
     </>
   );
