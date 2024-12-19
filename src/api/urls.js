@@ -9,6 +9,7 @@ const urls = {
   host: "hosts",
   tag: "tags",
   group: "groups",
+  metrics: "metrics",
 };
 
 export default urls;
