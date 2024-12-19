@@ -36,6 +36,7 @@ import {
   Groups,
   Warning,
   Logout,
+  Dashboard,
 } from "@mui/icons-material";
 
 import { useToast } from "@/hooks";
@@ -152,23 +153,7 @@ const AppLayout = ({ children }) => {
       case "home":
         return <Home />;
       case "me":
-        return (
-          // <Box
-          //   sx={{
-          //     borderRadius: 1,
-          //     border: "solid 1px black",
-          //     height: "100%",
-          //     justifyContent: "center",
-          //     alignItems: "center",
-          //     display: "flex",
-          //     p: 0.1,
-          //   }}
-          // >
-          <Person />
-          // </Box>
-        );
-      case "logout":
-        return <Logout sx={{ color: "error.main" }} />;
+        return <Person />;
       case "hosts":
         return <Storage />;
       case "tags":
@@ -181,6 +166,10 @@ const AppLayout = ({ children }) => {
         return <Key />;
       case "users":
         return <Groups />;
+      case "dashboards":
+        return <Dashboard />;
+      case "logout":
+        return <Logout sx={{ color: "error.main" }} />;
       default:
         return <Warning />;
     }
