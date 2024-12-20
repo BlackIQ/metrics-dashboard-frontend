@@ -6,7 +6,7 @@ import { setUser } from "@/redux/actions/user";
 
 import { Form } from "@/components";
 import { useAuth } from "@/hooks";
-import { login } from "@/api/services/auth";
+import { login, register } from "@/api/services/auth";
 
 import { Box, Typography, Button, Container } from "@mui/material";
 import Head from "next/head";
@@ -47,16 +47,15 @@ const Auth = () => {
   const doRegister = async (callback) => {
     setLoading(true);
 
-    // try {
-    //   console.log(callback);
+    try {
+      const result = await register(callback);
+      const { user, token } = result;
 
-    //   // const result = await login(callback);
-    //   // const { user, token } = result;
-    //   // dispatch(setUser(user));
-    //   // dispatch(setSession(token));
-    // } catch (error) {
-    //   alert(error.message);
-    // }
+      dispatch(setUser(user));
+      dispatch(setSession(token));
+    } catch (error) {
+      alert(error.message);
+    }
 
     setLoading(false);
   };
