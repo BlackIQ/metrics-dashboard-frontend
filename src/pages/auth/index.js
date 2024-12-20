@@ -49,6 +49,7 @@ const Auth = () => {
 
     try {
       const result = await register(callback);
+
       const { user, token } = result;
 
       dispatch(setUser(user));
