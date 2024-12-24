@@ -6,7 +6,7 @@ const Index = () => {
   return (
     <>
       <Head>
-        <title>Panel</title>
+        <title>Panel - OpenHubble Console</title>
       </Head>
 
       <Box>Nothing</Box>

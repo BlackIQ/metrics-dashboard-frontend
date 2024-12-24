@@ -151,8 +151,6 @@ const Index = () => {
   const getData = async () => {
     const filter = getSelected();
 
-    console.log(filter);
-
     setLoading(true);
 
     const hostID = filter.host;
@@ -220,7 +218,7 @@ const Index = () => {
   return (
     <>
       <Head>
-        <title>{"Dashboards"}</title>
+        <title>Dashboards - OpenHubble Console</title>
       </Head>
       <Box width="100%">
         {!initLoading ? (

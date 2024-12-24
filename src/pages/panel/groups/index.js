@@ -83,7 +83,7 @@ const Index = () => {
   return (
     <>
       <Head>
-        <title>{"Groups"}</title>
+        <title>Groups - OpenHubble Console</title>
       </Head>
       <Box>
         {!loading ? (

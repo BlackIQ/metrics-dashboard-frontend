@@ -8,7 +8,7 @@ const NotFound = () => {
   return (
     <>
       <Head>
-        <title>Not Found</title>
+        <title>404 - OpenHubble Console</title>
       </Head>
       <Box
         sx={{

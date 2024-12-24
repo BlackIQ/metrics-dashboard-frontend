@@ -10,12 +10,12 @@ export default function Index() {
   return (
     <>
       <Head>
-        <title>Monitoring</title>
+        <title>OpenHubble Console</title>
       </Head>
       <Container maxWidth="lg">
         <Toolbar />
         <Typography color="primary" variant="h2" fontWeight="bold" gutterBottom>
-          AMCE Monitoring
+          OpenHubble Console
         </Typography>
         <Typography
           color="secondary"
@@ -23,7 +23,7 @@ export default function Index() {
           sx={{ mb: 5 }}
           gutterBottom
         >
-          And one day I will deploy this bitch online!
+          Exploring Data, Unveiling Insights!
         </Typography>
         <Button
           variant="outlined"

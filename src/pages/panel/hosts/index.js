@@ -91,7 +91,7 @@ const Index = () => {
   return (
     <>
       <Head>
-        <title>{"Hosts"}</title>
+        <title>Hosts - OpenHubble Console</title>
       </Head>
       <Box>
         {!loading ? (

@@ -64,7 +64,7 @@ const Auth = () => {
   return (
     <>
       <Head>
-        <title>Authentication</title>
+        <title>Authentication - OpenHubble Console</title>
       </Head>
       <Container maxWidth="xs">
         <Box

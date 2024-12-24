@@ -75,7 +75,7 @@ const Index = () => {
   return (
     <>
       <Head>
-        <title>{"Settings"}</title>
+        <title>Settings - OpenHubble Console</title>
       </Head>
       <Container>
         <Grid container spacing={4}>

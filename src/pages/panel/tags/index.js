@@ -80,7 +80,7 @@ const Index = () => {
   return (
     <>
       <Head>
-        <title>{"Tags"}</title>
+        <title>Tags - OpenHubble Console</title>
       </Head>
       <Box>
         {!loading ? (

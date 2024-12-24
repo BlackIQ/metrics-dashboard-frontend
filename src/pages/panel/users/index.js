@@ -59,7 +59,7 @@ const Index = () => {
   return (
     <>
       <Head>
-        <title>{"Users"}</title>
+        <title>Users - OpenHubble Console</title>
       </Head>
       <Box>
         {!loading ? (

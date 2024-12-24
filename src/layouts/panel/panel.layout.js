@@ -209,7 +209,7 @@ const AppLayout = ({ children }) => {
               }}
             >
               {/* {open && (
-                <Typography color="primary" variant="h4">AMCE</Typography>
+                <Typography color="primary" variant="h4">Open Hubble</Typography>
               )} */}
               <IconButton onClick={handleDrawer} sx={{ borderRadius: 2 }}>
                 <MenuIcon color="primary" />
