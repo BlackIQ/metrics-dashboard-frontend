@@ -155,12 +155,12 @@ const Index = () => {
 
     const hostID = filter.host;
     const measurements = [
-      "system_load_metrics",
-      "memory_metrics",
-      "cpu_metrics",
-      "swap_metrics",
-      "disk_io_metrics",
-      "network_io_metrics",
+      "host_system_load_metrics",
+      "host_memory_metrics",
+      "host_cpu_metrics",
+      "host_swap_metrics",
+      "host_disk_io_metrics",
+      "host_network_io_metrics",
     ];
     const params = {
       start: filter.time,
@@ -180,22 +180,22 @@ const Index = () => {
       // ];
 
       const systemloadMetrics = metrics.filter(
-        (item) => item._measurement === "system_load_metrics"
+        (item) => item._measurement === "host_system_load_metrics"
       );
       const memoryMetrics = metrics.filter(
-        (item) => item._measurement === "memory_metrics"
+        (item) => item._measurement === "host_memory_metrics"
       );
       const cpuMetrics = metrics.filter(
-        (item) => item._measurement === "cpu_metrics"
+        (item) => item._measurement === "host_cpu_metrics"
       );
       // const swapMetrics = metrics.filter(
-      //   (item) => item._measurement === "cpu_metrics"
+      //   (item) => item._measurement === "host_cpu_metrics"
       // );
       const diskMetrics = metrics.filter(
-        (item) => item._measurement === "disk_io_metrics"
+        (item) => item._measurement === "host_disk_io_metrics"
       );
       const networkMetrics = metrics.filter(
-        (item) => item._measurement === "network_io_metrics"
+        (item) => item._measurement === "host_network_io_metrics"
       );
 
       setSystemloadData(systemloadMetrics);
