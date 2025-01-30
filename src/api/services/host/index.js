@@ -54,3 +54,13 @@ export const updateOne = async (id, data) => {
     return Promise.reject(error.response.data);
   }
 };
+
+export const checkOne = async (data) => {
+  try {
+    const response = await API.post(`${host}/check`, data);
+
+    return Promise.resolve(response.data);
+  } catch (error) {
+    return Promise.reject(error.response.data);
+  }
+};
