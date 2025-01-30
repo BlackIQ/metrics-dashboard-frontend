@@ -5,7 +5,7 @@ const { metrics } = URLs;
 
 export const READ = async (
   hostID,
-  measurements = ["system_load_metrics"],
+  measurements = ["host_system_load_metrics"],
   start = "-1m",
   end = "now()"
 ) => {
