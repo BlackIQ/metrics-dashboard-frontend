@@ -9,11 +9,13 @@ import {
   createOne as createHost,
   updateOne as updateHost,
   deleteOne as deleteHost,
+  checkOne as checkHost,
 } from "@/api/services/host";
 
 // Redux
 import { useSelector } from "react-redux";
-import { Box, Button, Divider, Typography } from "@mui/material";
+import { Box, Button, colors, Divider, Typography } from "@mui/material";
+import { useState } from "react";
 
 const HostForm = ({
   currentData,
@@ -29,6 +31,8 @@ const HostForm = ({
   const { _id } = useSelector((state) => state.user);
 
   const { isOpen: confirmOpen, onToggle: handleConfirm } = useDisclosure();
+
+  const [formData, setFormData] = useState({});
 
   const addData = async (callback) => {
     setLoading(true);
@@ -135,7 +139,71 @@ const HostForm = ({
     setLoading(false);
   };
 
-  console.log(extraData);
+  const [checkState, setCheckState] = useState(null);
+  const handleCheckState = async () => {
+    const { ip, dns, port, ipCommunication } = formData;
+
+    if (port <= 0 || port > 65535) {
+      toast("Port number must be between 1 and 65535.");
+      setLoading(false);
+      return;
+    }
+
+    if (!ip && !dns) {
+      toast("Either IP or DNS must be provided.");
+      setLoading(false);
+      return;
+    }
+
+    if (ipCommunication && !ip) {
+      toast("IP is required when communication is IP.");
+      setLoading(false);
+      return;
+    }
+
+    if (!ipCommunication && !dns) {
+      toast("IP is required when communication is DNS.");
+      setLoading(false);
+      return;
+    }
+
+    const host = { ip, dns, port, ipCommunication };
+
+    try {
+      await checkHost({
+        host,
+      });
+
+      toast("Host is live!");
+      setCheckState(true);
+    } catch (error) {
+      toast(error.message);
+      setCheckState(false);
+    }
+
+    setLoading(false);
+  };
+  const getCheckStateColors = (state) => {
+    if (state === null) {
+      return {
+        text: "textSecondary",
+        btnBG: colors.grey[600],
+        btnTEXT: "white",
+      };
+    } else if (state === true) {
+      return {
+        text: "success",
+        btnBG: colors.green[600],
+        btnTEXT: "white",
+      };
+    } else if (state === false) {
+      return {
+        text: "error",
+        btnBG: colors.red[600],
+        btnTEXT: "white",
+      };
+    }
+  };
 
   return (
     <>
@@ -146,6 +214,7 @@ const HostForm = ({
           groups: extraData.groups,
           tags: extraData.tags,
         }}
+        change={(fData) => setFormData(fData)}
         disables={[]}
         btnStyle={{
           fullWidth: false,
@@ -162,6 +231,40 @@ const HostForm = ({
         }
         button={updateMode ? "Update" : "Create"}
       />
+
+      <Box sx={{ mt: 3 }}>
+        <Typography
+          color={getCheckStateColors(checkState).text}
+          variant="h6"
+          gutterBottom
+        >
+          Test Connection
+        </Typography>
+        <Divider color="" sx={{ mb: 1 }} />
+        <Typography
+          variant="body2"
+          color={getCheckStateColors(checkState).text}
+          sx={{ mb: 1 }}
+          gutterBottom
+        >
+          If you want to check agent is available or your cerdentionial is
+          right, you can check with this button bellow.
+        </Typography>
+        <Button
+          variant="contained"
+          color="inherit"
+          size="medium"
+          onClick={handleCheckState}
+          sx={{
+            background: getCheckStateColors(checkState).btnBG,
+            color: "white",
+            borderRadius: 1,
+          }}
+          disableElevation
+        >
+          Check
+        </Button>
+      </Box>
 
       {updateMode && (
         <Box sx={{ mt: 3 }}>
