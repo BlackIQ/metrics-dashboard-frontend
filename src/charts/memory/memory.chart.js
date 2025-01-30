@@ -38,39 +38,39 @@ const MemoryChart = ({ metrics, height }) => {
     ];
 
     const datasets = [
-      {
-        label: "Total",
-        data: data
-          .filter((item) => item._field === "total")
-          .map((item) => item._value),
-        borderColor: colors.red[500],
-        backgroundColor: `${colors.red[200]}40`,
-        borderWidth: 1,
-        fill: true,
-        tension: 0,
-      },
-      {
-        label: "Available",
-        data: data
-          .filter((item) => item._field === "available")
-          .map((item) => item._value),
-        borderColor: colors.yellow[500],
-        backgroundColor: `${colors.yellow[200]}40`,
-        borderWidth: 1,
-        fill: true,
-        tension: 0,
-      },
-      {
-        label: "Used",
-        data: data
-          .filter((item) => item._field === "used")
-          .map((item) => item._value),
-        borderColor: colors.lightBlue[500],
-        backgroundColor: `${colors.lightBlue[200]}40`,
-        borderWidth: 1,
-        fill: true,
-        tension: 0,
-      },
+      // {
+      //   label: "Total",
+      //   data: data
+      //     .filter((item) => item._field === "total")
+      //     .map((item) => item._value),
+      //   borderColor: colors.red[500],
+      //   backgroundColor: `${colors.red[200]}40`,
+      //   borderWidth: 1,
+      //   fill: true,
+      //   tension: 0,
+      // },
+      // {
+      //   label: "Available",
+      //   data: data
+      //     .filter((item) => item._field === "available")
+      //     .map((item) => item._value),
+      //   borderColor: colors.yellow[500],
+      //   backgroundColor: `${colors.yellow[200]}40`,
+      //   borderWidth: 1,
+      //   fill: true,
+      //   tension: 0,
+      // },
+      // {
+      //   label: "Used",
+      //   data: data
+      //     .filter((item) => item._field === "used")
+      //     .map((item) => item._value),
+      //   borderColor: colors.lightBlue[500],
+      //   backgroundColor: `${colors.lightBlue[200]}40`,
+      //   borderWidth: 1,
+      //   fill: true,
+      //   tension: 0,
+      // },
       {
         label: "Percentage",
         data: data
