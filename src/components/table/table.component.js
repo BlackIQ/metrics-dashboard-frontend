@@ -114,6 +114,10 @@ const TableComponent = ({
         return formatterData(new Date(d["createdAt"]), "yyyy/MM/dd");
       case "ipCommunication":
         return d["ipCommunication"] ? "IP" : "DNS";
+      case "dockerMetrics":
+        return (
+          <Chip label={d["dockerMetrics"] ? "Yes" : "No"} color="default" />
+        );
       case "agentAvailable":
         return d["isActive"] ? (
           d["agentAvailable"] ? (
