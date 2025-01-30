@@ -21,3 +21,14 @@ export const activeTypes = [
     value: false,
   },
 ];
+
+export const dockerTypes = [
+  {
+    label: "Yes, collect Docker metrics",
+    value: true,
+  },
+  {
+    label: "No, just host metrics",
+    value: false,
+  },
+];
