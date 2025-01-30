@@ -20,6 +20,7 @@ const tables = {
     fields: {
       name: "Hostname",
       agentAvailable: "Status",
+      dockerMetrics: "Docker",
       ip: "IP",
       dns: "DNS",
       port: "Port",

@@ -1,4 +1,4 @@
-import { communicationTypes, activeTypes } from "@/data";
+import { communicationTypes, activeTypes, dockerTypes } from "@/data";
 
 const forms = {
   login: {
@@ -268,6 +268,15 @@ const forms = {
       label: "Communication",
       placeholder: "Choose agent communication",
       options: communicationTypes,
+      // advanced: {
+      //   required: true,
+      // },
+    },
+    dockerMetrics: {
+      type: "select",
+      label: "Docker",
+      placeholder: "You can choose to collect Docker metrics",
+      options: dockerTypes,
       // advanced: {
       //   required: true,
       // },
