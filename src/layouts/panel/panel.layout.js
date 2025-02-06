@@ -7,8 +7,8 @@ import {
   IconButton,
   ListItemIcon,
   CssBaseline,
+  Divider,
   Typography,
-  Drawer,
 } from "@mui/material";
 
 import { useRouter } from "next/router";
@@ -301,7 +301,7 @@ const AppLayout = ({ children }) => {
                   color="primary"
                   gutterBottom
                 >
-                  pgPoolAdmin
+                  OpenHubble
                 </Typography>
                 <Typography variant="body2" gutterBottom>
                   Cloud Console
