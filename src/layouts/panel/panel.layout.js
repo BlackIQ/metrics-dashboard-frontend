@@ -7,6 +7,8 @@ import {
   IconButton,
   ListItemIcon,
   CssBaseline,
+  Typography,
+  Drawer,
 } from "@mui/material";
 
 import { useRouter } from "next/router";
@@ -40,6 +42,8 @@ import {
 } from "@mui/icons-material";
 
 import { useToast } from "@/hooks";
+
+import { appConfig } from "@/config";
 
 const openedMixin = (theme, dw) => ({
   width: dw,
@@ -282,6 +286,32 @@ const AppLayout = ({ children }) => {
               />
             </ListItemButton>
           </List>
+          {open && (
+            <Box>
+              <Divider />
+              <br />
+              <Box
+                sx={{
+                  textAlign: "center",
+                }}
+              >
+                <Typography
+                  variant="h6"
+                  fontWeight="bold"
+                  color="primary"
+                  gutterBottom
+                >
+                  pgPoolAdmin
+                </Typography>
+                <Typography variant="body2" gutterBottom>
+                  Cloud Console
+                </Typography>
+                <Typography variant="caption" gutterBottom>
+                  {appConfig.version}
+                </Typography>
+              </Box>
+            </Box>
+          )}
         </Drawer>
         <Box
           component="main"
