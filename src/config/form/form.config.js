@@ -1,5 +1,12 @@
 import { communicationTypes, activeTypes, dockerTypes } from "@/data";
 
+// ----- GRID BEGIN -----
+// xs: Extra small (default, for mobile, typically <600px)
+// sm: Small (tablets, 600px+)
+// md: Medium (desktops, 900px+)
+// lg: Large (larger screens, 1200px+)
+// ----- GRID FINISH ----
+
 const forms = {
   login: {
     email: {
@@ -7,6 +14,12 @@ const forms = {
       label: "Email",
       placeholder: "Enter your email",
       secure: false,
+      grid: {
+        xs: 12,
+        sm: 12,
+        md: 12,
+        lg: 12,
+      },
       advanced: {
         required: true,
       },
@@ -16,6 +29,12 @@ const forms = {
       label: "Password",
       placeholder: "Enter your password",
       secure: true,
+      grid: {
+        xs: 12,
+        sm: 12,
+        md: 12,
+        lg: 12,
+      },
       advanced: {
         required: true,
       },
@@ -27,6 +46,12 @@ const forms = {
       label: "First Name",
       placeholder: "Enter your firstname",
       secure: false,
+      grid: {
+        xs: 12,
+        sm: 12,
+        md: 12,
+        lg: 6,
+      },
       advanced: {
         required: true,
       },
@@ -36,6 +61,12 @@ const forms = {
       label: "Last Name",
       placeholder: "Enter your lastname",
       secure: false,
+      grid: {
+        xs: 12,
+        sm: 12,
+        md: 12,
+        lg: 6,
+      },
       advanced: {
         required: true,
       },
@@ -45,6 +76,12 @@ const forms = {
       label: "Email",
       placeholder: "Enter your email",
       secure: false,
+      grid: {
+        xs: 12,
+        sm: 12,
+        md: 12,
+        lg: 12,
+      },
       advanced: {
         required: true,
       },
@@ -54,6 +91,12 @@ const forms = {
       label: "Password",
       placeholder: "Choose a strong password",
       secure: true,
+      grid: {
+        xs: 12,
+        sm: 12,
+        md: 12,
+        lg: 12,
+      },
       advanced: {
         required: true,
       },
@@ -74,6 +117,12 @@ const forms = {
       label: "Firstname",
       placeholder: "Enter user firstname",
       secure: false,
+      grid: {
+        xs: 12,
+        sm: 12,
+        md: 12,
+        lg: 12,
+      },
       advanced: {
         required: true,
       },
@@ -83,6 +132,12 @@ const forms = {
       label: "Lastname",
       placeholder: "Enter user lastname",
       secure: false,
+      grid: {
+        xs: 12,
+        sm: 12,
+        md: 12,
+        lg: 12,
+      },
       advanced: {
         required: true,
       },
@@ -92,6 +147,12 @@ const forms = {
       label: "Email",
       placeholder: "Enter user email",
       secure: false,
+      grid: {
+        xs: 12,
+        sm: 12,
+        md: 12,
+        lg: 12,
+      },
       advanced: {
         required: true,
       },
@@ -101,6 +162,12 @@ const forms = {
       label: "Role",
       placeholder: "Enter user role",
       secure: false,
+      grid: {
+        xs: 12,
+        sm: 12,
+        md: 12,
+        lg: 12,
+      },
       advanced: {
         required: true,
       },
@@ -112,6 +179,12 @@ const forms = {
       label: "Firstname",
       placeholder: "Enter user firstname",
       secure: false,
+      grid: {
+        xs: 12,
+        sm: 6,
+        md: 6,
+        lg: 6,
+      },
       advanced: {
         required: true,
       },
@@ -121,6 +194,12 @@ const forms = {
       label: "Lastname",
       placeholder: "Enter user lastname",
       secure: false,
+      grid: {
+        xs: 12,
+        sm: 6,
+        md: 6,
+        lg: 6,
+      },
       advanced: {
         required: true,
       },
@@ -130,6 +209,12 @@ const forms = {
       label: "Email",
       placeholder: "Enter user email",
       secure: false,
+      grid: {
+        xs: 12,
+        sm: 12,
+        md: 12,
+        lg: 12,
+      },
       advanced: {
         required: true,
       },
@@ -141,6 +226,12 @@ const forms = {
       label: "New password",
       placeholder: "Enter your new password",
       secure: true,
+      grid: {
+        xs: 12,
+        sm: 12,
+        md: 12,
+        lg: 12,
+      },
       advanced: {
         required: true,
       },
@@ -150,6 +241,12 @@ const forms = {
       label: "Confirm password",
       placeholder: "Enter your confirm password",
       secure: true,
+      grid: {
+        xs: 12,
+        sm: 12,
+        md: 12,
+        lg: 12,
+      },
       advanced: {
         required: true,
       },
@@ -161,6 +258,12 @@ const forms = {
       label: "Name",
       placeholder: "Enter permission name",
       secure: false,
+      grid: {
+        xs: 12,
+        sm: 12,
+        md: 12,
+        lg: 12,
+      },
       advanced: {
         required: true,
       },
@@ -170,6 +273,12 @@ const forms = {
       label: "Identifier",
       placeholder: "Enter identifier name",
       secure: false,
+      grid: {
+        xs: 12,
+        sm: 12,
+        md: 12,
+        lg: 12,
+      },
       advanced: {
         required: true,
       },
@@ -181,6 +290,12 @@ const forms = {
       label: "Name",
       placeholder: "Enter role name",
       secure: false,
+      grid: {
+        xs: 12,
+        sm: 12,
+        md: 12,
+        lg: 12,
+      },
       advanced: {
         required: true,
       },
@@ -190,6 +305,12 @@ const forms = {
       label: "Identifier",
       placeholder: "Enter identifier name",
       secure: false,
+      grid: {
+        xs: 12,
+        sm: 12,
+        md: 12,
+        lg: 12,
+      },
       advanced: {
         required: true,
       },
@@ -199,6 +320,12 @@ const forms = {
       label: "Permissions",
       placeholder: "Choose permissions",
       secure: false,
+      grid: {
+        xs: 12,
+        sm: 12,
+        md: 12,
+        lg: 12,
+      },
       advanced: {
         required: true,
       },
@@ -210,6 +337,12 @@ const forms = {
       label: "Name",
       placeholder: "Enter tag name",
       secure: false,
+      grid: {
+        xs: 12,
+        sm: 12,
+        md: 12,
+        lg: 12,
+      },
       advanced: {
         required: true,
       },
@@ -221,6 +354,12 @@ const forms = {
       label: "Name",
       placeholder: "Enter group name",
       secure: false,
+      grid: {
+        xs: 12,
+        sm: 12,
+        md: 12,
+        lg: 12,
+      },
       advanced: {
         required: true,
       },
@@ -232,6 +371,12 @@ const forms = {
       label: "Hostname",
       placeholder: "Enter host name",
       secure: false,
+      grid: {
+        xs: 12,
+        sm: 12,
+        md: 12,
+        lg: 12,
+      },
       advanced: {
         required: true,
       },
@@ -241,6 +386,12 @@ const forms = {
       label: "IP",
       placeholder: "Enter host IP",
       secure: false,
+      grid: {
+        xs: 12,
+        sm: 6,
+        md: 6,
+        lg: 6,
+      },
       // advanced: {
       //   required: true,
       // },
@@ -250,6 +401,12 @@ const forms = {
       label: "DNS",
       placeholder: "Enter host DNS",
       secure: false,
+      grid: {
+        xs: 12,
+        sm: 6,
+        md: 6,
+        lg: 6,
+      },
       // advanced: {
       //   required: true,
       // },
@@ -259,15 +416,12 @@ const forms = {
       label: "Port",
       placeholder: "Enter host port",
       secure: false,
-      advanced: {
-        required: true,
+      grid: {
+        xs: 12,
+        sm: 6,
+        md: 6,
+        lg: 6,
       },
-    },
-    apiKey: {
-      type: "text",
-      label: "API Key",
-      placeholder: "Enter host API Key",
-      secure: false,
       advanced: {
         required: true,
       },
@@ -277,15 +431,42 @@ const forms = {
       label: "Communication",
       placeholder: "Choose agent communication",
       options: communicationTypes,
+      grid: {
+        xs: 12,
+        sm: 6,
+        md: 6,
+        lg: 6,
+      },
       // advanced: {
       //   required: true,
       // },
+    },
+    apiKey: {
+      type: "text",
+      label: "API Key",
+      placeholder: "Enter host API Key",
+      secure: false,
+      grid: {
+        xs: 12,
+        sm: 12,
+        md: 12,
+        lg: 12,
+      },
+      advanced: {
+        required: true,
+      },
     },
     dockerMetrics: {
       type: "select",
       label: "Docker",
       placeholder: "You can choose to collect Docker metrics",
       options: dockerTypes,
+      grid: {
+        xs: 12,
+        sm: 6,
+        md: 6,
+        lg: 6,
+      },
       // advanced: {
       //   required: true,
       // },
@@ -295,6 +476,12 @@ const forms = {
       label: "Active / Inactive",
       placeholder: "Is agent active or not!?",
       options: activeTypes,
+      grid: {
+        xs: 12,
+        sm: 6,
+        md: 6,
+        lg: 6,
+      },
       // advanced: {
       //   required: true,
       // },
@@ -304,6 +491,12 @@ const forms = {
       label: "Groups",
       placeholder: "Choose groups",
       secure: false,
+      grid: {
+        xs: 12,
+        sm: 12,
+        md: 12,
+        lg: 12,
+      },
       // advanced: {
       //   required: true,
       // },
@@ -313,6 +506,12 @@ const forms = {
       label: "Tags",
       placeholder: "Choose tags",
       secure: false,
+      grid: {
+        xs: 12,
+        sm: 12,
+        md: 12,
+        lg: 12,
+      },
       // advanced: {
       //   required: true,
       // },
