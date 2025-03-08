@@ -1,12 +1,6 @@
 import React from "react";
-
-// MUI
 import { Box, Typography, colors } from "@mui/material";
-
-// React ChartJs
 import { Line } from "react-chartjs-2";
-
-// ChartJs
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -19,7 +13,6 @@ import {
   Legend,
 } from "chart.js";
 
-// Register ChartJs
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -34,109 +27,87 @@ ChartJS.register(
 const CpuChart = ({ metrics, height }) => {
   const formatChartData = (data) => {
     const labels = [
-      ...new Set(data.map((item) => new Date(item._time).toLocaleString())),
+      ...new Set(
+        data.map((item) =>
+          new Date(item._time).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          })
+        )
+      ),
     ];
 
     const datasets = [
-      // {
-      //   label: "Cores",
-      //   data: data
-      //     .filter((item) => item._field === "total_cores")
-      //     .map((item) => item._value),
-      //   borderColor: colors.red[500],
-      //   backgroundColor: `${colors.red[200]}40`,
-      //   borderWidth: 1,
-      //   fill: true,
-      //   tension: 0,
-      // },
-      // {
-      //   label: "Frequency",
-      //   data: data
-      //     .filter((item) => item._field === "frequency_mhz")
-      //     .map((item) => item._value),
-      //   borderColor: colors.lightBlue[500],
-      //   backgroundColor: `${colors.lightBlue[200]}40`,
-      //   borderWidth: 1,
-      //   fill: true,
-      //   tension: 0,
-      // },
       {
-        label: "Percentage",
+        label: "CPU Usage (%)",
         data: data
           .filter((item) => item._field === "total_usage")
           .map((item) => item._value),
         borderColor: colors.teal[500],
-        backgroundColor: `${colors.teal[200]}26`,
-        borderWidth: 1,
+        backgroundColor: `${colors.teal[200]}30`,
+        borderWidth: 2,
         fill: true,
-        tension: 0,
+        tension: 0.3,
+        pointRadius: 0,
       },
     ];
 
     return { labels, datasets };
   };
 
-  // const [delayed, setDelayed] = useState(false);
-
   return (
     <Box>
       <Typography
         variant="h6"
         color={colors.common["white"]}
-        sx={{
-          textAlign: "center",
-          pb: 2,
-        }}
+        sx={{ textAlign: "center", pb: 1 }}
         gutterBottom
       >
         CPU Usage
       </Typography>
-      <Line
-        width="100%"
-        height={height}
-        data={formatChartData(metrics)}
-        options={{
-          plugins: {
-            legend: {
-              position: "top",
-            },
-          },
-          // animation: {
-          //   onComplete: () => {
-          //     setDelayed(true);
-          //   },
-          //   delay: (context) => {
-          //     let delay = 0;
-
-          //     if (
-          //       context.type === "data" &&
-          //       context.mode === "default" &&
-          //       !delayed
-          //     ) {
-          //       delay =
-          //         context.dataIndex * 300 +
-          //         context.datasetIndex * 100;
-          //     }
-
-          //     return delay;
-          //   },
-          // },
-          scales: {
-            x: {
-              title: {
-                display: true,
-                text: "Time",
+      <Box height="100%">
+        <Line
+          width="100%"
+          height="100%"
+          data={formatChartData(metrics)}
+          options={{
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                display: false,
+              },
+              tooltip: {
+                callbacks: {
+                  label: (context) => `${context.raw}%`,
+                },
               },
             },
-            y: {
-              title: {
-                display: true,
-                text: "Value",
+            scales: {
+              x: {
+                ticks: {
+                  maxRotation: 0,
+                  minRotation: 0,
+                  autoSkip: true,
+                  maxTicksLimit: 6,
+                },
+                grid: {
+                  display: false,
+                },
+              },
+              y: {
+                beginAtZero: true,
+                ticks: {
+                  callback: (value) => `${value}%`,
+                },
+                grid: {
+                  color: "#444",
+                },
               },
             },
-          },
-        }}
-      />
+          }}
+        />
+      </Box>
     </Box>
   );
 };

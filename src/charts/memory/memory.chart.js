@@ -38,39 +38,6 @@ const MemoryChart = ({ metrics, height }) => {
     ];
 
     const datasets = [
-      // {
-      //   label: "Total",
-      //   data: data
-      //     .filter((item) => item._field === "total")
-      //     .map((item) => item._value),
-      //   borderColor: colors.red[500],
-      //   backgroundColor: `${colors.red[200]}40`,
-      //   borderWidth: 1,
-      //   fill: true,
-      //   tension: 0,
-      // },
-      // {
-      //   label: "Available",
-      //   data: data
-      //     .filter((item) => item._field === "available")
-      //     .map((item) => item._value),
-      //   borderColor: colors.yellow[500],
-      //   backgroundColor: `${colors.yellow[200]}40`,
-      //   borderWidth: 1,
-      //   fill: true,
-      //   tension: 0,
-      // },
-      // {
-      //   label: "Used",
-      //   data: data
-      //     .filter((item) => item._field === "used")
-      //     .map((item) => item._value),
-      //   borderColor: colors.lightBlue[500],
-      //   backgroundColor: `${colors.lightBlue[200]}40`,
-      //   borderWidth: 1,
-      //   fill: true,
-      //   tension: 0,
-      // },
       {
         label: "Percentage",
         data: data
@@ -86,8 +53,6 @@ const MemoryChart = ({ metrics, height }) => {
 
     return { labels, datasets };
   };
-
-  // const [delayed, setDelayed] = useState(false);
 
   return (
     <Box>
@@ -112,26 +77,6 @@ const MemoryChart = ({ metrics, height }) => {
               position: "top",
             },
           },
-          // animation: {
-          //   onComplete: () => {
-          //     setDelayed(true);
-          //   },
-          //   delay: (context) => {
-          //     let delay = 0;
-
-          //     if (
-          //       context.type === "data" &&
-          //       context.mode === "default" &&
-          //       !delayed
-          //     ) {
-          //       delay =
-          //         context.dataIndex * 300 +
-          //         context.datasetIndex * 100;
-          //     }
-
-          //     return delay;
-          //   },
-          // },
           scales: {
             x: {
               title: {
