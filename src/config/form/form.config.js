@@ -263,6 +263,15 @@ const forms = {
         required: true,
       },
     },
+    apiKey: {
+      type: "text",
+      label: "API Key",
+      placeholder: "Enter host API Key",
+      secure: false,
+      advanced: {
+        required: true,
+      },
+    },
     ipCommunication: {
       type: "select",
       label: "Communication",
