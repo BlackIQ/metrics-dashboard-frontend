@@ -4,7 +4,7 @@ import { ThemeProvider, CssBaseline } from "@mui/material";
 import theme from "@/theme";
 import { Toast } from "@/components";
 
-const AuthLayout = ({ children }) => {
+const AppLayout = ({ children }) => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -17,4 +17,4 @@ const AuthLayout = ({ children }) => {
   );
 };
 
-export default AuthLayout;
+export default AppLayout;

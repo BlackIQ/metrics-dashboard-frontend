@@ -99,7 +99,7 @@ const Drawer = styled(MuiDrawer, {
   }),
 }));
 
-const AppLayout = ({ children }) => {
+const PanelLayout = ({ children }) => {
   const history = useRouter();
   const dispatch = useDispatch();
 
@@ -329,4 +329,4 @@ const AppLayout = ({ children }) => {
   );
 };
 
-export default AppLayout;
+export default PanelLayout;
