@@ -1,25 +1,34 @@
 import { useDispatch } from "react-redux";
 import { useState } from "react";
-
 import { setSession } from "@/redux/actions/session";
 import { setUser } from "@/redux/actions/user";
-
 import { Form } from "@/components";
 import { useAuth } from "@/hooks";
 import { login, register } from "@/api/services/auth";
-
-import { Box, Typography, Button, Container } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Button,
+  Grid,
+  Container,
+  Fade,
+  keyframes,
+} from "@mui/material";
 import Head from "next/head";
-
 import { useToast } from "@/hooks";
+
+// Neon glow animation
+const neonGlow = keyframes`
+  0% { text-shadow: 0 0 5px #00e5ff, 0 0 10px #00e5ff, 0 0 15px #00e5ff, 0 0 20px #00b8d4; }
+  50% { text-shadow: 0 0 8px #00e5ff, 0 0 15px #00e5ff, 0 0 25px #00e5ff, 0 0 30px #00b8d4; }
+  100% { text-shadow: 0 0 5px #00e5ff, 0 0 10px #00e5ff, 0 0 15px #00e5ff, 0 0 20px #00b8d4; }
+`;
 
 const Auth = () => {
   useAuth();
-
   const dispatch = useDispatch();
   const toast = useToast();
 
-  // Loading
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState("login");
 
@@ -29,36 +38,30 @@ const Auth = () => {
 
   const doLogin = async (callback) => {
     setLoading(true);
-
     try {
       const result = await login(callback);
-
       const { user, token } = result;
-
       dispatch(setUser(user));
       dispatch(setSession(token));
     } catch (error) {
-      toast(error.message);
+      toast(error.message, { severity: "error" });
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   const doRegister = async (callback) => {
     setLoading(true);
-
     try {
       const result = await register(callback);
-
       const { user, token } = result;
-
       dispatch(setUser(user));
       dispatch(setSession(token));
     } catch (error) {
-      alert(error.message);
+      toast(error.message, { severity: "error" });
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (
@@ -66,61 +69,189 @@ const Auth = () => {
       <Head>
         <title>Authentication - OpenHubble Console</title>
       </Head>
-      <Container maxWidth="xs">
-        <Box
-          sx={{
-            textAlign: "center",
-            height: "100vh",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Box
+      <Box
+        sx={{
+          minHeight: "100vh",
+          background: "linear-gradient(135deg, #1a1a1a 0%, #222 100%)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          overflow: "hidden",
+          position: "relative",
+        }}
+      >
+        <Grid container sx={{ minHeight: "100vh" }}>
+          {/* Left Panel (Hidden on Mobile) */}
+          <Grid
+            item
+            xs={false}
+            md={6}
             sx={{
-              backdropFilter: "blur(15px)",
-              bgcolor: "rgba(255, 255, 255, 0.1)",
+              background:
+                "linear-gradient(45deg, #00b8d4 0%, #00e5ff 50%, #00b8d4 100%)",
+              display: { xs: "none", md: "flex" },
+              alignItems: "center",
+              justifyContent: "center",
+              color: "white",
               p: 4,
-              borderRadius: 2,
+              position: "relative",
+              "&:before": {
+                content: '""',
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background: "rgba(0, 0, 0, 0.2)",
+                zIndex: 1,
+              },
             }}
           >
-            <Typography
-              variant="h5"
-              color="primary.main"
-              fontWeight="500"
-              fontSize={30}
-              gutterBottom
-            >
-              {mode === "login" ? "Login" : "Register"}
-            </Typography>
-            <Form
-              name={mode}
-              callback={mode === "login" ? doLogin : doRegister}
-              button={mode === "login" ? "Login" : "Register"}
-              btnStyle={{
-                fullWidth: true,
-                disabled: loading,
-              }}
-              disables={[]}
-            />
-            <Button
-              variant="outlined"
-              onClick={changeMode}
-              sx={{
-                mt: 2,
-                p: 1.5,
-                borderRadius: 1,
-              }}
-              fullWidth
-              disableElevation
-            >
-              {mode === "login" ? "Register" : "Login"}
-            </Button>
-          </Box>
-        </Box>
-      </Container>
+            <Fade in timeout={1000}>
+              <Box sx={{ textAlign: "center", zIndex: 2 }}>
+                <Typography
+                  variant="h3"
+                  fontWeight="bold"
+                  gutterBottom
+                  sx={{
+                    letterSpacing: 2,
+                    color: "#fff",
+                    animation: `${neonGlow} 2s ease-in-out infinite`,
+                  }}
+                >
+                  Welcome to OpenHubble
+                </Typography>
+                <Typography
+                  variant="h6"
+                  fontWeight="300"
+                  sx={{
+                    maxWidth: "400px",
+                    mx: "auto",
+                    mt: 2,
+                    lineHeight: 1.6,
+                    color: "#e0f7fa", // Light cyan for readability
+                    textShadow: "0 0 5px rgba(0, 255, 255, 0.3)", // Subtle glow
+                  }}
+                >
+                  Exploring Data, Unveiling Insights
+                </Typography>
+              </Box>
+            </Fade>
+          </Grid>
+
+          {/* Right Panel (Form) */}
+          <Grid
+            item
+            xs={12}
+            md={6}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              p: 2,
+              bgcolor: "background.default", // #222
+              position: "relative",
+            }}
+          >
+            <Container maxWidth="xs">
+              <Fade in timeout={500}>
+                <Box
+                  sx={{
+                    backdropFilter: "blur(15px)",
+                    bgcolor: "rgba(30, 30, 30, 0.9)",
+                    p: 4,
+                    borderRadius: 2,
+                    boxShadow: "0 0 20px rgba(0, 255, 255, 0.1)", // Subtle cyan glow
+                    border: "1px solid rgba(0, 255, 255, 0.3)",
+                    position: "relative",
+                    overflow: "hidden",
+                    "&:before": {
+                      content: '""',
+                      position: "absolute",
+                      top: "-50%",
+                      left: "-50%",
+                      width: "200%",
+                      height: "200%",
+                      background:
+                        "radial-gradient(circle, rgba(0, 255, 255, 0.1) 0%, transparent 70%)",
+                      animation: "pulse 8s infinite",
+                      zIndex: 0,
+                    },
+                    "&:hover": {
+                      boxShadow: "0 0 30px rgba(0, 255, 255, 0.2)",
+                      borderColor: "rgba(0, 255, 255, 0.5)",
+                    },
+                    "& > *": { position: "relative", zIndex: 1 }, // Ensure content stays above overlay
+                  }}
+                >
+                  <Typography
+                    variant="h5"
+                    color="primary.main"
+                    fontWeight="600"
+                    fontSize={30}
+                    gutterBottom
+                    textAlign="center"
+                    sx={{
+                      textShadow: "0 0 10px rgba(0, 255, 255, 0.5)", // Neon touch
+                    }}
+                  >
+                    {mode === "login" ? "Login" : "Register"}
+                  </Typography>
+                  <Form
+                    name={mode}
+                    callback={mode === "login" ? doLogin : doRegister}
+                    button={mode === "login" ? "Login" : "Register"}
+                    btnStyle={{
+                      fullWidth: true,
+                      disabled: loading,
+                      size: "large",
+                      sx: {
+                        py: 1.5,
+                        mt: 2,
+                        bgcolor: "primary.main",
+                        "&:hover": { bgcolor: "primary.dark" },
+                        boxShadow: "0 0 10px rgba(0, 255, 255, 0.3)",
+                      },
+                    }}
+                    disables={[]}
+                  />
+                  <Button
+                    variant="outlined"
+                    onClick={changeMode}
+                    sx={{
+                      mt: 3,
+                      py: 1.5,
+                      borderRadius: 1,
+                      borderColor: "secondary.main",
+                      color: "secondary.main",
+                      "&:hover": {
+                        bgcolor: "rgba(0, 255, 255, 0.1)",
+                        borderColor: "secondary.light",
+                        boxShadow: "0 0 10px rgba(0, 255, 255, 0.2)",
+                      },
+                    }}
+                    fullWidth
+                    disableElevation
+                  >
+                    {mode === "login"
+                      ? "Need an account? Register"
+                      : "Have an account? Login"}
+                  </Button>
+                </Box>
+              </Fade>
+            </Container>
+          </Grid>
+        </Grid>
+      </Box>
     </>
   );
 };
+
+// Pulse animation for the form background
+const pulse = keyframes`
+  0% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.2); opacity: 0.3; }
+  100% { transform: scale(1); opacity: 0.5; }
+`;
 
 export default Auth;
