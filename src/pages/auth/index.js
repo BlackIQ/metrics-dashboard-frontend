@@ -17,11 +17,18 @@ import {
 import Head from "next/head";
 import { useToast } from "@/hooks";
 
-// Neon glow animation
+// Neon glow animation for text
 const neonGlow = keyframes`
   0% { text-shadow: 0 0 5px #00e5ff, 0 0 10px #00e5ff, 0 0 15px #00e5ff, 0 0 20px #00b8d4; }
   50% { text-shadow: 0 0 8px #00e5ff, 0 0 15px #00e5ff, 0 0 25px #00e5ff, 0 0 30px #00b8d4; }
   100% { text-shadow: 0 0 5px #00e5ff, 0 0 10px #00e5ff, 0 0 15px #00e5ff, 0 0 20px #00b8d4; }
+`;
+
+// Neon divider glow animation
+const dividerGlow = keyframes`
+  0% { box-shadow: 0 0 5px #00e5ff, 0 0 10px #00e5ff; }
+  50% { box-shadow: 0 0 10px #00e5ff, 0 0 20px #00e5ff; }
+  100% { box-shadow: 0 0 5px #00e5ff, 0 0 10px #00e5ff; }
 `;
 
 const Auth = () => {
@@ -170,13 +177,14 @@ const Auth = () => {
                       content: '""',
                       position: "absolute",
                       top: "-50%",
-                      left: "-50%",
+                      left: "50%",
                       width: "200%",
                       height: "200%",
                       background:
                         "radial-gradient(circle, rgba(0, 255, 255, 0.1) 0%, transparent 70%)",
                       animation: "pulse 8s infinite",
                       zIndex: 0,
+                      transform: "translateX(-50%)", // Center the radial gradient
                     },
                     "&:hover": {
                       boxShadow: "0 0 30px rgba(0, 255, 255, 0.2)",
@@ -187,7 +195,7 @@ const Auth = () => {
                 >
                   <Typography
                     variant="h5"
-                    color="primary.main" // Now #00e5ff
+                    color="primary.main" // #00e5ff
                     fontWeight="600"
                     fontSize={30}
                     gutterBottom
@@ -198,6 +206,19 @@ const Auth = () => {
                   >
                     {mode === "login" ? "Login" : "Register"}
                   </Typography>
+
+                  {/* Neon Divider */}
+                  <Box
+                    sx={{
+                      height: "2px",
+                      width: "60%", // Adjust width as needed
+                      backgroundColor: "primary.main", // #00e5ff
+                      mx: "auto", // Center it
+                      mb: 3, // Space below divider
+                      animation: `${dividerGlow} 2s ease-in-out infinite`,
+                    }}
+                  />
+
                   <Form
                     name={mode}
                     callback={mode === "login" ? doLogin : doRegister}
@@ -209,7 +230,7 @@ const Auth = () => {
                       sx: {
                         py: 1.5,
                         mt: 2,
-                        bgcolor: "primary.main", // Now #00e5ff
+                        bgcolor: "primary.main",
                         "&:hover": { bgcolor: "primary.dark" },
                         boxShadow: "0 0 10px rgba(0, 255, 255, 0.3)",
                       },
