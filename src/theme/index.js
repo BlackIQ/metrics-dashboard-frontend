@@ -7,14 +7,24 @@ const theme = createTheme({
       default: "#222",
     },
     primary: {
-      main: colors.cyan[500],
+      main: "#00e5ff", // Neon cyan
     },
     secondary: {
-      main: colors.cyan[700],
+      main: colors.cyan[700], // Contrasting cyan
     },
   },
   typography: {
-    fontFamily: "Roboto",
+    fontFamily: "Inter, Orbitron, sans-serif", // Inter as default, Orbitron
+  },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8,
+          padding: "10px 20px",
+        },
+      },
+    },
   },
 });
 
