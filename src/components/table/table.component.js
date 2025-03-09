@@ -11,12 +11,9 @@ import {
   Typography,
   Button,
   Pagination,
-  colors,
   Chip,
 } from "@mui/material";
-
 import { format as dateFormat } from "date-fns";
-
 import {
   Add,
   DeleteOutline,
@@ -24,12 +21,17 @@ import {
   KeyboardArrowLeft,
   KeyboardArrowRight,
 } from "@mui/icons-material";
-
 import { tables } from "@/config";
-
 import { useEffect, useState } from "react";
-
 import { useToast } from "@/hooks";
+import { keyframes } from "@mui/system";
+
+// Neon glow animation
+const neonGlow = keyframes`
+  0% { text-shadow: 0 0 5px #00e5ff, 0 0 10px #00e5ff, 0 0 15px #00e5ff; }
+  50% { text-shadow: 0 0 8px #00e5ff, 0 0 15px #00e5ff, 0 0 20px #00e5ff; }
+  100% { text-shadow: 0 0 5px #00e5ff, 0 0 10px #00e5ff, 0 0 15px #00e5ff; }
+`;
 
 const TableComponent = ({
   table,
@@ -39,29 +41,19 @@ const TableComponent = ({
   add,
   addText,
   clk,
-  removeItems,
-  addItems,
+  removeItems = [],
+  addItems = {},
   details,
 }) => {
   const toast = useToast();
+  const tbl = { ...tables[table] }; // Clone to avoid mutating config
 
-  const formatterData = dateFormat;
-
-  const tbl = tables[table];
-
-  removeItems &&
-    removeItems.map((item) => {
-      delete tbl.fields[item];
-    });
-
-  addItems &&
-    Object.entries(addItems).map(([key, value]) => {
-      tbl.fields[key] = value;
-    });
+  // Modify fields
+  removeItems.forEach((item) => delete tbl.fields[item]);
+  Object.entries(addItems).forEach(([key, value]) => (tbl.fields[key] = value));
 
   const [page, setPage] = useState(1);
-  const [rowsPerPage, setRowPerPage] = useState(10);
-
+  const [rowsPerPage] = useState(10); // Fixed for simplicity, could be prop
   const [renderRows, setRenderRows] = useState([]);
 
   const handleChangePage = (e, newPage) => {
@@ -69,179 +61,173 @@ const TableComponent = ({
   };
 
   useEffect(() => {
-    if (del) {
-      data.map(
-        (d, index) =>
-          (d["delete"] = (
-            <Box sx={{ w: "100%", textAlign: "center" }}>
-              <IconButton key={`Del-${index}`} onClick={() => del(d)}>
-                <DeleteOutline fontSize="small" />
-              </IconButton>
-            </Box>
-          ))
-      );
-    }
+    const enrichedData = data.map((d) => ({
+      ...d,
+      ...(del && {
+        delete: (
+          <Box sx={{ textAlign: "center" }}>
+            <IconButton onClick={() => del(d)} sx={{ color: "error.main" }}>
+              <DeleteOutline fontSize="small" />
+            </IconButton>
+          </Box>
+        ),
+      }),
+      ...(upd && {
+        update: (
+          <Box sx={{ textAlign: "center" }}>
+            <IconButton onClick={() => upd(d)} sx={{ color: "primary.main" }}>
+              <EditOutlined fontSize="small" />
+            </IconButton>
+          </Box>
+        ),
+      }),
+    }));
+    setRenderRows(
+      enrichedData.slice((page - 1) * rowsPerPage, page * rowsPerPage)
+    );
+  }, [data, page, del, upd]);
 
-    if (upd) {
-      data.map(
-        (d, index) =>
-          (d["update"] = (
-            <Box sx={{ w: "100%", textAlign: "center" }}>
-              <IconButton key={`Upd-${index}`} onClick={() => upd(d)}>
-                <EditOutlined fontSize="small" />
-              </IconButton>
-            </Box>
-          ))
-      );
-    }
+  const renderSwitch = (d, key) => {
+    const props = key.split(".");
+    const value = props.reduce((acc, prop) => acc?.[prop], d);
 
-    setRenderRows(data.slice((page - 1) * rowsPerPage, page * rowsPerPage));
-  }, [data, page, rowsPerPage]);
-
-  const renderSwitch = (d, i) => {
-    const props = i.split(".");
-
-    const v = props.reduce((acc, prop) => acc[prop], d);
-
-    switch (table) {
-      default:
-        break;
-    }
-
-    switch (i) {
+    switch (key) {
       case "createdAt":
       case "updatedAt":
-        return formatterData(new Date(d["createdAt"]), "yyyy/MM/dd");
+        return value ? dateFormat(new Date(value), "yyyy/MM/dd") : "N/A";
       case "ipCommunication":
-        return d["ipCommunication"] ? "IP" : "DNS";
+        return value ? "IP" : "DNS";
       case "dockerMetrics":
         return (
-          <Chip label={d["dockerMetrics"] ? "Yes" : "No"} color="default" />
+          <Chip label={value ? "Yes" : "No"} color="default" size="small" />
         );
       case "agentAvailable":
-        return d["isActive"] ? (
-          d["agentAvailable"] ? (
-            <Chip label="Connect" color="success" />
+        return d.isActive ? (
+          value ? (
+            <Chip label="Connect" color="success" size="small" />
           ) : (
-            <Chip label="Disonnect" color="error" />
+            <Chip label="Disconnect" color="error" size="small" />
           )
         ) : (
-          <Chip label="Inactive" color="default" />
+          <Chip label="Inactive" color="default" size="small" />
         );
       default:
-        return v;
-    }
-  };
-
-  const renderColor = (d, i) => {
-    switch (d.type) {
-      case "low":
-        return colors.red[500];
-      case "add":
-        return colors.green[500];
-      default:
-        break;
+        return value ?? "—"; // Default to dash if undefined/null
     }
   };
 
   return (
-    <>
+    <Box sx={{ py: 2 }}>
       {data.length > 0 ? (
-        <Box>
+        <>
           <Box
             sx={{
-              height: "100%",
               display: "flex",
-              alignContent: "center",
               justifyContent: "space-between",
+              alignItems: "center",
+              mb: 3,
             }}
           >
             <Box>
               <Typography
-                fontWeight={900}
-                sx={{
-                  color: "white",
-                }}
-                fontSize={25}
+                variant="h4"
+                // fontFamily="Orbitron"
+                fontWeight="bold"
+                color="primary.main"
+                sx={{ animation: `${neonGlow} 2s ease-in-out infinite` }}
               >
                 {tbl.title}
               </Typography>
-              <br />
-              {details || <Box></Box>}
-            </Box>
-            <Box>
-              {add && (
-                <Button
-                  onClick={add}
-                  variant="contained"
-                  size="large"
-                  sx={{
-                    backgroundColor: "primary.main",
-                    borderRadius: 2,
-                    color: "white",
-                  }}
-                  startIcon={<Add />}
-                  disableElevation
+              {details && (
+                <Typography
+                  variant="body2"
+                  color="rgba(255, 255, 255, 0.7)"
+                  sx={{ mt: 1 }}
                 >
-                  {addText}
-                </Button>
+                  {details}
+                </Typography>
               )}
             </Box>
+            {add && (
+              <Button
+                onClick={add}
+                variant="contained"
+                size="large"
+                startIcon={<Add />}
+                disableElevation
+                sx={{
+                  bgcolor: "primary.main",
+                  borderRadius: 2,
+                  py: 1,
+                  px: 3,
+                  "&:hover": {
+                    bgcolor: "primary.dark",
+                    boxShadow: "0 0 10px rgba(0, 255, 255, 0.5)",
+                  },
+                }}
+              >
+                {addText}
+              </Button>
+            )}
           </Box>
-          <br />
+
           <TableContainer
+            component={Paper}
             elevation={0}
             sx={{
-              w: "100%",
-              borderRadius: 3,
+              bgcolor: "rgba(30, 30, 30, 0.9)",
+              border: "1px solid rgba(0, 255, 255, 0.3)",
+              borderRadius: 2,
+              backdropFilter: "blur(10px)",
+              "&:hover": { boxShadow: "0 0 20px rgba(0, 255, 255, 0.2)" },
             }}
-            variant="outlined"
-            component={Paper}
           >
             <Table id={table}>
               <TableHead>
                 <TableRow
                   sx={{
-                    backgroundColor: "primary.main",
+                    bgcolor: "primary.main",
+                    "& th": {
+                      color: "black",
+                      textAlign: "center",
+                      // fontFamily: "Orbitron",
+                      fontWeight: "bold",
+                      borderBottom: "1px solid rgba(0, 255, 255, 0.5)",
+                    },
                   }}
                 >
-                  {Object.entries(tbl.fields).map(([key, item]) => (
-                    <TableCell
-                      sx={{
-                        color: "white",
-                        textAlign: "center",
-                      }}
-                      key={item}
-                      head
-                    >
-                      {item}
-                    </TableCell>
+                  {Object.entries(tbl.fields).map(([key, label]) => (
+                    <TableCell key={key}>{label}</TableCell>
                   ))}
                 </TableRow>
               </TableHead>
               <TableBody>
-                {renderRows.map((d) => (
+                {renderRows.map((row, idx) => (
                   <TableRow
-                    key={d}
+                    key={idx}
                     sx={{
                       "&:hover": {
-                        cursor: "pointer",
-                        backgroundColor: "#222",
+                        bgcolor: "rgba(0, 255, 255, 0.1)",
+                        cursor:
+                          clk && !["delete", "update"].includes(row)
+                            ? "pointer"
+                            : "default",
+                      },
+                      "& td": {
+                        color: "white",
+                        textAlign: "center",
+                        borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
                       },
                     }}
                   >
-                    {Object.keys(tbl.fields).map((item) => (
+                    {Object.keys(tbl.fields).map((key) => (
                       <TableCell
+                        key={key}
                         onClick={() =>
-                          !["delete", "update"].includes(item) && clk && clk(d)
+                          !["delete", "update"].includes(key) && clk && clk(row)
                         }
-                        sx={{
-                          textAlign: "center",
-                          color: renderColor(d, item),
-                        }}
-                        key={item}
                       >
-                        {renderSwitch(d, item)}
+                        {renderSwitch(row, key)}
                       </TableCell>
                     ))}
                   </TableRow>
@@ -251,78 +237,71 @@ const TableComponent = ({
             <Box
               sx={{
                 display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                flexDirection: "row",
+                justifyContent: "center",
                 py: 2,
-                px: 3,
               }}
             >
-              <Button
-                variant="outlined"
-                size="large"
-                sx={{ borderColor: "divider", color: "#666" }}
-                onClick={() => setPage(page - 1)}
-                disabled={page === 1}
-                startIcon={<KeyboardArrowLeft />}
-              >
-                Previous
-              </Button>
               <Pagination
-                sx={{ direction: "rtl" }}
                 count={Math.ceil(data.length / rowsPerPage)}
-                siblingCount={0}
-                variant="text"
-                shape="rounded"
-                size="medium"
-                color="standard"
                 page={page}
-                hideNextButton
-                hidePrevButton
                 onChange={handleChangePage}
+                color="primary"
+                size="medium"
+                shape="rounded"
+                sx={{
+                  "& .MuiPaginationItem-root": {
+                    color: "white",
+                    "&:hover": { bgcolor: "rgba(0, 255, 255, 0.2)" },
+                    "&.Mui-selected": { bgcolor: "primary.main" },
+                  },
+                }}
               />
-              <Button
-                variant="outlined"
-                size="large"
-                sx={{ borderColor: "divider", color: "#666" }}
-                onClick={() => setPage(page + 1)}
-                disabled={renderRows.length <= rowsPerPage}
-                endIcon={<KeyboardArrowRight />}
-              >
-                Next
-              </Button>
             </Box>
           </TableContainer>
-        </Box>
+        </>
       ) : (
         <Box
           sx={{
-            height: "100%",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            textAlign: "center",
             py: 10,
+            textAlign: "center",
+            bgcolor: "rgba(30, 30, 30, 0.9)",
+            border: "1px solid rgba(0, 255, 255, 0.3)",
+            borderRadius: 2,
+            backdropFilter: "blur(10px)",
           }}
         >
-          <Box>
-            <Typography variant="h6">No data available</Typography>
-            <br />
-            {add && (
-              <Button
-                onClick={add}
-                variant="contained"
-                size="large"
-                sx={{ color: "white" }}
-                disableElevation
-              >
-                {addText}
-              </Button>
-            )}
-          </Box>
+          <Typography
+            variant="h6"
+            color="white"
+            fontFamily="Orbitron"
+            sx={{ mb: 3 }}
+          >
+            No data available
+          </Typography>
+          {add && (
+            <Button
+              onClick={add}
+              variant="contained"
+              size="large"
+              startIcon={<Add />}
+              disableElevation
+              sx={{
+                bgcolor: "primary.main",
+                borderRadius: 2,
+                py: 1,
+                px: 3,
+                "&:hover": {
+                  bgcolor: "primary.dark",
+                  boxShadow: "0 0 10px rgba(0, 255, 255, 0.5)",
+                },
+              }}
+            >
+              {addText}
+            </Button>
+          )}
         </Box>
       )}
-    </>
+    </Box>
   );
 };
 
