@@ -112,6 +112,7 @@ const Auth = () => {
                 <Typography
                   variant="h3"
                   fontWeight="bold"
+                  fontFamily="Orbitron"
                   gutterBottom
                   sx={{
                     letterSpacing: 2,
@@ -129,8 +130,8 @@ const Auth = () => {
                     mx: "auto",
                     mt: 2,
                     lineHeight: 1.6,
-                    color: "#e0f7fa", // Light cyan for readability
-                    textShadow: "0 0 5px rgba(0, 255, 255, 0.3)", // Subtle glow
+                    color: "#e0f7fa",
+                    textShadow: "0 0 5px rgba(0, 255, 255, 0.3)",
                   }}
                 >
                   Exploring Data, Unveiling Insights
@@ -149,7 +150,7 @@ const Auth = () => {
               alignItems: "center",
               justifyContent: "center",
               p: 2,
-              bgcolor: "background.default", // #222
+              bgcolor: "background.default",
               position: "relative",
             }}
           >
@@ -161,7 +162,7 @@ const Auth = () => {
                     bgcolor: "rgba(30, 30, 30, 0.9)",
                     p: 4,
                     borderRadius: 2,
-                    boxShadow: "0 0 20px rgba(0, 255, 255, 0.1)", // Subtle cyan glow
+                    boxShadow: "0 0 20px rgba(0, 255, 255, 0.1)",
                     border: "1px solid rgba(0, 255, 255, 0.3)",
                     position: "relative",
                     overflow: "hidden",
@@ -181,18 +182,18 @@ const Auth = () => {
                       boxShadow: "0 0 30px rgba(0, 255, 255, 0.2)",
                       borderColor: "rgba(0, 255, 255, 0.5)",
                     },
-                    "& > *": { position: "relative", zIndex: 1 }, // Ensure content stays above overlay
+                    "& > *": { position: "relative", zIndex: 1 },
                   }}
                 >
                   <Typography
                     variant="h5"
-                    color="primary.main"
+                    color="primary.main" // Now #00e5ff
                     fontWeight="600"
                     fontSize={30}
                     gutterBottom
                     textAlign="center"
                     sx={{
-                      textShadow: "0 0 10px rgba(0, 255, 255, 0.5)", // Neon touch
+                      textShadow: "0 0 10px rgba(0, 255, 255, 0.5)",
                     }}
                   >
                     {mode === "login" ? "Login" : "Register"}
@@ -208,7 +209,7 @@ const Auth = () => {
                       sx: {
                         py: 1.5,
                         mt: 2,
-                        bgcolor: "primary.main",
+                        bgcolor: "primary.main", // Now #00e5ff
                         "&:hover": { bgcolor: "primary.dark" },
                         boxShadow: "0 0 10px rgba(0, 255, 255, 0.3)",
                       },
@@ -247,7 +248,7 @@ const Auth = () => {
   );
 };
 
-// Pulse animation for the form background
+// Pulse animation
 const pulse = keyframes`
   0% { transform: scale(1); opacity: 0.5; }
   50% { transform: scale(1.2); opacity: 0.3; }
