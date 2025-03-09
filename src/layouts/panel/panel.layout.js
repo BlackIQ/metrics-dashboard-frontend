@@ -10,22 +10,15 @@ import {
   Divider,
   Typography,
 } from "@mui/material";
-
 import { useRouter } from "next/router";
-
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
-
 import { setUser, unsetUser } from "@/redux/actions/user";
 import { unsetSession } from "@/redux/actions/session";
-
 import API from "@/api";
-
 import { single } from "@/api/services/user";
 import { Loading } from "@/components";
-
 import { styled } from "@mui/material/styles";
-
 import {
   Menu as MenuIcon,
   Storage,
@@ -40,97 +33,87 @@ import {
   Logout,
   Dashboard,
 } from "@mui/icons-material";
-
 import { useToast } from "@/hooks";
-
 import { appConfig } from "@/config";
+import { keyframes } from "@mui/system";
 
-const openedMixin = (theme, dw) => ({
-  width: dw,
-  transition: theme.transitions.create("width", {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.enteringScreen,
-  }),
-  borderWidth: 0,
-  overflowX: "hidden",
-});
+// Neon glow animation
+const neonGlow = keyframes`
+  0% { text-shadow: 0 0 5px #00e5ff, 0 0 10px #00e5ff, 0 0 15px #00e5ff; }
+  50% { text-shadow: 0 0 8px #00e5ff, 0 0 15px #00e5ff, 0 0 20px #00e5ff; }
+  100% { text-shadow: 0 0 5px #00e5ff, 0 0 10px #00e5ff, 0 0 15px #00e5ff; }
+`;
 
-const closedMixin = (theme, dw) => ({
-  transition: theme.transitions.create("width", {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  borderWidth: 0,
-  overflowX: "hidden",
-  width: `calc(${theme.spacing(7)} + 0px)`,
-  [theme.breakpoints.up("sm")]: {
-    width: `calc(${theme.spacing(8)} + 0px)`,
-  },
-});
+// Divider glow animation
+const dividerGlow = keyframes`
+  0% { box-shadow: 0 0 5px #00e5ff, 0 0 10px #00e5ff; }
+  50% { box-shadow: 0 0 10px #00e5ff, 0 0 15px #00e5ff; }
+  100% { box-shadow: 0 0 5px #00e5ff, 0 0 10px #00e5ff; }
+`;
+
+const drawerWidth = 240;
 
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
-  justifyContent: "flex-end",
+  justifyContent: "space-between",
   padding: theme.spacing(0, 1),
   ...theme.mixins.toolbar,
 }));
 
 const Drawer = styled(MuiDrawer, {
   shouldForwardProp: (prop) => prop !== "open",
-})(({ theme, open, dw }) => ({
-  width: dw,
+})(({ theme, open }) => ({
+  width: open ? drawerWidth : `calc(${theme.spacing(7)} + 1px)`,
   flexShrink: 0,
   whiteSpace: "nowrap",
   boxSizing: "border-box",
-  ...(open && {
-    ...openedMixin(theme, dw),
-    "& .MuiDrawer-paper": openedMixin(theme, dw),
-    width: dw,
-    boxSizing: "border-box",
-    backgroundColor: "red",
-  }),
-  ...(!open && {
-    ...closedMixin(theme, dw),
-    "& .MuiDrawer-paper": closedMixin(theme, dw),
-    width: dw,
-    boxSizing: "border-box",
-    backgroundColor: "white",
-  }),
+  "& .MuiDrawer-paper": {
+    width: open ? drawerWidth : `calc(${theme.spacing(7)} + 1px)`,
+    [theme.breakpoints.up("sm")]: {
+      width: open ? drawerWidth : `calc(${theme.spacing(8)} + 1px)`,
+    },
+    transition: theme.transitions.create("width", {
+      easing: theme.transitions.easing.sharp,
+      duration: open
+        ? theme.transitions.duration.enteringScreen
+        : theme.transitions.duration.leavingScreen,
+    }),
+    overflowX: "hidden",
+    backgroundColor: "rgba(30, 30, 30, 0.9)",
+    backdropFilter: "blur(10px)",
+    borderRight: "1px solid rgba(0, 255, 255, 0.2)",
+  },
 }));
 
 const PanelLayout = ({ children }) => {
-  const history = useRouter();
+  const router = useRouter();
   const dispatch = useDispatch();
-
   const toast = useToast();
 
-  const [open, setOpen] = useState(false);
-
+  const [open, setOpen] = useState(false); // Start open for testing
   const [loading, setLoading] = useState(true);
 
+  const { session: token, user } = useSelector((state) => state);
+
   const handleDrawer = () => {
-    setOpen(!open);
+    setOpen((prev) => {
+      console.log("Drawer toggled, new state:", !prev);
+      return !prev;
+    });
   };
 
   const [permissions, setPermissions] = useState([]);
 
-  const { session: token, user } = useSelector((state) => state);
-
   const getData = async () => {
     try {
       const data = await single(user._id);
-
       const nuser = { ...data.user, docs: data.docs };
-
       setPermissions(data.user.role.permissions);
-
       dispatch(setUser(nuser));
-
       setLoading(false);
     } catch (error) {
-      toast(error.message);
-
+      toast(error.message, { severity: "error" });
       logout();
     }
   };
@@ -138,18 +121,17 @@ const PanelLayout = ({ children }) => {
   useEffect(() => {
     if (token) {
       API.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
       getData();
     } else {
-      history.push("/auth");
+      router.push("/auth");
     }
-  }, []);
+  }, [token]);
 
   const logout = () => {
+    console.log("Logout clicked");
     dispatch(unsetUser());
     dispatch(unsetSession());
-
-    history.push("/");
+    router.push("/");
   };
 
   const getIcon = (value) => {
@@ -186,147 +168,208 @@ const PanelLayout = ({ children }) => {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
+        background: "linear-gradient(135deg, #1a1a1a 0%, #222 100%)",
       }}
     >
       <Loading />
     </Box>
   ) : (
-    <Box width="100%">
-      <Box sx={{ display: "flex", width: "100%" }}>
-        <CssBaseline />
-        <Drawer
-          dw={open ? 240 : 50}
-          variant="permanent"
-          open={open}
-          // onMouseMove={() => setOpen(true)}
-          // onMouseLeave={() => setOpen(false)}
-          anchor={"left"}
-        >
-          <DrawerHeader>
-            <Box
-              sx={{
-                display: "flex",
-                height: "160%",
-                justifyContent: "center",
-                alignItems: "center",
-                px: open && 1,
-              }}
-            >
-              {/* {open && (
-                <Typography color="primary" variant="h4">Open Hubble</Typography>
-              )} */}
-              <IconButton onClick={handleDrawer} sx={{ borderRadius: 2 }}>
-                <MenuIcon color="primary" />
-              </IconButton>
-            </Box>
-          </DrawerHeader>
-
-          <List sx={{ px: 0 }}>
-            <ListItemButton
-              onClick={() => history.push("/panel")}
-              sx={{
-                m: open && 1,
-                borderRadius: open ? 2 : 0,
-                backgroundColor: history.pathname === "/panel" && "#444",
-              }}
-            >
-              <ListItemIcon>{getIcon("home")}</ListItemIcon>
-              <ListItemText primary={"Home"} />
-            </ListItemButton>
-            {permissions ? (
-              permissions
-                .filter((permission) => permission.value !== "settings")
-                .map((permission) => (
-                  <ListItemButton
-                    key={permission._id}
-                    onClick={() => {
-                      history.push(`/panel/${permission.value}`);
-                      setOpen(false);
-                    }}
-                    sx={{
-                      m: open && 1,
-                      borderRadius: open ? 2 : 0,
-                      backgroundColor:
-                        history.pathname === `/panel/${permission.value}` &&
-                        "#444",
-                    }}
-                  >
-                    <ListItemIcon>{getIcon(permission.value)}</ListItemIcon>
-                    <ListItemText primary={permission.label} />
-                  </ListItemButton>
-                ))
-            ) : (
-              <Loading />
-            )}
-            <ListItemButton
-              onClick={() => history.push("/panel/settings")}
-              sx={{
-                borderRadius: open ? 2 : 0,
-                m: open && 1,
-                backgroundColor:
-                  history.pathname === "/panel/settings" && "#444",
-              }}
-            >
-              <ListItemIcon>{getIcon("me")}</ListItemIcon>
-              <ListItemText primary={user.firstName} />
-            </ListItemButton>
-            <ListItemButton
-              onClick={logout}
-              sx={{
-                m: open && 1,
-                borderRadius: open ? 2 : 0,
-              }}
-            >
-              <ListItemIcon>{getIcon("logout")}</ListItemIcon>
-              <ListItemText
-                sx={{
-                  color: "error.main",
-                }}
-                primary={"Logout"}
-              />
-            </ListItemButton>
-          </List>
+    <Box sx={{ display: "flex", minHeight: "100vh" }}>
+      <CssBaseline />
+      <Drawer
+        variant="permanent"
+        open={open}
+        // onMouseEnter={() => {
+        //   setOpen(true);
+        // }}
+        // onMouseLeave={() => {
+        //   setOpen(false);
+        // }}
+      >
+        <DrawerHeader>
           {open && (
-            <Box>
-              <Divider />
-              <br />
-              <Box
-                sx={{
-                  textAlign: "center",
-                }}
-              >
-                <Typography
-                  variant="h6"
-                  fontWeight="bold"
-                  color="primary"
-                  gutterBottom
+            <Typography
+              variant="h6"
+              fontFamily="Orbitron"
+              color="primary.main"
+              sx={{
+                flexGrow: 1,
+                pl: 2,
+                animation: open
+                  ? `${neonGlow} 2s ease-in-out infinite`
+                  : "none",
+              }}
+            >
+              OpenHubble
+            </Typography>
+          )}
+          <IconButton onClick={handleDrawer} sx={{ borderRadius: 2 }}>
+            <MenuIcon color="primary" />
+          </IconButton>
+        </DrawerHeader>
+
+        <List sx={{ px: open ? 1 : 0 }}>
+          <ListItemButton
+            onClick={() => {
+              console.log("Home clicked");
+              router.push("/panel");
+            }}
+            sx={{
+              m: open ? 1 : 0,
+              borderRadius: open ? 2 : 0,
+              bgcolor:
+                router.pathname === "/panel"
+                  ? "rgba(0, 255, 255, 0.1)"
+                  : "transparent",
+              "&:hover": { bgcolor: "rgba(0, 255, 255, 0.2)" },
+            }}
+          >
+            <ListItemIcon sx={{ color: "primary.main" }}>
+              {getIcon("home")}
+            </ListItemIcon>
+            {open && <ListItemText primary="Home" sx={{ color: "white" }} />}
+          </ListItemButton>
+          {permissions.length > 0 ? (
+            permissions
+              .filter((permission) => permission.value !== "settings")
+              .map((permission) => (
+                <ListItemButton
+                  key={permission._id}
+                  onClick={() => {
+                    console.log(`${permission.label} clicked`);
+                    router.push(`/panel/${permission.value}`);
+                    setOpen(false);
+                  }}
+                  sx={{
+                    m: open ? 1 : 0,
+                    borderRadius: open ? 2 : 0,
+                    bgcolor:
+                      router.pathname === `/panel/${permission.value}`
+                        ? "rgba(0, 255, 255, 0.1)"
+                        : "transparent",
+                    "&:hover": { bgcolor: "rgba(0, 255, 255, 0.2)" },
+                  }}
                 >
-                  OpenHubble
-                </Typography>
-                <Typography variant="body2" gutterBottom>
-                  Cloud Console
-                </Typography>
-                <Typography variant="caption" gutterBottom>
-                  {appConfig.version}
-                </Typography>
-              </Box>
+                  <ListItemIcon sx={{ color: "primary.main" }}>
+                    {getIcon(permission.value)}
+                  </ListItemIcon>
+                  {open && (
+                    <ListItemText
+                      primary={permission.label}
+                      sx={{ color: "white" }}
+                    />
+                  )}
+                </ListItemButton>
+              ))
+          ) : (
+            <Box sx={{ textAlign: "center", py: 2 }}>
+              <Typography variant="body2" color="rgba(255, 255, 255, 0.7)">
+                No permissions
+              </Typography>
             </Box>
           )}
-        </Drawer>
-        <Box
-          component="main"
-          sx={{
-            flexGrow: 1,
-            bgcolor: "background.default",
-            px: 4,
-            py: 3,
-          }}
-        >
-          <Box width="100%">{children}</Box>
-        </Box>
+          <ListItemButton
+            onClick={() => {
+              console.log("Settings clicked");
+              router.push("/panel/settings");
+            }}
+            sx={{
+              m: open ? 1 : 0,
+              borderRadius: open ? 2 : 0,
+              bgcolor:
+                router.pathname === "/panel/settings"
+                  ? "rgba(0, 255, 255, 0.1)"
+                  : "transparent",
+              "&:hover": { bgcolor: "rgba(0, 255, 255, 0.2)" },
+            }}
+          >
+            <ListItemIcon sx={{ color: "primary.main" }}>
+              {getIcon("me")}
+            </ListItemIcon>
+            {open && (
+              <ListItemText primary={user.firstName} sx={{ color: "white" }} />
+            )}
+          </ListItemButton>
+          <ListItemButton
+            onClick={logout}
+            sx={{
+              m: open ? 1 : 0,
+              borderRadius: open ? 2 : 0,
+              "&:hover": { bgcolor: "rgba(255, 0, 0, 0.2)" },
+            }}
+          >
+            <ListItemIcon>{getIcon("logout")}</ListItemIcon>
+            {open && (
+              <ListItemText primary="Logout" sx={{ color: "error.main" }} />
+            )}
+          </ListItemButton>
+        </List>
+
+        {open && (
+          <Box sx={{ mt: "auto", pb: 2 }}>
+            <Divider
+              sx={{
+                mx: 2,
+                bgcolor: "primary.main",
+                height: "2px",
+                animation: `${dividerGlow} 2s ease-in-out infinite`,
+              }}
+            />
+            <Box sx={{ textAlign: "center", mt: 2 }}>
+              <Typography
+                variant="h6"
+                fontFamily="Orbitron"
+                fontWeight="bold"
+                color="primary.main"
+                sx={{ animation: `${neonGlow} 2s ease-in-out infinite` }}
+              >
+                OpenHubble
+              </Typography>
+              <Typography variant="body2" color="white">
+                Cloud Console
+              </Typography>
+              <Typography variant="caption" color="rgba(255, 255, 255, 0.7)">
+                {appConfig.version}
+              </Typography>
+            </Box>
+          </Box>
+        )}
+      </Drawer>
+
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          bgcolor: "background.default",
+          background: "linear-gradient(135deg, #1a1a1a 0%, #222 100%)",
+          p: 3,
+          position: "relative",
+          "&:before": {
+            content: '""',
+            position: "absolute",
+            top: "-50%",
+            left: "-50%",
+            width: "200%",
+            height: "200%",
+            background:
+              "radial-gradient(circle, rgba(0, 255, 255, 0.1) 0%, transparent 70%)",
+            animation: "pulse 8s infinite",
+            zIndex: 0,
+          },
+          "& > *": { position: "relative", zIndex: 1 },
+        }}
+      >
+        {children}
       </Box>
     </Box>
   );
 };
+
+// Pulse animation
+const pulse = keyframes`
+  0% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.2); opacity: 0.3; }
+  100% { transform: scale(1); opacity: 0.5; }
+`;
 
 export default PanelLayout;
