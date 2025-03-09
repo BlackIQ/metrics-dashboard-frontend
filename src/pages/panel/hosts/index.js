@@ -1,4 +1,3 @@
-// NextJS ReactJs
 import { useState, useEffect } from "react";
 import Head from "next/head";
 
@@ -6,7 +5,13 @@ import Head from "next/head";
 import { useSelector } from "react-redux";
 
 // Material UI
-import { Box, Dialog, DialogContent, DialogTitle } from "@mui/material";
+import {
+  Box,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Typography,
+} from "@mui/material";
 
 // Components
 import { Table, Loading, Confirm } from "@/components";
@@ -22,9 +27,18 @@ import { all as allTags } from "@/api/services/tag";
 // Forms
 import HostForm from "@/forms/host";
 
+// Neon glow animation
+import { keyframes } from "@mui/system";
+
+// Neon glow animation
+const neonGlow = keyframes`
+  0% { text-shadow: 0 0 5px #00e5ff, 0 0 10px #00e5ff, 0 0 15px #00e5ff; }
+  50% { text-shadow: 0 0 8px #00e5ff, 0 0 15px #00e5ff, 0 0 20px #00e5ff; }
+  100% { text-shadow: 0 0 5px #00e5ff, 0 0 10px #00e5ff, 0 0 15px #00e5ff; }
+`;
+
 const Index = () => {
   const [hosts, setHosts] = useState([]);
-
   const [groups, setGroups] = useState([]);
   const [tags, setTags] = useState([]);
 
@@ -53,18 +67,16 @@ const Index = () => {
 
     try {
       const { hosts } = await allHosts(filter);
-
       const { groups } = await allGroups(filter);
       const { tags } = await allTags(filter);
 
       setHosts(hosts);
-
       setGroups(groups);
       setTags(tags);
 
-      toast("Hosts got");
+      toast("Hosts fetched successfully", { severity: "success" });
     } catch (error) {
-      toast(error.message);
+      toast(error.message, { severity: "error" });
     }
 
     setLoading(false);
@@ -76,13 +88,13 @@ const Index = () => {
     try {
       await deleteHost(currentData._id);
 
-      toast("Host deleted");
+      toast("Host deleted successfully", { severity: "success" });
 
       handleConfirm();
       setCurrentData({});
       getData();
     } catch (error) {
-      toast(error.message);
+      toast(error.message, { severity: "error" });
     }
 
     setLoading(false);
@@ -98,7 +110,7 @@ const Index = () => {
           <Table
             table="host"
             data={hosts}
-            addText={"Add host"}
+            addText={"Add Host"}
             add={() => {
               setCurrentData(null);
               handleDialog();
@@ -125,9 +137,27 @@ const Index = () => {
       <Dialog
         open={dialogOpen}
         onClose={handleDialog}
-        PaperProps={{ sx: { borderRadius: "20px" } }}
+        PaperProps={{
+          sx: {
+            bgcolor: "rgba(30, 30, 30, 0.9)",
+            border: "1px solid rgba(0, 255, 255, 0.3)",
+            borderRadius: "10px",
+            backdropFilter: "blur(10px)",
+            boxShadow: "0 0 20px rgba(0, 255, 255, 0.2)",
+            minWidth: { xs: "90%", sm: 400 },
+          },
+        }}
       >
-        <DialogTitle>{"Host"}</DialogTitle>
+        <DialogTitle>
+          <Typography
+            variant="h6"
+            // fontFamily="Orbitron"
+            color="primary.main"
+            sx={{ animation: `${neonGlow} 2s ease-in-out infinite` }}
+          >
+            {currentData ? "Edit Host" : "Add Host"}
+          </Typography>
+        </DialogTitle>
         <DialogContent>
           <HostForm
             currentData={currentData}

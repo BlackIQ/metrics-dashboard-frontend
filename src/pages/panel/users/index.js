@@ -1,9 +1,14 @@
-// NextJS ReactJs
 import { useState, useEffect } from "react";
 import Head from "next/head";
 
 // Material UI
-import { Box, Dialog, DialogContent, DialogTitle } from "@mui/material";
+import {
+  Box,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Typography,
+} from "@mui/material";
 
 // Redux
 import { useSelector } from "react-redux";
@@ -20,6 +25,16 @@ import { all as allRoles } from "@/api/services/role";
 
 // Forms
 import UserForm from "@/forms/user";
+
+// Neon glow animation
+import { keyframes } from "@mui/system";
+
+// Neon glow animation
+const neonGlow = keyframes`
+  0% { text-shadow: 0 0 5px #00e5ff, 0 0 10px #00e5ff, 0 0 15px #00e5ff; }
+  50% { text-shadow: 0 0 8px #00e5ff, 0 0 15px #00e5ff, 0 0 20px #00e5ff; }
+  100% { text-shadow: 0 0 5px #00e5ff, 0 0 10px #00e5ff, 0 0 15px #00e5ff; }
+`;
 
 const Index = () => {
   const [users, setUsers] = useState([]);
@@ -48,9 +63,9 @@ const Index = () => {
       setUsers(users);
       setRoles(roles);
 
-      toast("Users got");
+      toast("Users and roles fetched successfully", { severity: "success" });
     } catch (error) {
-      toast(error.message);
+      toast(error.message, { severity: "error" });
     }
 
     setLoading(false);
@@ -66,7 +81,7 @@ const Index = () => {
           <Table
             table="user"
             data={users}
-            addText={"Add user"}
+            addText={"Add User"}
             add={
               role?.value === "superuser"
                 ? () => {
@@ -94,9 +109,27 @@ const Index = () => {
         maxWidth="sm"
         fullWidth
         onClose={handleDialog}
-        PaperProps={{ sx: { borderRadius: "15px" } }}
+        PaperProps={{
+          sx: {
+            bgcolor: "rgba(30, 30, 30, 0.9)",
+            border: "1px solid rgba(0, 255, 255, 0.3)",
+            borderRadius: "20px",
+            backdropFilter: "blur(10px)",
+            boxShadow: "0 0 20px rgba(0, 255, 255, 0.2)",
+            minWidth: { xs: "90%", sm: 400 },
+          },
+        }}
       >
-        <DialogTitle>{"User"}</DialogTitle>
+        <DialogTitle>
+          <Typography
+            variant="h6"
+            // fontFamily="Orbitron"
+            color="primary.main"
+            sx={{ animation: `${neonGlow} 2s ease-in-out infinite` }}
+          >
+            {currentData ? "Edit User" : "Add User"}
+          </Typography>
+        </DialogTitle>
         <DialogContent>
           <UserForm
             currentData={currentData}
@@ -104,7 +137,7 @@ const Index = () => {
             handleClose={handleDialog}
             loading={loading}
             setLoading={setLoading}
-            updateMode={currentData}
+            updateMode={!!currentData}
             extraData={{ roles }}
           />
         </DialogContent>

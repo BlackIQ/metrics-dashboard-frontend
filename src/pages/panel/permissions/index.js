@@ -1,9 +1,14 @@
-// NextJS ReactJs
 import { useState, useEffect } from "react";
 import Head from "next/head";
 
 // Material UI
-import { Box, Dialog, DialogContent, DialogTitle } from "@mui/material";
+import {
+  Box,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Typography,
+} from "@mui/material";
 
 // Components
 import { Table, Loading, Confirm } from "@/components";
@@ -19,6 +24,16 @@ import {
 
 // Forms
 import PermissionForm from "@/forms/permission";
+
+// Neon glow animation
+import { keyframes } from "@mui/system";
+
+// Neon glow animation
+const neonGlow = keyframes`
+  0% { text-shadow: 0 0 5px #00e5ff, 0 0 10px #00e5ff, 0 0 15px #00e5ff; }
+  50% { text-shadow: 0 0 8px #00e5ff, 0 0 15px #00e5ff, 0 0 20px #00e5ff; }
+  100% { text-shadow: 0 0 5px #00e5ff, 0 0 10px #00e5ff, 0 0 15px #00e5ff; }
+`;
 
 const Index = () => {
   const [permissions, setPermissions] = useState([]);
@@ -43,9 +58,9 @@ const Index = () => {
 
       setPermissions(permissions);
 
-      toast("Permissions got");
+      toast("Permissions retrieved", { severity: "success" });
     } catch (error) {
-      toast(error.message);
+      toast(error.message, { severity: "error" });
     }
 
     setLoading(false);
@@ -57,13 +72,13 @@ const Index = () => {
     try {
       await deletePermission(currentData._id);
 
-      toast("Permission deleted");
+      toast("Permission deleted", { severity: "success" });
 
       handleConfirm();
       setCurrentData({});
       getData();
     } catch (error) {
-      toast(error.message);
+      toast(error.message, { severity: "error" });
     }
 
     setLoading(false);
@@ -79,7 +94,7 @@ const Index = () => {
           <Table
             table="permission"
             data={permissions}
-            addText={"Add permission"}
+            addText={"Add Permission"}
             add={() => {
               setCurrentData(null);
               handleDialog();
@@ -101,9 +116,27 @@ const Index = () => {
       <Dialog
         open={dialogOpen}
         onClose={handleDialog}
-        PaperProps={{ sx: { borderRadius: "20px" } }}
+        PaperProps={{
+          sx: {
+            bgcolor: "rgba(30, 30, 30, 0.9)",
+            border: "1px solid rgba(0, 255, 255, 0.3)",
+            borderRadius: "20px",
+            backdropFilter: "blur(10px)",
+            boxShadow: "0 0 20px rgba(0, 255, 255, 0.2)",
+            minWidth: { xs: "90%", sm: 400 },
+          },
+        }}
       >
-        <DialogTitle>{"Permission"}</DialogTitle>
+        <DialogTitle>
+          <Typography
+            variant="h6"
+            // fontFamily="Orbitron"
+            color="primary.main"
+            sx={{ animation: `${neonGlow} 2s ease-in-out infinite` }}
+          >
+            {currentData ? "Edit Permission" : "Add Permission"}
+          </Typography>
+        </DialogTitle>
         <DialogContent>
           <PermissionForm
             currentData={currentData}
@@ -111,7 +144,7 @@ const Index = () => {
             handleClose={handleDialog}
             loading={loading}
             setLoading={setLoading}
-            updateMode={currentData}
+            updateMode={!!currentData}
           />
         </DialogContent>
       </Dialog>

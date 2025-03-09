@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react";
 import Head from "next/head";
+
+// Redux
 import { useSelector } from "react-redux";
+
+// Material UI
 import {
   Box,
   Dialog,
@@ -8,10 +12,20 @@ import {
   DialogTitle,
   Typography,
 } from "@mui/material";
+
+// Components
 import { Table, Loading, Confirm } from "@/components";
+
+// Hooks
 import { useDisclosure, useToast } from "@/hooks";
+
+// APIs
 import { all as allTags, deleteOne as deleteTag } from "@/api/services/tag";
+
+// Forms
 import TagForm from "@/forms/tag";
+
+// Neon glow animation
 import { keyframes } from "@mui/system";
 
 // Neon glow animation
