@@ -13,224 +13,301 @@ import {
   MenuItem,
   Checkbox,
   Grid,
+  Typography,
 } from "@mui/material";
 import { forms } from "@/config";
-import { useEffect } from "react";
+import { keyframes } from "@mui/system";
+
+// Neon glow animation
+const neonGlow = keyframes`
+  0% { text-shadow: 0 0 5px #00e5ff, 0 0 10px #00e5ff, 0 0 15px #00e5ff; }
+  50% { text-shadow: 0 0 8px #00e5ff, 0 0 15px #00e5ff, 0 0 20px #00e5ff; }
+  100% { text-shadow: 0 0 5px #00e5ff, 0 0 10px #00e5ff, 0 0 15px #00e5ff; }
+`;
+
+const fieldComponents = {
+  radio: ({ field, register, errors, def }) => (
+    <FormControl fullWidth margin="normal">
+      <FormLabel sx={{ color: "primary.main", fontFamily: "Orbitron", mb: 1 }}>
+        {field.label}
+      </FormLabel>
+      <RadioGroup row defaultValue={def}>
+        {field.items.map((item) => (
+          <FormControlLabel
+            key={item.value}
+            value={item.value}
+            label={item.label}
+            control={<Radio color="primary" />}
+            {...register(field.name, field.advanced)}
+          />
+        ))}
+      </RadioGroup>
+      {errors && (
+        <Typography variant="caption" color="error.main">
+          {errors.message}
+        </Typography>
+      )}
+    </FormControl>
+  ),
+  checkbox: ({ field, register, errors, def }) => (
+    <FormControl fullWidth margin="normal">
+      <FormControlLabel
+        label={field.label}
+        control={
+          <Checkbox
+            defaultChecked={def}
+            color="primary"
+            {...register(field.name, field.advanced)}
+          />
+        }
+      />
+      {errors && (
+        <Typography variant="caption" color="error.main">
+          {errors.message}
+        </Typography>
+      )}
+    </FormControl>
+  ),
+  checkData: ({ field, register, errors, def, selectData }) => (
+    <FormControl fullWidth margin="normal">
+      <FormLabel sx={{ color: "primary.main", fontFamily: "Orbitron", mb: 1 }}>
+        {field.label}
+      </FormLabel>
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
+        {selectData[field.name]?.map((option) => (
+          <FormControlLabel
+            key={option._id}
+            value={option._id}
+            label={option.label}
+            control={
+              <Checkbox
+                defaultChecked={def?.includes(option._id)}
+                color="primary"
+                {...register(field.name, field.advanced)}
+              />
+            }
+          />
+        ))}
+      </Box>
+      {errors && (
+        <Typography variant="caption" color="error.main">
+          {errors.message}
+        </Typography>
+      )}
+    </FormControl>
+  ),
+  selectData: ({ field, register, errors, def, selectData }) => (
+    <FormControl fullWidth margin="normal">
+      <InputLabel sx={{ color: "primary.main" }}>{field.label}</InputLabel>
+      <Select
+        defaultValue={def || ""}
+        label={field.label}
+        {...register(field.name, field.advanced)}
+        sx={{
+          "& .MuiOutlinedInput-notchedOutline": {
+            borderColor: "rgba(0, 255, 255, 0.3)",
+          },
+          "&:hover .MuiOutlinedInput-notchedOutline": {
+            borderColor: "primary.main",
+          },
+          color: "white",
+        }}
+      >
+        {selectData[field.name]?.map((option) => (
+          <MenuItem key={option._id} value={option._id}>
+            {option.label}
+          </MenuItem>
+        ))}
+      </Select>
+      {errors && (
+        <Typography variant="caption" color="error.main">
+          {errors.message}
+        </Typography>
+      )}
+    </FormControl>
+  ),
+  select: ({ field, register, errors, def }) => (
+    <FormControl fullWidth margin="normal">
+      <InputLabel sx={{ color: "primary.main" }}>{field.label}</InputLabel>
+      <Select
+        defaultValue={def || ""}
+        label={field.label}
+        {...register(field.name, field.advanced)}
+        sx={{
+          "& .MuiOutlinedInput-notchedOutline": {
+            borderColor: "rgba(0, 255, 255, 0.3)",
+          },
+          "&:hover .MuiOutlinedInput-notchedOutline": {
+            borderColor: "primary.main",
+          },
+          color: "white",
+        }}
+      >
+        {field.options.map((option) => (
+          <MenuItem key={option.value} value={option.value}>
+            {option.label}
+          </MenuItem>
+        ))}
+      </Select>
+      {errors && (
+        <Typography variant="caption" color="error.main">
+          {errors.message}
+        </Typography>
+      )}
+    </FormControl>
+  ),
+  textarea: ({ field, register, errors }) => (
+    <TextField
+      fullWidth
+      margin="normal"
+      label={field.label}
+      type={field.secure ? "password" : "text"}
+      multiline
+      rows={5}
+      {...register(field.name, field.advanced)}
+      error={!!errors}
+      helperText={errors?.message}
+      sx={{
+        "& .MuiOutlinedInput-root": {
+          "& fieldset": { borderColor: "rgba(0, 255, 255, 0.3)" },
+          "&:hover fieldset": { borderColor: "primary.main" },
+          color: "white",
+        },
+        "& .MuiInputLabel-root": { color: "primary.main" },
+      }}
+    />
+  ),
+  color: ({ field, register, errors }) => (
+    <TextField
+      fullWidth
+      margin="normal"
+      label={field.label}
+      type="color"
+      {...register(field.name, field.advanced)}
+      error={!!errors}
+      helperText={errors?.message}
+      sx={{
+        "& .MuiOutlinedInput-root": {
+          "& fieldset": { borderColor: "rgba(0, 255, 255, 0.3)" },
+          "&:hover fieldset": { borderColor: "primary.main" },
+          color: "white",
+        },
+        "& .MuiInputLabel-root": { color: "primary.main" },
+      }}
+    />
+  ),
+  file: ({ field, register, errors }) => (
+    <TextField
+      fullWidth
+      margin="normal"
+      label={field.label}
+      type="file"
+      inputProps={{ accept: field.accepts || "*" }}
+      {...register(field.name, field.advanced)}
+      error={!!errors}
+      helperText={errors?.message}
+      sx={{
+        "& .MuiOutlinedInput-root": {
+          "& fieldset": { borderColor: "rgba(0, 255, 255, 0.3)" },
+          "&:hover fieldset": { borderColor: "primary.main" },
+          color: "white",
+        },
+        "& .MuiInputLabel-root": { color: "primary.main" },
+      }}
+    />
+  ),
+  text: ({ field, register, errors, onChange, getValues }) => (
+    <TextField
+      fullWidth
+      margin="normal"
+      label={field.label}
+      type={field.secure ? "password" : "text"}
+      placeholder={field.placeholder}
+      {...register(field.name, field.advanced)}
+      onChange={(e) => onChange?.(field.name, e.target.value, getValues())}
+      error={!!errors}
+      helperText={errors?.message}
+      sx={{
+        "& .MuiOutlinedInput-root": {
+          "& fieldset": { borderColor: "rgba(0, 255, 255, 0.3)" },
+          "&:hover fieldset": { borderColor: "primary.main" },
+          color: "white",
+        },
+        "& .MuiInputLabel-root": { color: "primary.main" },
+      }}
+    />
+  ),
+};
 
 const FormsComponent = ({
   name,
   button,
-  btnStyle,
-  def,
+  btnStyle = {},
+  def = {},
   callback,
   change,
-  disables,
-  selectData,
+  selectData = {},
 }) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
-    setValue,
     getValues,
-  } = useForm({
-    defaultValues: def,
-  });
+  } = useForm({ defaultValues: def });
 
   const form = forms[name];
 
   const onSubmit = (data) => callback(data);
 
-  useEffect(() => {}, []);
+  const handleChange = (fieldName, value, values) => {
+    change?.({ ...values, [fieldName]: value });
+  };
 
   return (
     <Box sx={{ width: "100%" }}>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Grid container rowSpacing={1} columnSpacing={3}>
-          {Object.entries(form).map(([name, field]) => (
-            <Grid key={name} item {...field.grid}>
-              {(() => {
-                switch (field.type) {
-                  case "radio":
-                    return (
-                      <FormControl margin="normal">
-                        <FormLabel>{field.label}</FormLabel>
-                        <RadioGroup defaultValue={def && def[name]} row>
-                          {field.items.map((item) => (
-                            <FormControlLabel
-                              key={`${name}-${item.value}`}
-                              value={item.value}
-                              {...register(name, field.advanced)}
-                              error={errors[name]}
-                              label={item.label}
-                              control={<Radio />}
-                            />
-                          ))}
-                        </RadioGroup>
-                      </FormControl>
-                    );
-                  case "checkbox":
-                    return (
-                      <FormControl error={errors[name]}>
-                        <FormControlLabel
-                          label={field.label}
-                          value={name}
-                          {...register(name, field.advanced)}
-                          control={
-                            <Checkbox color={btnStyle.color || "primary"} />
-                          }
-                        />
-                      </FormControl>
-                    );
-                  case "checkData":
-                    return (
-                      <FormControl margin="normal" fullWidth>
-                        <FormLabel>{field.label}</FormLabel>
-                        <RadioGroup defaultValue={def && def[name]} row>
-                          {selectData[name]?.map((option) => (
-                            <FormControlLabel
-                              key={option._id}
-                              value={option._id}
-                              {...register(name, field.advanced)}
-                              error={errors[name]}
-                              label={option.label}
-                              control={
-                                <Checkbox
-                                  defaultChecked={def[name]?.includes(
-                                    option._id
-                                  )}
-                                  color={btnStyle.color || "primary"}
-                                />
-                              }
-                            />
-                          ))}
-                        </RadioGroup>
-                      </FormControl>
-                    );
-                  case "selectData":
-                    return (
-                      <FormControl margin="normal" fullWidth>
-                        <InputLabel>{field.label}</InputLabel>
-                        <Select
-                          defaultValue={def && def[name]}
-                          {...register(name, field.advanced)}
-                          error={errors[name]}
-                          label={field.label}
-                        >
-                          {selectData[name]?.map((option) => (
-                            <MenuItem
-                              key={`${name}-${option.value}`}
-                              value={option._id}
-                            >
-                              {option.label}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-                    );
-                  case "color":
-                    return (
-                      <TextField
-                        color={btnStyle.color || "primary"}
-                        {...register(name, field.advanced)}
-                        error={errors[name]}
-                        label={field.label}
-                        type="color"
-                        margin="normal"
-                        fullWidth
-                      />
-                    );
-                  case "select":
-                    return (
-                      <FormControl margin="normal" fullWidth>
-                        <InputLabel>{field.label}</InputLabel>
-                        <Select
-                          defaultValue={def && def[name]}
-                          {...register(name, field.advanced)}
-                          error={errors[name]}
-                          label={field.label}
-                        >
-                          {field.options.map((option) => (
-                            <MenuItem key={option.value} value={option.value}>
-                              {option.label}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-                    );
-                  case "textarea":
-                    return (
-                      <TextField
-                        {...register(name, field.advanced)}
-                        error={errors[name]}
-                        label={field.label}
-                        type={field.secure ? "password" : "text"}
-                        margin="normal"
-                        rows={5}
-                        fullWidth
-                        multiline
-                      />
-                    );
-                  case "tel":
-                    return (
-                      <TextField
-                        {...register(name, field.advanced)}
-                        onChange={(e) => {
-                          setValue(name, e.target.value);
-                          change && change(getValues());
-                        }}
-                        error={errors[name]}
-                        label={field.label}
-                        type={field.secure ? "password" : "tel"}
-                        margin="normal"
-                        fullWidth
-                      />
-                    );
-                  case "file":
-                    return (
-                      <TextField
-                        {...register(name, field.advanced)}
-                        error={errors[name]}
-                        label={field.label}
-                        type="file"
-                        margin="normal"
-                        inputProps={{ accept: field.accepts || "*" }}
-                        fullWidth
-                      />
-                    );
-                  default:
-                    return (
-                      <TextField
-                        {...register(name, field.advanced)}
-                        onChange={(e) => {
-                          setValue(name, e.target.value);
-                          change && change(getValues());
-                        }}
-                        error={errors[name]}
-                        label={field.label}
-                        type={field.secure ? "password" : "text"}
-                        margin="normal"
-                        fullWidth
-                      />
-                    );
-                }
-              })()}
-            </Grid>
-          ))}
+        <Grid container rowSpacing={2} columnSpacing={3}>
+          {Object.entries(form).map(([fieldName, field]) => {
+            const Component =
+              fieldComponents[field.type] || fieldComponents.text;
+            return (
+              <Grid key={fieldName} item {...field.grid}>
+                <Component
+                  field={{ ...field, name: fieldName }}
+                  register={register}
+                  errors={errors[fieldName]}
+                  def={def[fieldName]}
+                  selectData={selectData}
+                  onChange={handleChange}
+                  getValues={getValues}
+                />
+              </Grid>
+            );
+          })}
         </Grid>
         {button && (
-          <Button
-            variant="contained"
-            color={btnStyle.color || "primary"}
-            type="submit"
-            onClick={handleSubmit(onSubmit)}
-            sx={{ color: "white", mt: 2, p: 1.5, borderRadius: 1 }}
-            fullWidth={btnStyle.fullWidth}
-            disabled={btnStyle.disabled}
-            disableElevation
-          >
-            {button}
-          </Button>
+          <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}>
+            <Button
+              variant="contained"
+              color={btnStyle.color || "primary"}
+              type="submit"
+              fullWidth={btnStyle.fullWidth !== false}
+              disabled={btnStyle.disabled}
+              disableElevation
+              sx={{
+                py: 1.5,
+                px: 3,
+                bgcolor: "primary.main",
+                borderRadius: 2,
+                "&:hover": {
+                  bgcolor: "primary.dark",
+                  boxShadow: "0 0 10px rgba(0, 255, 255, 0.5)",
+                },
+              }}
+            >
+              {button}
+            </Button>
+          </Box>
         )}
       </form>
     </Box>
