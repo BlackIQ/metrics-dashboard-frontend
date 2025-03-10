@@ -120,7 +120,7 @@ const Index = () => {
           sx: {
             bgcolor: "rgba(30, 30, 30, 0.9)",
             border: "1px solid rgba(0, 255, 255, 0.3)",
-            borderRadius: "20px",
+            borderRadius: 2,
             backdropFilter: "blur(10px)",
             boxShadow: "0 0 20px rgba(0, 255, 255, 0.2)",
             minWidth: { xs: "90%", sm: 400 },
@@ -132,7 +132,7 @@ const Index = () => {
             variant="h6"
             // fontFamily="Orbitron"
             color="primary.main"
-            sx={{ animation: `${neonGlow} 2s ease-in-out infinite` }}
+            // sx={{ animation: `${neonGlow} 2s ease-in-out infinite` }}
           >
             {currentData ? "Edit Permission" : "Add Permission"}
           </Typography>
