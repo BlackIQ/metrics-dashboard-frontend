@@ -134,7 +134,7 @@ const TableComponent = ({
                 // fontFamily="Orbitron"
                 fontWeight="bold"
                 color="primary.main"
-                sx={{ animation: `${neonGlow} 2s ease-in-out infinite` }}
+                // sx={{ animation: `${neonGlow} 2s ease-in-out infinite` }}
               >
                 {tbl.title}
               </Typography>
@@ -179,7 +179,7 @@ const TableComponent = ({
               border: "1px solid rgba(0, 255, 255, 0.3)",
               borderRadius: 2,
               backdropFilter: "blur(10px)",
-              "&:hover": { boxShadow: "0 0 20px rgba(0, 255, 255, 0.2)" },
+              // "&:hover": { boxShadow: "0 0 20px rgba(0, 255, 255, 0.2)" },
             }}
           >
             <Table id={table}>
