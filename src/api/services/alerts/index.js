@@ -42,3 +42,13 @@ export const updateOne = async (id, data) => {
     return Promise.reject(error.response.data);
   }
 };
+
+export const testAlert = async (data) => {
+  try {
+    const response = await API.post(`${alerts}/test`, data);
+
+    return Promise.resolve(response.data);
+  } catch (error) {
+    return Promise.reject(error.response.data);
+  }
+};
