@@ -32,6 +32,7 @@ import {
   Warning,
   Logout,
   Dashboard,
+  Notifications,
 } from "@mui/icons-material";
 import { useToast } from "@/hooks";
 import { appConfig } from "@/config";
@@ -154,6 +155,8 @@ const PanelLayout = ({ children }) => {
         return <Groups />;
       case "dashboards":
         return <Dashboard />;
+      case "alerts":
+        return <Notifications />;
       case "logout":
         return <Logout sx={{ color: "error.main" }} />;
       default:
