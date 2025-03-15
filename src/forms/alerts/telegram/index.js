@@ -8,7 +8,12 @@ import { useToast } from "@/hooks";
 import {
   createOne as createAlert,
   updateOne as updateAlert,
+  testAlert,
 } from "@/api/services/alerts";
+
+import { Box, Button, Divider, Typography } from "@mui/material";
+
+import { useState } from "react";
 
 const AlertTelegramForm = ({
   currentData,
@@ -19,6 +24,10 @@ const AlertTelegramForm = ({
   handleClose,
 }) => {
   const toast = useToast();
+
+  const [formData, setFormData] = useState(
+    currentData ? currentData.config : {}
+  );
 
   const addData = async (callback) => {
     setLoading(true);
@@ -58,19 +67,70 @@ const AlertTelegramForm = ({
     setLoading(false);
   };
 
+  const handleTestAlert = async () => {
+    setLoading(true);
+
+    const data = { type: "telegram", config: formData };
+
+    try {
+      await testAlert(data);
+
+      toast("Check your Telegram :)");
+    } catch (error) {
+      toast(error.message);
+    }
+
+    setLoading(false);
+  };
+
   return (
-    <Form
-      name="alertTelegram"
-      callback={updateMode !== "non-exists" ? updateData : addData}
-      disables={[]}
-      btnStyle={{
-        fullWidth: false,
-        disabled: loading,
-        color: "primary",
-      }}
-      def={updateMode !== "non-exists" ? { ...currentData.config } : {}}
-      button={updateMode !== "non-exists" ? "Update" : "Create"}
-    />
+    <>
+      <Form
+        name="alertTelegram"
+        callback={updateMode !== "non-exists" ? updateData : addData}
+        disables={[]}
+        change={(fData) => setFormData(fData)}
+        btnStyle={{
+          fullWidth: false,
+          disabled: loading,
+          color: "primary",
+        }}
+        def={updateMode !== "non-exists" ? { ...currentData.config } : {}}
+        button={updateMode !== "non-exists" ? "Update" : "Create"}
+      />
+
+      <Box
+        sx={{
+          mt: 3,
+          borderRadius: 2,
+        }}
+      >
+        <Typography variant="h6" fontWeight={600} gutterBottom>
+          Test Telegram Alert
+        </Typography>
+
+        <Divider sx={{ mb: 2, bgcolor: "grey.400" }} />
+
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          This will send a test message to the configured Telegram chat.
+        </Typography>
+
+        <Button
+          variant="contained"
+          color="primary"
+          size="medium"
+          onClick={handleTestAlert}
+          sx={{
+            mt: 1,
+            borderRadius: 2,
+            textTransform: "none",
+          }}
+          disableElevation
+        >
+          Send Test Telegram
+        </Button>
+      </Box>
+    </>
   );
 };
 
