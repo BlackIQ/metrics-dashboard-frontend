@@ -49,6 +49,14 @@ const tables = {
       delete: "Delete",
     },
   },
+  alert: {
+    title: "Alerts",
+    fields: {
+      name: "Name",
+      details: "Details",
+      alertStatus: "Status",
+    },
+  },
 };
 
 export default tables;
