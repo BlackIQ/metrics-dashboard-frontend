@@ -517,6 +517,55 @@ const forms = {
       // },
     },
   },
+  alertTelegram: {
+    chatID: {
+      type: "text",
+      label: "Chat ID",
+      placeholder: "Enter your channel/group/pv chat ID",
+      secure: false,
+      grid: {
+        xs: 12,
+        sm: 12,
+        md: 12,
+        lg: 12,
+      },
+      advanced: {
+        required: true,
+      },
+    },
+    botToken: {
+      type: "text",
+      label: "Bot Token",
+      placeholder: "Enter your Bot token",
+      secure: false,
+      grid: {
+        xs: 12,
+        sm: 12,
+        md: 12,
+        lg: 12,
+      },
+      advanced: {
+        required: true,
+      },
+    },
+  },
+  alertEmail: {
+    destinationEmail: {
+      type: "text",
+      label: "Email",
+      placeholder: "Enter your Email to get alerts",
+      secure: false,
+      grid: {
+        xs: 12,
+        sm: 12,
+        md: 12,
+        lg: 12,
+      },
+      advanced: {
+        required: true,
+      },
+    },
+  },
 };
 
 export default forms;
