@@ -14,13 +14,7 @@ import {
   Chip,
 } from "@mui/material";
 import { format as dateFormat } from "date-fns";
-import {
-  Add,
-  DeleteOutline,
-  EditOutlined,
-  KeyboardArrowLeft,
-  KeyboardArrowRight,
-} from "@mui/icons-material";
+import { Add, DeleteOutline, EditOutlined } from "@mui/icons-material";
 import { tables } from "@/config";
 import { useEffect, useState } from "react";
 import { useToast } from "@/hooks";
@@ -110,6 +104,14 @@ const TableComponent = ({
           )
         ) : (
           <Chip label="Inactive" color="default" size="small" />
+        );
+      case "alertStatus":
+        return value === "non-exists" ? (
+          <Chip label="Not Implemented" color="default" size="small" />
+        ) : value === "active" ? (
+          <Chip label="Active" color="success" size="small" />
+        ) : (
+          <Chip label="Inactive" color="error" size="small" />
         );
       default:
         return value ?? "—"; // Default to dash if undefined/null
