@@ -60,10 +60,10 @@ const Auth = () => {
   const doRegister = async (callback) => {
     setLoading(true);
     try {
-      const result = await register(callback);
-      const { user, token } = result;
-      dispatch(setUser(user));
-      dispatch(setSession(token));
+      await register(callback);
+      toast("Registration successful! Please check your email to confirm.", {
+        severity: "success",
+      });
     } catch (error) {
       toast(error.message, { severity: "error" });
     } finally {
