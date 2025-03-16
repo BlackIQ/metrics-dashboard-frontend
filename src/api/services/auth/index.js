@@ -22,3 +22,13 @@ export const register = async (data) => {
     return Promise.reject(error.response.data);
   }
 };
+
+export const confirm = async (rayid) => {
+  try {
+    const response = await API.get(`${auth.confirm}/${rayid}`);
+
+    return Promise.resolve(response.data);
+  } catch (error) {
+    return Promise.reject(error.response.data);
+  }
+};
