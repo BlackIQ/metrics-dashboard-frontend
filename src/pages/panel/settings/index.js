@@ -70,8 +70,9 @@ const Index = () => {
 
   const updateData = async (data) => {
     setLoading(true);
+
     try {
-      await updateUser(data._id, data);
+      await updateUser(user._id, data);
 
       toast("Information updated", { severity: "success" });
 
@@ -83,19 +84,21 @@ const Index = () => {
     }
   };
 
-  const changePassword = async (data) => {
+  const changePasswordUser = async (data) => {
     setLoading(true);
 
     if (data.newPassword !== data.confirmPassword) {
       toast("Passwords do not match", { severity: "error" });
+
       setLoading(false);
+
       return;
     }
 
     const newData = { password: data.newPassword };
 
     try {
-      await changePassword(data._id, newData);
+      await changePassword(user._id, newData);
 
       toast("Password changed", { severity: "success" });
 
@@ -221,7 +224,7 @@ const Index = () => {
                   />
                   <Form
                     name="changePassword"
-                    callback={changePassword}
+                    callback={changePasswordUser}
                     btnStyle={{
                       fullWidth: false,
                       disabled: loading,
