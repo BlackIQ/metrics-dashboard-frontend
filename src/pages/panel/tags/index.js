@@ -37,7 +37,7 @@ const neonGlow = keyframes`
 
 const Index = () => {
   const [tags, setTags] = useState([]);
-  
+
   const [loading, setLoading] = useState(true);
   const [currentData, setCurrentData] = useState({});
 
@@ -54,7 +54,7 @@ const Index = () => {
     setLoading(true);
 
     try {
-      const { tags } = await allTags(filter);
+      const { tags } = await allTags();
       setTags(tags);
       toast("Tags retrieved", { severity: "success" });
     } catch (error) {
