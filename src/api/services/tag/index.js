@@ -3,9 +3,9 @@ import URLs from "@/api/urls";
 
 const { tag } = URLs;
 
-export const allTags = async () => {
+export const allTags = async (page = 1, limit = 10) => {
   try {
-    const response = await API.get(tag);
+    const response = await API.get(`${tag}?page=${page}&limit=${limit}`);
 
     return Promise.resolve(response.data);
   } catch (error) {

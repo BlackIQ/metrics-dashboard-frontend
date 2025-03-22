@@ -3,9 +3,9 @@ import URLs from "@/api/urls";
 
 const { permission } = URLs;
 
-export const allPermissions = async () => {
+export const allPermissions = async (page = 1, limit = 10) => {
   try {
-    const response = await API.get(permission);
+    const response = await API.get(`${permission}?page=${page}&limit=${limit}`);
 
     return Promise.resolve(response.data);
   } catch (error) {

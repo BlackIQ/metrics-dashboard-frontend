@@ -3,9 +3,9 @@ import URLs from "@/api/urls";
 
 const { host } = URLs;
 
-export const allHosts = async () => {
+export const allHosts = async (page = 1, limit = 10) => {
   try {
-    const response = await API.get(host);
+    const response = await API.get(`${host}?page=${page}&limit=${limit}`);
 
     return Promise.resolve(response.data);
   } catch (error) {

@@ -3,9 +3,9 @@ import URLs from "@/api/urls";
 
 const { alerts } = URLs;
 
-export const allAlerts = async () => {
+export const allAlerts = async (page = 1, limit = 10) => {
   try {
-    const response = await API.get(alerts);
+    const response = await API.get(`${alerts}?page=${page}&limit=${limit}`);
 
     return Promise.resolve(response.data);
   } catch (error) {

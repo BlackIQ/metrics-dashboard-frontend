@@ -3,9 +3,9 @@ import URLs from "@/api/urls";
 
 const { role } = URLs;
 
-export const allRoles = async () => {
+export const allRoles = async (page = 1, limit = 10) => {
   try {
-    const response = await API.get(role);
+    const response = await API.get(`${role}?page=${page}&limit=${limit}`);
 
     return Promise.resolve(response.data);
   } catch (error) {
