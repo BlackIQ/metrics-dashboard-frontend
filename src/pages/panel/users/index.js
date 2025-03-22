@@ -1,7 +1,10 @@
+// - - - - - React - - - - -
 import { useState, useEffect } from "react";
+
+// - - - - - Next - - - - -
 import Head from "next/head";
 
-// Material UI
+// - - - - - MUI - - - - -
 import {
   Box,
   Dialog,
@@ -10,21 +13,21 @@ import {
   Typography,
 } from "@mui/material";
 
-// Redux
-import { useSelector } from "react-redux";
-
-// Components
+// - - - - - Components - - - - -
 import { Table, Loading } from "@/components";
 
-// Hooks
+// - - - - - Hooks - - - - -
 import { useDisclosure, useToast } from "@/hooks";
 
-// APIs
-import { all as allUsers } from "@/api/services/user";
-import { all as allRoles } from "@/api/services/role";
+// - - - - - API - - - - -
+import { allUsers } from "@/api/services/user";
+import { allRoles } from "@/api/services/role";
 
-// Forms
+// - - - - - Forms - - - - -
 import UserForm from "@/forms/user";
+
+// - - - - - Redux - - - - -
+import { useSelector } from "react-redux";
 
 // Neon glow animation
 import { keyframes } from "@mui/system";
@@ -76,6 +79,7 @@ const Index = () => {
       <Head>
         <title>Users - OpenHubble Console</title>
       </Head>
+      
       <Box>
         {!loading ? (
           <Table

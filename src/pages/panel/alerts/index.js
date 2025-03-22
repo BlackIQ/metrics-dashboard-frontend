@@ -1,7 +1,10 @@
+// - - - - - React - - - - -
 import { useState, useEffect } from "react";
+
+// - - - - - Next - - - - -
 import Head from "next/head";
 
-// Material UI
+// - - - - - MUI - - - - -
 import {
   Box,
   Dialog,
@@ -10,16 +13,16 @@ import {
   Typography,
 } from "@mui/material";
 
-// Components
+// - - - - - Components - - - - -
 import { Table, Loading } from "@/components";
 
-// Hooks
+// - - - - - Hooks - - - - -
 import { useDisclosure, useToast } from "@/hooks";
 
-// APIs
-import { listUserAlerts } from "@/api/services/alerts";
+// - - - - - API - - - - -
+import { allAlerts } from "@/api/services/alerts";
 
-// Forms
+// - - - - - Forms - - - - -
 import AlertTelegramForm from "@/forms/alerts/telegram";
 import AlertEmailForm from "@/forms/alerts/email";
 
@@ -51,7 +54,7 @@ const Index = () => {
     setLoading(true);
 
     try {
-      const { alerts } = await listUserAlerts();
+      const { alerts } = await allAlerts();
 
       setAlerts(alerts);
 
@@ -68,6 +71,7 @@ const Index = () => {
       <Head>
         <title>Alerts - OpenHubble Console</title>
       </Head>
+      
       <Box>
         {!loading ? (
           <Table

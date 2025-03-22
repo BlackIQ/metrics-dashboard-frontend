@@ -1,10 +1,10 @@
+// - - - - - React - - - - -
 import { useState, useEffect } from "react";
+
+// - - - - - Next - - - - -
 import Head from "next/head";
 
-// Redux
-import { useSelector } from "react-redux";
-
-// Material UI
+// - - - - - MUI - - - - -
 import {
   Box,
   Dialog,
@@ -13,16 +13,16 @@ import {
   Typography,
 } from "@mui/material";
 
-// Components
+// - - - - - Components - - - - -
 import { Table, Loading, Confirm } from "@/components";
 
-// Hooks
+// - - - - - Hooks - - - - -
 import { useDisclosure, useToast } from "@/hooks";
 
-// APIs
-import { all as allTags, deleteOne as deleteTag } from "@/api/services/tag";
+// - - - - - API - - - - -
+import { allTags, deleteTag } from "@/api/services/tag";
 
-// Forms
+// - - - - - Forms - - - - -
 import TagForm from "@/forms/tag";
 
 // Neon glow animation
@@ -37,6 +37,7 @@ const neonGlow = keyframes`
 
 const Index = () => {
   const [tags, setTags] = useState([]);
+  
   const [loading, setLoading] = useState(true);
   const [currentData, setCurrentData] = useState({});
 
@@ -44,7 +45,6 @@ const Index = () => {
   const { isOpen: dialogOpen, onToggle: handleDialog } = useDisclosure();
 
   const toast = useToast();
-  const { role, _id } = useSelector((state) => state.user);
 
   useEffect(() => {
     getData();
@@ -52,7 +52,7 @@ const Index = () => {
 
   const getData = async () => {
     setLoading(true);
-    const filter = role?.value === "user" ? { user: _id } : {};
+
     try {
       const { tags } = await allTags(filter);
       setTags(tags);
@@ -82,6 +82,7 @@ const Index = () => {
       <Head>
         <title>Tags - OpenHubble Console</title>
       </Head>
+
       <Box>
         {!loading ? (
           <Table

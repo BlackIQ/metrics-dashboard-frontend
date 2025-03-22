@@ -1,7 +1,10 @@
+// - - - - - React - - - - -
 import { useState, useEffect } from "react";
+
+// - - - - - Next - - - - -
 import Head from "next/head";
 
-// Material UI
+// - - - - - MUI - - - - -
 import {
   Box,
   Dialog,
@@ -10,19 +13,16 @@ import {
   Typography,
 } from "@mui/material";
 
-// Components
+// - - - - - Components - - - - -
 import { Table, Loading, Confirm } from "@/components";
 
-// Hooks
+// - - - - - Hooks - - - - -
 import { useDisclosure, useToast } from "@/hooks";
 
-// APIs
-import {
-  all as allPermissions,
-  deleteOne as deletePermission,
-} from "@/api/services/permission";
+// - - - - - API - - - - -
+import { allPermissions, deletePermission } from "@/api/services/permission";
 
-// Forms
+// - - - - - Forms - - - - -
 import PermissionForm from "@/forms/permission";
 
 // Neon glow animation
@@ -89,6 +89,7 @@ const Index = () => {
       <Head>
         <title>Permissions - OpenHubble Console</title>
       </Head>
+
       <Box>
         {!loading ? (
           <Table

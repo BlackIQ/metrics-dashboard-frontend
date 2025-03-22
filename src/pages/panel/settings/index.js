@@ -1,6 +1,10 @@
+// - - - - - React - - - - -
 import { useState, useEffect } from "react";
+
+// - - - - - Next - - - - -
 import Head from "next/head";
-import { useDispatch, useSelector } from "react-redux";
+
+// - - - - - MUI - - - - -
 import {
   Box,
   Typography,
@@ -9,14 +13,23 @@ import {
   Grid,
   Paper,
 } from "@mui/material";
+
+// - - - - - Components - - - - -
 import { Form, Loading } from "@/components";
-import {
-  single,
-  updateOne as updateUser,
-  changePassword as changePasswordUser,
-} from "@/api/services/user";
+
+// - - - - - Hooks - - - - -
 import { useToast } from "@/hooks";
+
+// - - - - - API - - - - -
+import { singleUser, updateUser, changePassword } from "@/api/services/user";
+
+// - - - - - Store - - - - -
 import { setUser } from "@/redux/actions/user";
+
+// - - - - - Redux - - - - -
+import { useSelector, useDispatch } from "react-redux";
+
+// Neon glow animation
 import { keyframes } from "@mui/system";
 
 // Neon glow animation
@@ -36,14 +49,17 @@ const dividerGlow = keyframes`
 const Index = () => {
   const dispatch = useDispatch();
   const toast = useToast();
+
   const { user } = useSelector((state) => state);
 
   const [loading, setLoading] = useState(true);
 
   const getData = async () => {
     try {
-      const data = await single(user._id);
+      const data = await singleUser(user._id);
+
       dispatch(setUser(data.user));
+
       toast("Profile loaded", { severity: "success" });
     } catch (error) {
       toast(error.message, { severity: "error" });
@@ -56,7 +72,9 @@ const Index = () => {
     setLoading(true);
     try {
       await updateUser(data._id, data);
+
       toast("Information updated", { severity: "success" });
+
       await getData();
     } catch (error) {
       toast(error.message, { severity: "error" });
@@ -67,15 +85,20 @@ const Index = () => {
 
   const changePassword = async (data) => {
     setLoading(true);
+
     if (data.newPassword !== data.confirmPassword) {
       toast("Passwords do not match", { severity: "error" });
       setLoading(false);
       return;
     }
+
     const newData = { password: data.newPassword };
+
     try {
-      await changePasswordUser(data._id, newData);
+      await changePassword(data._id, newData);
+
       toast("Password changed", { severity: "success" });
+
       await getData();
     } catch (error) {
       toast(error.message, { severity: "error" });
@@ -85,7 +108,7 @@ const Index = () => {
   };
 
   useEffect(() => {
-    getData(); // Fetch user data on mount
+    getData();
   }, []);
 
   return (
@@ -93,6 +116,7 @@ const Index = () => {
       <Head>
         <title>Settings - OpenHubble Console</title>
       </Head>
+
       <Box sx={{ py: 4 }}>
         {loading ? (
           <Loading />

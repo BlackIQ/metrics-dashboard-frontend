@@ -1,7 +1,10 @@
+// - - - - - React - - - - -
 import { useState, useEffect } from "react";
+
+// - - - - - Next - - - - -
 import Head from "next/head";
 
-// Material UI
+// - - - - - MUI - - - - -
 import {
   Box,
   Dialog,
@@ -10,17 +13,17 @@ import {
   Typography,
 } from "@mui/material";
 
-// Components
+// - - - - - Components - - - - -
 import { Table, Loading, Confirm } from "@/components";
 
-// Hooks
+// - - - - - Hooks - - - - -
 import { useDisclosure, useToast } from "@/hooks";
 
-// APIs
-import { all as allRoles, deleteOne as deleteRole } from "@/api/services/role";
-import { all as allPermissions } from "@/api/services/permission";
+// - - - - - API - - - - -
+import { allRoles, deleteRole } from "@/api/services/role";
+import { allPermissions } from "@/api/services/permission";
 
-// Forms
+// - - - - - Forms - - - - -
 import RoleForm from "@/forms/role";
 
 // Neon glow animation
@@ -90,6 +93,7 @@ const Index = () => {
       <Head>
         <title>Roles - OpenHubble Console</title>
       </Head>
+      
       <Box>
         {!loading ? (
           <Table

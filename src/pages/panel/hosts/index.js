@@ -1,10 +1,10 @@
+// - - - - - React - - - - -
 import { useState, useEffect } from "react";
+
+// - - - - - Next - - - - -
 import Head from "next/head";
 
-// Redux
-import { useSelector } from "react-redux";
-
-// Material UI
+// - - - - - MUI - - - - -
 import {
   Box,
   Dialog,
@@ -13,18 +13,18 @@ import {
   Typography,
 } from "@mui/material";
 
-// Components
+// - - - - - Components - - - - -
 import { Table, Loading, Confirm } from "@/components";
 
-// Hooks
+// - - - - - Hooks - - - - -
 import { useDisclosure, useToast } from "@/hooks";
 
-// APIs
-import { all as allHosts, deleteOne as deleteHost } from "@/api/services/host";
-import { all as allGroups } from "@/api/services/group";
-import { all as allTags } from "@/api/services/tag";
+// - - - - - API - - - - -
+import { allHosts, deleteHost } from "@/api/services/host";
+import { allGroups } from "@/api/services/group";
+import { allTags } from "@/api/services/tag";
 
-// Forms
+// - - - - - Forms - - - - -
 import HostForm from "@/forms/host";
 
 // Neon glow animation
@@ -50,8 +50,6 @@ const Index = () => {
 
   const toast = useToast();
 
-  const { role, _id } = useSelector((state) => state.user);
-
   useEffect(() => {
     getData();
   }, []);
@@ -59,16 +57,10 @@ const Index = () => {
   const getData = async () => {
     setLoading(true);
 
-    const filter = {};
-
-    if (role?.value === "user") {
-      filter["user"] = _id;
-    }
-
     try {
-      const { hosts } = await allHosts(filter);
-      const { groups } = await allGroups(filter);
-      const { tags } = await allTags(filter);
+      const { hosts } = await allHosts();
+      const { groups } = await allGroups();
+      const { tags } = await allTags();
 
       setHosts(hosts);
       setGroups(groups);
@@ -105,6 +97,7 @@ const Index = () => {
       <Head>
         <title>Hosts - OpenHubble Console</title>
       </Head>
+      
       <Box>
         {!loading ? (
           <Table

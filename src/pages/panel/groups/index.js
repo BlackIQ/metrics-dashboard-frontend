@@ -1,10 +1,10 @@
+// - - - - - React - - - - -
 import { useState, useEffect } from "react";
+
+// - - - - - Next - - - - -
 import Head from "next/head";
 
-// Redux
-import { useSelector } from "react-redux";
-
-// Material UI
+// - - - - - MUI - - - - -
 import {
   Box,
   Dialog,
@@ -13,19 +13,16 @@ import {
   Typography,
 } from "@mui/material";
 
-// Components
+// - - - - - Components - - - - -
 import { Table, Loading, Confirm } from "@/components";
 
-// Hooks
+// - - - - - Hooks - - - - -
 import { useDisclosure, useToast } from "@/hooks";
 
-// APIs
-import {
-  all as allGroups,
-  deleteOne as deleteGroup,
-} from "@/api/services/group";
+// - - - - - API - - - - -
+import { allGroups, deleteGroup } from "@/api/services/group";
 
-// Forms
+// - - - - - Forms - - - - -
 import GroupForm from "@/forms/group";
 
 // Neon glow animation
@@ -40,6 +37,7 @@ const neonGlow = keyframes`
 
 const Index = () => {
   const [groups, setGroups] = useState([]);
+  
   const [loading, setLoading] = useState(true);
   const [currentData, setCurrentData] = useState({});
 
@@ -47,7 +45,6 @@ const Index = () => {
   const { isOpen: dialogOpen, onToggle: handleDialog } = useDisclosure();
 
   const toast = useToast();
-  const { role, _id } = useSelector((state) => state.user);
 
   useEffect(() => {
     getData();
@@ -55,10 +52,9 @@ const Index = () => {
 
   const getData = async () => {
     setLoading(true);
-    const filter = role?.value === "user" ? { user: _id } : {};
 
     try {
-      const { groups } = await allGroups(filter);
+      const { groups } = await allGroups();
       setGroups(groups);
       toast("Groups retrieved", { severity: "success" });
     } catch (error) {
@@ -86,6 +82,7 @@ const Index = () => {
       <Head>
         <title>Groups - OpenHubble Console</title>
       </Head>
+
       <Box>
         {!loading ? (
           <Table
