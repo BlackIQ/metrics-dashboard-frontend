@@ -3,7 +3,7 @@ import URLs from "@/api/urls";
 
 const { user } = URLs;
 
-export const all = async () => {
+export const allUsers = async () => {
   try {
     const response = await API.get(user);
 
@@ -13,7 +13,7 @@ export const all = async () => {
   }
 };
 
-export const single = async (id) => {
+export const singleUser = async (id) => {
   try {
     const response = await API.get(`${user}/${id}`);
 
@@ -23,7 +23,7 @@ export const single = async (id) => {
   }
 };
 
-export const updateOne = async (id, data) => {
+export const updateUser = async (id, data) => {
   try {
     const response = await API.patch(`${user}/${id}`, data);
 

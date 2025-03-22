@@ -3,7 +3,7 @@ import URLs from "@/api/urls";
 
 const { permission } = URLs;
 
-export const all = async () => {
+export const allPermissions = async () => {
   try {
     const response = await API.get(permission);
 
@@ -13,7 +13,7 @@ export const all = async () => {
   }
 };
 
-export const singleOne = async (id) => {
+export const singlePermission = async (id) => {
   try {
     const response = await API.get(`${permission}/${id}`);
 
@@ -23,7 +23,7 @@ export const singleOne = async (id) => {
   }
 };
 
-export const createOne = async (data) => {
+export const createPermission = async (data) => {
   try {
     const response = await API.post(permission, data);
 
@@ -33,7 +33,7 @@ export const createOne = async (data) => {
   }
 };
 
-export const deleteOne = async (id) => {
+export const deletePermission = async (id) => {
   try {
     const response = await API.delete(`${permission}/${id}`);
 
@@ -43,7 +43,7 @@ export const deleteOne = async (id) => {
   }
 };
 
-export const updateOne = async (id, data) => {
+export const updatePermission = async (id, data) => {
   try {
     const response = await API.patch(`${permission}/${id}`, data);
 

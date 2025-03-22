@@ -3,7 +3,7 @@ import URLs from "@/api/urls";
 
 const { alerts } = URLs;
 
-export const listUserAlerts = async () => {
+export const allAlerts = async () => {
   try {
     const response = await API.get(alerts);
 
@@ -13,7 +13,7 @@ export const listUserAlerts = async () => {
   }
 };
 
-export const createOne = async (data) => {
+export const createAlert = async (data) => {
   try {
     const response = await API.post(alerts, data);
 
@@ -23,7 +23,7 @@ export const createOne = async (data) => {
   }
 };
 
-export const deleteOne = async (id) => {
+export const deleteAlert = async (id) => {
   try {
     const response = await API.delete(`${alerts}/${id}`);
 
@@ -33,7 +33,7 @@ export const deleteOne = async (id) => {
   }
 };
 
-export const updateOne = async (id, data) => {
+export const updateAlert = async (id, data) => {
   try {
     const response = await API.patch(`${alerts}/${id}`, data);
 

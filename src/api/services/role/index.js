@@ -3,7 +3,7 @@ import URLs from "@/api/urls";
 
 const { role } = URLs;
 
-export const all = async () => {
+export const allRoles = async () => {
   try {
     const response = await API.get(role);
 
@@ -13,7 +13,7 @@ export const all = async () => {
   }
 };
 
-export const singleOne = async (id) => {
+export const singleRole = async (id) => {
   try {
     const response = await API.get(`${role}/${id}`);
 
@@ -23,7 +23,7 @@ export const singleOne = async (id) => {
   }
 };
 
-export const createOne = async (data) => {
+export const createRole = async (data) => {
   try {
     const response = await API.post(role, data);
 
@@ -33,7 +33,7 @@ export const createOne = async (data) => {
   }
 };
 
-export const deleteOne = async (id) => {
+export const deleteRole = async (id) => {
   try {
     const response = await API.delete(`${role}/${id}`);
 
@@ -43,7 +43,7 @@ export const deleteOne = async (id) => {
   }
 };
 
-export const updateOne = async (id, data) => {
+export const updateRole = async (id, data) => {
   try {
     const response = await API.patch(`${role}/${id}`, data);
 

@@ -1,9 +1,5 @@
 const urls = {
-  auth: {
-    login: "auth/login",
-    register: "auth/register",
-    confirm: "auth/confirm",
-  },
+  auth: "auth",
   permission: "permissions",
   role: "roles",
   user: "users",

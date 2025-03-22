@@ -3,11 +3,9 @@ import URLs from "@/api/urls";
 
 const { tag } = URLs;
 
-export const all = async (filter) => {
+export const allTags = async () => {
   try {
-    const response = await API.get(tag, {
-      params: filter,
-    });
+    const response = await API.get(tag);
 
     return Promise.resolve(response.data);
   } catch (error) {
@@ -15,7 +13,7 @@ export const all = async (filter) => {
   }
 };
 
-export const singleOne = async (id) => {
+export const singleTag = async (id) => {
   try {
     const response = await API.get(`${tag}/${id}`);
 
@@ -25,7 +23,7 @@ export const singleOne = async (id) => {
   }
 };
 
-export const createOne = async (data) => {
+export const createTag = async (data) => {
   try {
     const response = await API.post(tag, data);
 
@@ -35,7 +33,7 @@ export const createOne = async (data) => {
   }
 };
 
-export const deleteOne = async (id) => {
+export const deleteTag = async (id) => {
   try {
     const response = await API.delete(`${tag}/${id}`);
 
@@ -45,7 +43,7 @@ export const deleteOne = async (id) => {
   }
 };
 
-export const updateOne = async (id, data) => {
+export const updateTag = async (id, data) => {
   try {
     const response = await API.patch(`${tag}/${id}`, data);
 

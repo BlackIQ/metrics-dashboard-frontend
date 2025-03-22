@@ -3,7 +3,7 @@ import URLs from "@/api/urls";
 
 const { metrics } = URLs;
 
-export const READ = async (
+export const readMetrics = async (
   hostID,
   measurements = ["host_system_load_metrics"],
   start = "-1m",
