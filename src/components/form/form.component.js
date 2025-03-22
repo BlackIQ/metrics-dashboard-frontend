@@ -257,7 +257,17 @@ const FormsComponent = ({
 
   const form = forms[name];
 
-  const onSubmit = (data) => callback(data);
+  const onSubmit = (data) => {
+    const payload = {};
+
+    Object.keys(form).forEach((key) => {
+      if (data[key] !== undefined) {
+        payload[key] = data[key];
+      }
+    });
+
+    callback(payload);
+  };
 
   const handleChange = (fieldName, value, values) => {
     change?.({ ...values, [fieldName]: value });
