@@ -40,6 +40,9 @@ const Index = () => {
   const [users, setUsers] = useState([]);
   const [roles, setRoles] = useState([]);
 
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
   const [loading, setLoading] = useState(true);
   const [currentData, setCurrentData] = useState({});
 
@@ -48,18 +51,24 @@ const Index = () => {
   const toast = useToast();
 
   useEffect(() => {
-    getData();
-  }, []);
+    getData(page);
+  }, [page]);
 
-  const getData = async () => {
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+  };
+
+  const getData = async (currentPage) => {
     setLoading(true);
 
     try {
-      const { users } = await allUsers();
-      const { roles } = await allRoles();
+      const { users, pagination } = await allUsers(currentPage);
+      const { roles } = await allRoles(1, 100);
 
       setUsers(users);
       setRoles(roles);
+
+      setTotalPages(pagination.pages);
 
       toast("Users and roles fetched successfully", { severity: "success" });
     } catch (error) {
@@ -88,6 +97,9 @@ const Index = () => {
               setCurrentData(d);
               handleDialog();
             }}
+            page={page}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
           />
         ) : (
           <Loading />

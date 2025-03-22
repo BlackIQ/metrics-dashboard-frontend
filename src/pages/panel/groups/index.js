@@ -37,7 +37,10 @@ const neonGlow = keyframes`
 
 const Index = () => {
   const [groups, setGroups] = useState([]);
-  
+
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
   const [loading, setLoading] = useState(true);
   const [currentData, setCurrentData] = useState({});
 
@@ -47,33 +50,47 @@ const Index = () => {
   const toast = useToast();
 
   useEffect(() => {
-    getData();
-  }, []);
+    getData(page);
+  }, [page]);
 
-  const getData = async () => {
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+  };
+
+  const getData = async (currentPage) => {
     setLoading(true);
 
     try {
-      const { groups } = await allGroups();
+      const { groups, pagination } = await allGroups(currentPage);
+
       setGroups(groups);
+
+      setTotalPages(pagination.pages);
+
       toast("Groups retrieved", { severity: "success" });
     } catch (error) {
       toast(error.message, { severity: "error" });
     }
+
     setLoading(false);
   };
 
   const deleteData = async () => {
     setLoading(true);
+
     try {
       await deleteGroup(currentData._id);
+
       toast("Group deleted", { severity: "success" });
+
       handleConfirm();
       setCurrentData({});
-      getData();
+
+      getData(page);
     } catch (error) {
       toast(error.message, { severity: "error" });
     }
+
     setLoading(false);
   };
 
@@ -101,6 +118,9 @@ const Index = () => {
               setCurrentData(data);
               handleConfirm();
             }}
+            page={page}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
           />
         ) : (
           <Loading />

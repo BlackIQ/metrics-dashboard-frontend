@@ -40,6 +40,9 @@ const Index = () => {
   const [roles, setRoles] = useState([]);
   const [permissions, setPermissions] = useState([]);
 
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
   const [loading, setLoading] = useState(true);
   const [currentData, setCurrentData] = useState({});
 
@@ -49,18 +52,24 @@ const Index = () => {
   const toast = useToast();
 
   useEffect(() => {
-    getData();
-  }, []);
+    getData(page);
+  }, [page]);
 
-  const getData = async () => {
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+  };
+
+  const getData = async (currentPage) => {
     setLoading(true);
 
     try {
-      const { roles } = await allRoles();
-      const { permissions } = await allPermissions();
+      const { roles, pagination } = await allRoles(currentPage);
+      const { permissions } = await allPermissions(1, 100);
 
       setRoles(roles);
       setPermissions(permissions);
+
+      setTotalPages(pagination.pages);
 
       toast("Roles and permissions fetched", { severity: "success" });
     } catch (error) {
@@ -80,7 +89,8 @@ const Index = () => {
 
       handleConfirm();
       setCurrentData({});
-      getData();
+
+      getData(page);
     } catch (error) {
       toast(error.message, { severity: "error" });
     }
@@ -93,7 +103,7 @@ const Index = () => {
       <Head>
         <title>Roles - OpenHubble Console</title>
       </Head>
-      
+
       <Box>
         {!loading ? (
           <Table
@@ -118,6 +128,9 @@ const Index = () => {
               setCurrentData(data);
               handleConfirm();
             }}
+            page={page}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
           />
         ) : (
           <Loading />

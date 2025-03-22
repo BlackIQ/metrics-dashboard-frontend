@@ -42,6 +42,9 @@ const Index = () => {
   const [groups, setGroups] = useState([]);
   const [tags, setTags] = useState([]);
 
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
   const [loading, setLoading] = useState(true);
   const [currentData, setCurrentData] = useState({});
 
@@ -51,20 +54,26 @@ const Index = () => {
   const toast = useToast();
 
   useEffect(() => {
-    getData();
-  }, []);
+    getData(page);
+  }, [page]);
 
-  const getData = async () => {
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+  };
+
+  const getData = async (currentPage) => {
     setLoading(true);
 
     try {
-      const { hosts } = await allHosts();
-      const { groups } = await allGroups();
-      const { tags } = await allTags();
+      const { hosts, pagination } = await allHosts(currentPage);
+      const { groups } = await allGroups(1, 100);
+      const { tags } = await allTags(1, 100);
 
       setHosts(hosts);
       setGroups(groups);
       setTags(tags);
+
+      setTotalPages(pagination.pages);
 
       toast("Hosts fetched successfully", { severity: "success" });
     } catch (error) {
@@ -84,7 +93,8 @@ const Index = () => {
 
       handleConfirm();
       setCurrentData({});
-      getData();
+
+      getData(page);
     } catch (error) {
       toast(error.message, { severity: "error" });
     }
@@ -97,7 +107,7 @@ const Index = () => {
       <Head>
         <title>Hosts - OpenHubble Console</title>
       </Head>
-      
+
       <Box>
         {!loading ? (
           <Table
@@ -121,6 +131,9 @@ const Index = () => {
               setCurrentData(data);
               handleConfirm();
             }}
+            page={page}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
           />
         ) : (
           <Loading />

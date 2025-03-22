@@ -38,6 +38,9 @@ const neonGlow = keyframes`
 const Index = () => {
   const [permissions, setPermissions] = useState([]);
 
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
   const [loading, setLoading] = useState(true);
   const [currentData, setCurrentData] = useState({});
 
@@ -47,16 +50,22 @@ const Index = () => {
   const toast = useToast();
 
   useEffect(() => {
-    getData();
-  }, []);
+    getData(page);
+  }, [page]);
 
-  const getData = async () => {
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+  };
+
+  const getData = async (currentPage) => {
     setLoading(true);
 
     try {
-      const { permissions } = await allPermissions();
+      const { permissions, pagination } = await allPermissions(currentPage);
 
       setPermissions(permissions);
+      
+      setTotalPages(pagination.pages);
 
       toast("Permissions retrieved", { severity: "success" });
     } catch (error) {
@@ -76,7 +85,8 @@ const Index = () => {
 
       handleConfirm();
       setCurrentData({});
-      getData();
+      
+      getData(page);
     } catch (error) {
       toast(error.message, { severity: "error" });
     }
@@ -92,23 +102,28 @@ const Index = () => {
 
       <Box>
         {!loading ? (
-          <Table
-            table="permission"
-            data={permissions}
-            addText={"Add Permission"}
-            add={() => {
-              setCurrentData(null);
-              handleDialog();
-            }}
-            clk={(data) => {
-              setCurrentData(data);
-              handleDialog();
-            }}
-            del={(data) => {
-              setCurrentData(data);
-              handleConfirm();
-            }}
-          />
+          <>
+            <Table
+              table="permission"
+              data={permissions}
+              addText={"Add Permission"}
+              add={() => {
+                setCurrentData(null);
+                handleDialog();
+              }}
+              clk={(data) => {
+                setCurrentData(data);
+                handleDialog();
+              }}
+              del={(data) => {
+                setCurrentData(data);
+                handleConfirm();
+              }}
+              page={page}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+          </>
         ) : (
           <Loading />
         )}

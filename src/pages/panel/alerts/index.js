@@ -39,6 +39,9 @@ const neonGlow = keyframes`
 const Index = () => {
   const [alerts, setAlerts] = useState([]);
 
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
   const [loading, setLoading] = useState(true);
   const [currentData, setCurrentData] = useState({});
 
@@ -47,16 +50,22 @@ const Index = () => {
   const toast = useToast();
 
   useEffect(() => {
-    getData();
-  }, []);
+    getData(page);
+  }, [page]);
 
-  const getData = async () => {
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+  };
+
+  const getData = async (currentPage) => {
     setLoading(true);
 
     try {
-      const { alerts } = await allAlerts();
+      const { alerts, pagination } = await allAlerts(currentPage);
 
       setAlerts(alerts);
+
+      setTotalPages(pagination.pages);
 
       toast("Alerts retrieved", { severity: "success" });
     } catch (error) {
@@ -71,7 +80,7 @@ const Index = () => {
       <Head>
         <title>Alerts - OpenHubble Console</title>
       </Head>
-      
+
       <Box>
         {!loading ? (
           <Table
@@ -81,6 +90,9 @@ const Index = () => {
               setCurrentData(data);
               handleDialog();
             }}
+            page={page}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
           />
         ) : (
           <Loading />
