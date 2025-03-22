@@ -298,7 +298,7 @@ const FormsComponent = ({
                 py: 1.5,
                 px: 3,
                 bgcolor: "primary.main",
-                borderRadius: 2,
+                borderRadius: 1,
                 "&:hover": {
                   bgcolor: "primary.dark",
                   boxShadow: "0 0 10px rgba(0, 255, 255, 0.5)",
