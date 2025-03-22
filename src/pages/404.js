@@ -1,24 +1,27 @@
-import { Typography, Box, Button, Fade } from "@mui/material";
+// - - - - - Next - - - - -
 import Head from "next/head";
 import { useRouter } from "next/router";
+
+// - - - - - MUI - - - - -
+import { Typography, Box, Button, Fade } from "@mui/material";
 import { keyframes } from "@mui/system";
+
+// Neon glow animation
+const neonGlow = keyframes`
+  0% { text-shadow: 0 0 5px #00e5ff, 0 0 10px #00e5ff, 0 0 15px #00e5ff, 0 0 20px #00b8d4; }
+  50% { text-shadow: 0 0 8px #00e5ff, 0 0 15px #00e5ff, 0 0 25px #00e5ff, 0 0 30px #00b8d4; }
+  100% { text-shadow: 0 0 5px #00e5ff, 0 0 10px #00e5ff, 0 0 15px #00e5ff, 0 0 20px #00b8d4; }
+`;
+
+// Pulse animation for background
+const pulse = keyframes`
+  0% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.1); opacity: 0.3; }
+  100% { transform: scale(1); opacity: 0.5; }
+`;
 
 const NotFound = () => {
   const router = useRouter();
-
-  // Neon glow animation
-  const neonGlow = keyframes`
-    0% { text-shadow: 0 0 5px #00e5ff, 0 0 10px #00e5ff, 0 0 15px #00e5ff, 0 0 20px #00b8d4; }
-    50% { text-shadow: 0 0 8px #00e5ff, 0 0 15px #00e5ff, 0 0 25px #00e5ff, 0 0 30px #00b8d4; }
-    100% { text-shadow: 0 0 5px #00e5ff, 0 0 10px #00e5ff, 0 0 15px #00e5ff, 0 0 20px #00b8d4; }
-  `;
-
-  // Pulse animation for background
-  const pulse = keyframes`
-    0% { transform: scale(1); opacity: 0.5; }
-    50% { transform: scale(1.1); opacity: 0.3; }
-    100% { transform: scale(1); opacity: 0.5; }
-  `;
 
   return (
     <>
@@ -28,7 +31,7 @@ const NotFound = () => {
       <Box
         sx={{
           minHeight: "100vh",
-          background: "linear-gradient(135deg, #1a1a1a 0%, #222 100%)", // Matches login page
+          background: "linear-gradient(135deg, #1a1a1a 0%, #222 100%)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",

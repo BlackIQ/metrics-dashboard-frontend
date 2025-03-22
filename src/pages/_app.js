@@ -1,15 +1,24 @@
+// - - - - - Styles - - - - -
 import "@/styles/globals.css";
-import { AppLayout, PanelLayout } from "@/layouts";
-import { Box, ThemeProvider } from "@mui/material";
-import { Provider } from "react-redux";
-import store from "@/redux";
+
+// - - - - - Next - - - - -
 import { useRouter } from "next/router";
-import theme from "@/theme"; // Assuming your theme.js is here
+
+// - - - - - MUI - - - - -
+import { Box, ThemeProvider } from "@mui/material";
+import theme from "@/theme"; // Theme
+
+// - - - - - Redux - - - - -
+import { Provider } from "react-redux";
+import store from "@/redux"; // Store
+
+// - - - - - App - - - - -
+import { AppLayout, PanelLayout } from "@/layouts"; // Layout
 
 export default function App({ Component, pageProps }) {
   const router = useRouter();
   const path =
-    router.pathname.split("/").filter((item) => item !== "")[0] || "root"; // Default to "root" for "/"
+    router.pathname.split("/").filter((item) => item !== "")[0] || "root";
 
   const renderLayout = (pathSegment, component) => {
     switch (pathSegment) {
@@ -18,7 +27,7 @@ export default function App({ Component, pageProps }) {
       case "auth":
         return <Box>{component}</Box>;
       default:
-        return component; // Simpler default case
+        return component;
     }
   };
 

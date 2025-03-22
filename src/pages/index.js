@@ -1,6 +1,9 @@
-import { Typography, Box, Button, Fade, Grid } from "@mui/material";
-import { useRouter } from "next/router";
+// - - - - - Next - - - - -
 import Head from "next/head";
+import { useRouter } from "next/router";
+
+// - - - - - MUI - - - - -
+import { Typography, Box, Button, Fade, Grid } from "@mui/material";
 import { keyframes } from "@mui/system";
 
 // Neon glow animation
