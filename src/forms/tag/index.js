@@ -1,17 +1,11 @@
-// Components
+// - - - - - Components - - - - -
 import { Form } from "@/components";
 
-// Hooks
+// - - - - - Hooks - - - - -
 import { useToast } from "@/hooks";
 
-// APSs
-import {
-  createOne as createTag,
-  updateOne as updateTag,
-} from "@/api/services/tag";
-
-// Redux
-import { useSelector } from "react-redux";
+// - - - - - API - - - - -
+import { createTag, updateTag } from "@/api/services/tag";
 
 const TagForm = ({
   currentData,
@@ -23,14 +17,10 @@ const TagForm = ({
 }) => {
   const toast = useToast();
 
-  const { _id } = useSelector((state) => state.user);
-
   const addData = async (callback) => {
     setLoading(true);
 
     try {
-      callback.user = _id;
-
       await createTag(callback);
 
       toast("Tag created");
@@ -48,7 +38,7 @@ const TagForm = ({
     setLoading(true);
 
     try {
-      await updateTag(data._id, data);
+      await updateTag(currentData._id, data);
 
       toast("Tag updated");
       handleClose();

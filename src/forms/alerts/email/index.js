@@ -1,19 +1,20 @@
-// Components
+// - - - - - Components - - - - -
 import { Form } from "@/components";
 
-// Hooks
+// - - - - - Hooks - - - - -
 import { useToast } from "@/hooks";
 
-// APSs
-import {
-  createOne as createAlert,
-  updateOne as updateAlert,
-  testAlert,
-} from "@/api/services/alerts";
+// - - - - - API - - - - -
+import { createAlert, updateAlert, testAlert } from "@/api/services/alerts";
 
+// - - - - - MUI - - - - -
 import { Box, Button, Divider, Typography } from "@mui/material";
 
+// - - - - - React - - - - -
 import { useState } from "react";
+
+// - - - - - Config - - - - -
+import { forms } from "@/config";
 
 const AlertEmailForm = ({
   currentData,
@@ -28,6 +29,8 @@ const AlertEmailForm = ({
   const [formData, setFormData] = useState(
     currentData ? currentData.config : {}
   );
+
+  const form = forms["alertEmail"];
 
   const addData = async (callback) => {
     setLoading(true);
@@ -68,9 +71,17 @@ const AlertEmailForm = ({
   };
 
   const handleTestAlert = async () => {
+    const payload = {};
+
+    Object.keys(form).forEach((key) => {
+      if (formData[key] !== undefined) {
+        payload[key] = formData[key];
+      }
+    });
+
     setLoading(true);
 
-    const data = { type: "email", config: formData };
+    const data = { type: "email", config: payload };
 
     try {
       await testAlert(data);
@@ -89,6 +100,7 @@ const AlertEmailForm = ({
         name="alertEmail"
         callback={updateMode !== "non-exists" ? updateData : addData}
         disables={[]}
+        change={(fData) => setFormData(fData)}
         btnStyle={{
           fullWidth: false,
           disabled: loading,

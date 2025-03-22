@@ -1,14 +1,11 @@
-// Components
+// - - - - - Components - - - - -
 import { Form } from "@/components";
 
-// Hooks
+// - - - - - Hooks - - - - -
 import { useToast } from "@/hooks";
 
-// APSs
-import {
-  createOne as createPermission,
-  updateOne as updatePermission,
-} from "@/api/services/permission";
+// - - - - - API - - - - -
+import { createPermission, updatePermission } from "@/api/services/permission";
 
 const PermissionForm = ({
   currentData,
@@ -41,7 +38,7 @@ const PermissionForm = ({
     setLoading(true);
 
     try {
-      await updatePermission(data._id, data);
+      await updatePermission(currentData._id, data);
 
       toast("Permission updated");
       handleClose();

@@ -1,19 +1,18 @@
-import { useState } from "react";
-
+// - - - - - Components - - - - -
 import { Form } from "@/components";
 
-import {
-  updateOne as updateUser,
-  changePassword as changePasswordUser,
-} from "@/api/services/user";
+// - - - - - Hook - - - - -
+import { useToast } from "@/hooks";
 
-import { register as registerUser } from "@/api/services/auth";
+// - - - - - API - - - - -
+import { updateUser, changePassword } from "@/api/services/user";
+
+// - - - - - MUI - - - - -
 import { Box, Tab } from "@mui/material";
-
 import { TabContext, TabPanel, TabList } from "@mui/lab";
 
-// Hooks
-import { useToast } from "@/hooks";
+// - - - - - React - - - - -
+import { useState } from "react";
 
 const UserForm = ({
   currentData,
@@ -30,7 +29,7 @@ const UserForm = ({
     setLoading(true);
 
     try {
-      await updateUser(data._id, data);
+      await updateUser(currentData._id, data);
 
       toast("Information updated");
       handleClose();
@@ -43,24 +42,7 @@ const UserForm = ({
     setLoading(false);
   };
 
-  const register = async (data) => {
-    setLoading(true);
-
-    try {
-      await registerUser(data);
-
-      toast("User created");
-      handleClose();
-
-      getData();
-    } catch (error) {
-      toast(error.message);
-    }
-
-    setLoading(false);
-  };
-
-  const changePassword = async (data) => {
+  const changePasswordUser = async (data) => {
     setLoading(true);
 
     if (data.newPassword !== data.confirmPassword) {
@@ -69,7 +51,7 @@ const UserForm = ({
       const newData = { password: data.newPassword };
 
       try {
-        await changePasswordUser(data._id, newData);
+        await changePassword(currentData._id, newData);
 
         toast("Password changed");
         handleClose();
@@ -118,7 +100,7 @@ const UserForm = ({
         <Box>
           <Form
             name="changePassword"
-            callback={changePassword}
+            callback={changePasswordUser}
             disables={[]}
             btnStyle={{
               fullWidth: false,
@@ -136,46 +118,20 @@ const UserForm = ({
   return (
     <>
       <Box>
-        {updateMode ? (
-          <Box>
-            <TabContext value={value}>
-              <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-                <TabList onChange={handleChange}>
-                  {tabItems.map((item) => (
-                    <Tab
-                      key={item.value}
-                      label={item.label}
-                      value={item.value}
-                    />
-                  ))}
-                </TabList>
-              </Box>
+        <TabContext value={value}>
+          <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+            <TabList onChange={handleChange}>
               {tabItems.map((item) => (
-                <TabPanel key={`panel-${item.value}`} value={item.value}>
-                  {item.panel}
-                </TabPanel>
+                <Tab key={item.value} label={item.label} value={item.value} />
               ))}
-            </TabContext>
+            </TabList>
           </Box>
-        ) : (
-          <Box>
-            <Form
-              name="register"
-              callback={register}
-              disables={[]}
-              btnStyle={{
-                fullWidth: false,
-                disabled: loading,
-                color: "primary",
-              }}
-              selectData={{
-                role: extraData.roles,
-              }}
-              def={{}}
-              button={"Create User"}
-            />
-          </Box>
-        )}
+          {tabItems.map((item) => (
+            <TabPanel key={`panel-${item.value}`} value={item.value}>
+              {item.panel}
+            </TabPanel>
+          ))}
+        </TabContext>
       </Box>
     </>
   );

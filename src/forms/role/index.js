@@ -1,14 +1,11 @@
-// Components
+// - - - - - Components - - - - -
 import { Form } from "@/components";
 
-// Hooks
+// - - - - - Hooks - - - - -
 import { useToast } from "@/hooks";
 
-// APIs
-import {
-  updateOne as updateRole,
-  createOne as createRole,
-} from "@/api/services/role";
+// - - - - - API - - - - -
+import { updateRole, createRole } from "@/api/services/role";
 
 const RoleForm = ({
   currentData,
@@ -42,7 +39,7 @@ const RoleForm = ({
     setLoading(true);
 
     try {
-      await updateRole(data._id, data);
+      await updateRole(currentData._id, data);
 
       toast("Role updated");
       handleClose();

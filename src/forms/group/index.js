@@ -1,17 +1,11 @@
-// Components
+// - - - - - Components - - - - -
 import { Form } from "@/components";
 
-// Hooks
+// - - - - - Hooks - - - - -
 import { useToast } from "@/hooks";
 
-// APSs
-import {
-  createOne as createGroup,
-  updateOne as updatGroup,
-} from "@/api/services/group";
-
-// Redux
-import { useSelector } from "react-redux";
+// - - - - - API - - - - -
+import { createGroup, updateGroup } from "@/api/services/group";
 
 const GroupForm = ({
   currentData,
@@ -23,14 +17,10 @@ const GroupForm = ({
 }) => {
   const toast = useToast();
 
-  const { _id } = useSelector((state) => state.user);
-
   const addData = async (callback) => {
     setLoading(true);
 
     try {
-      callback.user = _id;
-
       await createGroup(callback);
 
       toast("Group created");
@@ -48,7 +38,7 @@ const GroupForm = ({
     setLoading(true);
 
     try {
-      await updatGroup(data._id, data);
+      await updateGroup(currentData._id, data);
 
       toast("Group updated");
       handleClose();

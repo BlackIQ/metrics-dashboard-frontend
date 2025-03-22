@@ -1,20 +1,21 @@
-// Components
+// - - - - - Components - - - - -
 import { Form, Confirm } from "@/components";
 
-// Hooks
+// - - - - - Hooks - - - - -
 import { useToast, useDisclosure } from "@/hooks";
 
-// APSs
+// - - - - - API - - - - -
 import {
-  createOne as createHost,
-  updateOne as updateHost,
-  deleteOne as deleteHost,
-  checkOne as checkHost,
+  createHost,
+  updateHost,
+  deleteHost,
+  checkHost,
 } from "@/api/services/host";
 
-// Redux
-import { useSelector } from "react-redux";
+// - - - - - MUI - - - - -
 import { Box, Button, colors, Divider, Typography } from "@mui/material";
+
+// - - - - - React - - - - -
 import { useState } from "react";
 
 const HostForm = ({
@@ -27,8 +28,6 @@ const HostForm = ({
   extraData,
 }) => {
   const toast = useToast();
-
-  const { _id } = useSelector((state) => state.user);
 
   const { isOpen: confirmOpen, onToggle: handleConfirm } = useDisclosure();
 
@@ -64,8 +63,6 @@ const HostForm = ({
     }
 
     try {
-      callback.user = _id;
-
       await createHost(callback);
 
       toast("Host created");
@@ -109,7 +106,7 @@ const HostForm = ({
     }
 
     try {
-      await updateHost(data._id, data);
+      await updateHost(currentData._id, data);
 
       toast("Host updated");
       handleClose();

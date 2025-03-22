@@ -1,19 +1,20 @@
-// Components
+// - - - - - Components - - - - -
 import { Form } from "@/components";
 
-// Hooks
+// - - - - - Hooks - - - - -
 import { useToast } from "@/hooks";
 
-// APSs
-import {
-  createOne as createAlert,
-  updateOne as updateAlert,
-  testAlert,
-} from "@/api/services/alerts";
+// - - - - - API - - - - -
+import { createAlert, updateAlert, testAlert } from "@/api/services/alerts";
 
+// - - - - - MUI - - - - -
 import { Box, Button, Divider, Typography } from "@mui/material";
 
+// - - - - - React - - - - -
 import { useState } from "react";
+
+// - - - - - Config - - - - -
+import { forms } from "@/config";
 
 const AlertTelegramForm = ({
   currentData,
@@ -28,6 +29,8 @@ const AlertTelegramForm = ({
   const [formData, setFormData] = useState(
     currentData ? currentData.config : {}
   );
+
+  const form = forms["alertTelegram"];
 
   const addData = async (callback) => {
     setLoading(true);
@@ -68,9 +71,17 @@ const AlertTelegramForm = ({
   };
 
   const handleTestAlert = async () => {
+    const payload = {};
+
+    Object.keys(form).forEach((key) => {
+      if (formData[key] !== undefined) {
+        payload[key] = formData[key];
+      }
+    });
+
     setLoading(true);
 
-    const data = { type: "telegram", config: formData };
+    const data = { type: "telegram", config: payload };
 
     try {
       await testAlert(data);
