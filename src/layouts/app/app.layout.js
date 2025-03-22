@@ -1,7 +1,11 @@
+// - - - - - MUI - - - - -
 import { Box } from "@mui/material";
 import { ThemeProvider, CssBaseline } from "@mui/material";
 
+// - - - - - Theme - - - - -
 import theme from "@/theme";
+
+// - - - - - Components - - - - -
 import { Toast } from "@/components";
 
 const AppLayout = ({ children }) => {

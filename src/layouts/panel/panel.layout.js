@@ -1,3 +1,4 @@
+// - - - - - MUI - - - - -
 import {
   Drawer as MuiDrawer,
   List,
@@ -10,15 +11,9 @@ import {
   Divider,
   Typography,
 } from "@mui/material";
-import { useRouter } from "next/router";
-import { useDispatch, useSelector } from "react-redux";
-import { useEffect, useState } from "react";
-import { setUser, unsetUser } from "@/redux/actions/user";
-import { unsetSession } from "@/redux/actions/session";
-import API from "@/api";
-import { single } from "@/api/services/user";
-import { Loading } from "@/components";
-import { styled } from "@mui/material/styles";
+import { keyframes } from "@mui/system";
+
+// - - - - - MUI Icons - - - - -
 import {
   Menu as MenuIcon,
   Storage,
@@ -34,9 +29,34 @@ import {
   Dashboard,
   Notifications,
 } from "@mui/icons-material";
+
+// - - - - - Next - - - - -
+import { useRouter } from "next/router";
+
+// - - - - - Redux - - - - -
+import { useDispatch, useSelector } from "react-redux";
+
+// - - - - - React - - - - -
+import { useEffect, useState } from "react";
+
+// - - - - - Store - - - - -
+import { setUser, unsetUser } from "@/redux/actions/user";
+import { unsetSession } from "@/redux/actions/session";
+
+// - - - - - API - - - - -
+import API from "@/api";
+import { singleUser } from "@/api/services/user";
+
+// - - - - - Components - - - - -
+import { Loading } from "@/components";
+
+import { styled } from "@mui/material/styles";
+
+// - - - - - Hooks - - - - -
 import { useToast } from "@/hooks";
+
+// - - - - - Config - - - - -
 import { appConfig } from "@/config";
-import { keyframes } from "@mui/system";
 
 // Neon glow animation
 const neonGlow = keyframes`
@@ -92,7 +112,7 @@ const PanelLayout = ({ children }) => {
   const dispatch = useDispatch();
   const toast = useToast();
 
-  const [open, setOpen] = useState(false); // Start open for testing
+  const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const { session: token, user } = useSelector((state) => state);
@@ -108,9 +128,12 @@ const PanelLayout = ({ children }) => {
 
   const getData = async () => {
     try {
-      const data = await single(user._id);
+      const data = await singleUser(user._id);
+
       const nuser = { ...data.user, docs: data.docs };
+
       setPermissions(data.user.role.permissions);
+
       dispatch(setUser(nuser));
       setLoading(false);
     } catch (error) {
@@ -122,16 +145,20 @@ const PanelLayout = ({ children }) => {
   useEffect(() => {
     if (token) {
       API.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
       getData();
     } else {
       router.push("/auth");
     }
   }, [token]);
 
+  // TODO: Update Logout With API
   const logout = () => {
     console.log("Logout clicked");
+
     dispatch(unsetUser());
     dispatch(unsetSession());
+
     router.push("/");
   };
 
@@ -350,10 +377,6 @@ const PanelLayout = ({ children }) => {
           "&:before": {
             content: '""',
             position: "absolute",
-            // top: "-50%",
-            // left: "-50%",
-            // width: "100%",
-            // height: "100%",
             background:
               "radial-gradient(circle, rgba(0, 255, 255, 0.1) 0%, transparent 70%)",
             animation: "pulse 8s infinite",
