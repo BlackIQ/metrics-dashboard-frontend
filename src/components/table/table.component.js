@@ -17,7 +17,6 @@ import { format as dateFormat } from "date-fns";
 import { Add, DeleteOutline, EditOutlined } from "@mui/icons-material";
 import { tables } from "@/config";
 import { useEffect, useState } from "react";
-import { useToast } from "@/hooks";
 import { keyframes } from "@mui/system";
 
 // Neon glow animation
@@ -38,20 +37,19 @@ const TableComponent = ({
   removeItems = [],
   addItems = {},
   details,
+  page,
+  totalPages,
+  onPageChange,
 }) => {
-  const toast = useToast();
-  const tbl = { ...tables[table] }; // Clone to avoid mutating config
+  const tbl = { ...tables[table] };
 
-  // Modify fields
   removeItems.forEach((item) => delete tbl.fields[item]);
   Object.entries(addItems).forEach(([key, value]) => (tbl.fields[key] = value));
 
-  const [page, setPage] = useState(1);
-  const [rowsPerPage] = useState(10); // Fixed for simplicity, could be prop
   const [renderRows, setRenderRows] = useState([]);
 
   const handleChangePage = (e, newPage) => {
-    setPage(newPage);
+    onPageChange(newPage);
   };
 
   useEffect(() => {
@@ -76,10 +74,8 @@ const TableComponent = ({
         ),
       }),
     }));
-    setRenderRows(
-      enrichedData.slice((page - 1) * rowsPerPage, page * rowsPerPage)
-    );
-  }, [data, page, del, upd]);
+    setRenderRows(enrichedData);
+  }, [data, del, upd]);
 
   const renderSwitch = (d, key) => {
     const props = key.split(".");
@@ -244,7 +240,7 @@ const TableComponent = ({
               }}
             >
               <Pagination
-                count={Math.ceil(data.length / rowsPerPage)}
+                count={totalPages}
                 page={page}
                 onChange={handleChangePage}
                 color="primary"
