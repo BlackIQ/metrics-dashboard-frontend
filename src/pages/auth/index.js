@@ -1,10 +1,23 @@
+// - - - - - Redux - - - - -
 import { useDispatch } from "react-redux";
+
+// - - - - - React - - - - -
 import { useState } from "react";
+
+// - - - - - Store - - - - -
 import { setSession } from "@/redux/actions/session";
 import { setUser } from "@/redux/actions/user";
+
+// - - - - - Components - - - - -
 import { Form } from "@/components";
-import { useAuth } from "@/hooks";
-import { login, register } from "@/api/services/auth";
+
+// - - - - - Hooks - - - - -
+import { useAuth, useToast } from "@/hooks";
+
+// - - - - - API - - - - -
+import { loginAccount, registerAccount } from "@/api/services/auth";
+
+// - - - - - MUI - - - - -
 import {
   Box,
   Typography,
@@ -14,8 +27,12 @@ import {
   Fade,
   keyframes,
 } from "@mui/material";
+
+// - - - - - Next - - - - -
 import Head from "next/head";
-import { useToast } from "@/hooks";
+
+// - - - - - Form Config - - - - -
+import { forms } from "@/config";
 
 // Neon glow animation for text
 const neonGlow = keyframes`
@@ -33,6 +50,7 @@ const dividerGlow = keyframes`
 
 const Auth = () => {
   useAuth();
+
   const dispatch = useDispatch();
   const toast = useToast();
 
@@ -44,10 +62,21 @@ const Auth = () => {
   };
 
   const doLogin = async (callback) => {
+    const payload = {};
+
+    Object.keys(forms["login"]).forEach((key) => {
+      if (callback[key] !== undefined) {
+        payload[key] = callback[key];
+      }
+    });
+
     setLoading(true);
+
     try {
-      const result = await login(callback);
+      const result = await loginAccount(payload);
+
       const { user, token } = result;
+
       dispatch(setUser(user));
       dispatch(setSession(token));
     } catch (error) {
@@ -58,9 +87,19 @@ const Auth = () => {
   };
 
   const doRegister = async (callback) => {
+    const payload = {};
+
+    Object.keys(forms["register"]).forEach((key) => {
+      if (callback[key] !== undefined) {
+        payload[key] = callback[key];
+      }
+    });
+
     setLoading(true);
+
     try {
-      await register(callback);
+      await registerAccount(payload);
+
       toast("Registration successful! Please check your email to confirm.", {
         severity: "success",
       });
@@ -76,6 +115,7 @@ const Auth = () => {
       <Head>
         <title>Authentication - OpenHubble Console</title>
       </Head>
+      
       <Box
         sx={{
           minHeight: "100vh",
@@ -211,7 +251,7 @@ const Auth = () => {
                   <Box
                     sx={{
                       height: "2px",
-                      width: "60%", // Adjust width as needed
+                      width: "60%",
                       backgroundColor: "primary.main", // #00e5ff
                       mx: "auto", // Center it
                       mb: 3, // Space below divider
