@@ -15,7 +15,7 @@ export const loginAccount = async (data) => {
 
 export const logoutAccount = async () => {
   try {
-    const response = await API.post(`${auth}/logout`, data);
+    const response = await API.post(`${auth}/logout`);
 
     return Promise.resolve(response.data);
   } catch (error) {

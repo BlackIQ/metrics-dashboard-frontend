@@ -46,6 +46,7 @@ import { unsetSession } from "@/redux/actions/session";
 // - - - - - API - - - - -
 import API from "@/api";
 import { singleUser } from "@/api/services/user";
+import { logoutAccount } from "@/api/services/auth";
 
 // - - - - - Components - - - - -
 import { Loading } from "@/components";
@@ -152,14 +153,23 @@ const PanelLayout = ({ children }) => {
     }
   }, [token]);
 
-  // TODO: Update Logout With API
-  const logout = () => {
-    console.log("Logout clicked");
+  const logout = async () => {
+    setLoading(true);
 
-    dispatch(unsetUser());
-    dispatch(unsetSession());
+    try {
+      await logoutAccount();
 
-    router.push("/");
+      console.log("Logout clicked");
+
+      dispatch(unsetUser());
+      dispatch(unsetSession());
+
+      router.push("/");
+    } catch (error) {
+      toast(error.message, { severity: "error" });
+    }
+
+    setLoading(false);
   };
 
   const getIcon = (value) => {
