@@ -31,9 +31,6 @@ import {
 // - - - - - Next - - - - -
 import Head from "next/head";
 
-// - - - - - Form Config - - - - -
-import { forms } from "@/config";
-
 // Neon glow animation for text
 const neonGlow = keyframes`
   0% { text-shadow: 0 0 5px #00e5ff, 0 0 10px #00e5ff, 0 0 15px #00e5ff, 0 0 20px #00b8d4; }
@@ -62,18 +59,10 @@ const Auth = () => {
   };
 
   const doLogin = async (callback) => {
-    const payload = {};
-
-    Object.keys(forms["login"]).forEach((key) => {
-      if (callback[key] !== undefined) {
-        payload[key] = callback[key];
-      }
-    });
-
     setLoading(true);
 
     try {
-      const result = await loginAccount(payload);
+      const result = await loginAccount(callback);
 
       const { user, token } = result;
 
@@ -87,18 +76,10 @@ const Auth = () => {
   };
 
   const doRegister = async (callback) => {
-    const payload = {};
-
-    Object.keys(forms["register"]).forEach((key) => {
-      if (callback[key] !== undefined) {
-        payload[key] = callback[key];
-      }
-    });
-
     setLoading(true);
 
     try {
-      await registerAccount(payload);
+      await registerAccount(callback);
 
       toast("Registration successful! Please check your email to confirm.", {
         severity: "success",
@@ -115,7 +96,7 @@ const Auth = () => {
       <Head>
         <title>Authentication - OpenHubble Console</title>
       </Head>
-      
+
       <Box
         sx={{
           minHeight: "100vh",
