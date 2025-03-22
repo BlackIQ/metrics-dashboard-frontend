@@ -26,9 +26,6 @@ import { allRoles } from "@/api/services/role";
 // - - - - - Forms - - - - -
 import UserForm from "@/forms/user";
 
-// - - - - - Redux - - - - -
-import { useSelector } from "react-redux";
-
 // Neon glow animation
 import { keyframes } from "@mui/system";
 
@@ -45,8 +42,6 @@ const Index = () => {
 
   const [loading, setLoading] = useState(true);
   const [currentData, setCurrentData] = useState({});
-
-  const { role } = useSelector((state) => state.user);
 
   const { isOpen: dialogOpen, onToggle: handleDialog } = useDisclosure();
 
@@ -79,21 +74,12 @@ const Index = () => {
       <Head>
         <title>Users - OpenHubble Console</title>
       </Head>
-      
+
       <Box>
         {!loading ? (
           <Table
             table="user"
             data={users}
-            addText={"Add User"}
-            add={
-              role?.value === "superuser"
-                ? () => {
-                    setCurrentData(null);
-                    handleDialog();
-                  }
-                : null
-            }
             clk={(data) => {
               const d = { ...data };
 
