@@ -111,6 +111,23 @@ const forms = {
     //     },
     //   },
   },
+  forgotPassword: {
+    email: {
+      type: "text",
+      label: "Email",
+      placeholder: "Enter your email",
+      secure: false,
+      grid: {
+        xs: 12,
+        sm: 12,
+        md: 12,
+        lg: 12,
+      },
+      advanced: {
+        required: true,
+      },
+    },
+  },
   userProfile: {
     firstName: {
       type: "text",
