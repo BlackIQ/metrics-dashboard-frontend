@@ -234,21 +234,6 @@ const forms = {
         required: true,
       },
     },
-    email: {
-      type: "text",
-      label: "Email",
-      placeholder: "Enter user email",
-      secure: false,
-      grid: {
-        xs: 12,
-        sm: 12,
-        md: 12,
-        lg: 12,
-      },
-      advanced: {
-        required: true,
-      },
-    },
   },
   changePassword: {
     newPassword: {
@@ -271,6 +256,23 @@ const forms = {
       label: "Confirm password",
       placeholder: "Enter your confirm password",
       secure: true,
+      grid: {
+        xs: 12,
+        sm: 12,
+        md: 12,
+        lg: 12,
+      },
+      advanced: {
+        required: true,
+      },
+    },
+  },
+  changeEmail: {
+    newEmail: {
+      type: "text",
+      label: "Email",
+      placeholder: "Enter new email",
+      secure: false,
       grid: {
         xs: 12,
         sm: 12,
