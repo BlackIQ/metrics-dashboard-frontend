@@ -22,6 +22,7 @@ import { useToast } from "@/hooks";
 
 // - - - - - API - - - - -
 import { singleUser, updateUser, changePassword } from "@/api/services/user";
+import { changeEmail } from "@/api/services/auth";
 
 // - - - - - Store - - - - -
 import { setUser } from "@/redux/actions/user";
@@ -101,6 +102,22 @@ const Index = () => {
       await changePassword(user._id, newData);
 
       toast("Password changed", { severity: "success" });
+
+      await getData();
+    } catch (error) {
+      toast(error.message, { severity: "error" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const changeEmailUser = async (data) => {
+    setLoading(true);
+
+    try {
+      await changeEmail(data.newEmail);
+
+      toast("Confirm email sent to new email inbox", { severity: "success" });
 
       await getData();
     } catch (error) {
@@ -232,6 +249,56 @@ const Index = () => {
                     }}
                     def={{ _id: user._id }}
                     button="Change Password"
+                  />
+                </Paper>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 3,
+                    bgcolor: "rgba(30, 30, 30, 0.9)",
+                    border: "1px solid rgba(0, 255, 255, 0.3)",
+                    borderRadius: 2,
+                    backdropFilter: "blur(10px)",
+                    "&:hover": {
+                      boxShadow: "0 0 20px rgba(0, 255, 255, 0.2)",
+                    },
+                  }}
+                >
+                  <Typography
+                    variant="h6"
+                    fontFamily="Orbitron"
+                    color="primary.main"
+                    gutterBottom
+                  >
+                    Email
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color="rgba(255, 255, 255, 0.7)"
+                    gutterBottom
+                  >
+                    Change your account email address
+                  </Typography>
+                  <Divider
+                    sx={{
+                      my: 2,
+                      bgcolor: "primary.main",
+                      height: "2px",
+                      animation: `${dividerGlow} 2s ease-in-out infinite`,
+                    }}
+                  />
+                  <Form
+                    name="changeEmail"
+                    callback={changeEmailUser}
+                    btnStyle={{
+                      fullWidth: false,
+                      disabled: loading,
+                      color: "primary",
+                    }}
+                    def={{ _id: user._id, newEmail: user.email }}
+                    button="Change email"
                   />
                 </Paper>
               </Grid>
