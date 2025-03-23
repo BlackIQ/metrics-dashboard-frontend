@@ -1,5 +1,10 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import {
+  getAuth,
+  signInWithPopup,
+  GoogleAuthProvider,
+  GithubAuthProvider,
+} from "firebase/auth";
 
 // Firebase Config
 const firebaseConfig = {
@@ -15,9 +20,36 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Authentication
+// Initialize Authentication
 const auth = getAuth(app);
+
+// OAuth Providers
 const googleProvider = new GoogleAuthProvider();
+const githubProvider = new GithubAuthProvider();
+
+// Google Login Function
+export const signInWithGoogle = async () => {
+  try {
+    const result = await signInWithPopup(auth, googleProvider);
+    const idToken = await result.user.getIdToken();
+
+    return { idToken, user: result.user };
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+// GitHub Login Function
+export const signInWithGithub = async () => {
+  try {
+    const result = await signInWithPopup(auth, githubProvider);
+    const idToken = await result.user.getIdToken();
+
+    return { idToken, user: result.user };
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
 
 // Exports
-export { auth, googleProvider, signInWithPopup };
+export { app, auth, googleProvider, githubProvider };
