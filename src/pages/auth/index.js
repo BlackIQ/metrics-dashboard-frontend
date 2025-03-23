@@ -15,7 +15,11 @@ import { Form } from "@/components";
 import { useAuth, useToast } from "@/hooks";
 
 // - - - - - API - - - - -
-import { loginAccount, registerAccount } from "@/api/services/auth";
+import {
+  loginAccount,
+  registerAccount,
+  forgotPassword,
+} from "@/api/services/auth";
 
 // - - - - - MUI - - - - -
 import {
@@ -26,10 +30,12 @@ import {
   Container,
   Fade,
   keyframes,
+  Link as MUILink,
 } from "@mui/material";
 
 // - - - - - Next - - - - -
 import Head from "next/head";
+import Link from "next/link";
 
 // Neon glow animation for text
 const neonGlow = keyframes`
@@ -54,8 +60,8 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState("login");
 
-  const changeMode = () => {
-    setMode(mode === "login" ? "register" : "login");
+  const changeMode = (newMode) => {
+    setMode(newMode);
   };
 
   const doLogin = async (callback) => {
@@ -84,6 +90,24 @@ const Auth = () => {
       toast("Registration successful! Please check your email to confirm.", {
         severity: "success",
       });
+    } catch (error) {
+      toast(error.message, { severity: "error" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const doForgotPassword = async (data) => {
+    setLoading(true);
+
+    try {
+      await forgotPassword(data.email);
+
+      toast("If the email exists, a reset link has been sent.", {
+        severity: "success",
+      });
+
+      setMode("login");
     } catch (error) {
       toast(error.message, { severity: "error" });
     } finally {
@@ -225,7 +249,11 @@ const Auth = () => {
                       textShadow: "0 0 10px rgba(0, 255, 255, 0.5)",
                     }}
                   >
-                    {mode === "login" ? "Login" : "Register"}
+                    {mode === "login"
+                      ? "Login"
+                      : mode === "register"
+                      ? "Register"
+                      : "Forgot Password"}{" "}
                   </Typography>
 
                   {/* Neon Divider */}
@@ -242,8 +270,20 @@ const Auth = () => {
 
                   <Form
                     name={mode}
-                    callback={mode === "login" ? doLogin : doRegister}
-                    button={mode === "login" ? "Login" : "Register"}
+                    callback={
+                      mode === "login"
+                        ? doLogin
+                        : mode === "register"
+                        ? doRegister
+                        : doForgotPassword
+                    }
+                    button={
+                      mode === "login"
+                        ? "Login"
+                        : mode === "register"
+                        ? "Register"
+                        : "Send Reset Link"
+                    }
                     btnStyle={{
                       fullWidth: true,
                       disabled: loading,
@@ -258,9 +298,31 @@ const Auth = () => {
                     }}
                     disables={[]}
                   />
+
+                  {mode === "login" && (
+                    <Box sx={{ mt: 2, textAlign: "center" }}>
+                      <MUILink
+                        component="button"
+                        onClick={() => changeMode("forgotPassword")}
+                        sx={{
+                          color: "secondary.main",
+                          textDecoration: "none",
+                          "&:hover": {
+                            color: "secondary.light",
+                            textDecoration: "underline",
+                          },
+                        }}
+                      >
+                        Forgot Password?
+                      </MUILink>
+                    </Box>
+                  )}
+
                   <Button
                     variant="outlined"
-                    onClick={changeMode}
+                    onClick={() =>
+                      changeMode(mode === "login" ? "register" : "login")
+                    }
                     sx={{
                       mt: 3,
                       py: 1.5,
@@ -278,7 +340,9 @@ const Auth = () => {
                   >
                     {mode === "login"
                       ? "Need an account? Register"
-                      : "Have an account? Login"}
+                      : mode === "register"
+                      ? "Have an account? Login"
+                      : "Back to Login"}
                   </Button>
                 </Box>
               </Fade>
