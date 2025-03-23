@@ -31,11 +31,12 @@ import {
   Fade,
   keyframes,
   Link as MUILink,
+  IconButton,
 } from "@mui/material";
+import { GitHub, Microsoft, Facebook, Google } from "@mui/icons-material";
 
 // - - - - - Next - - - - -
 import Head from "next/head";
-import Link from "next/link";
 
 // Neon glow animation for text
 const neonGlow = keyframes`
@@ -114,6 +115,29 @@ const Auth = () => {
       setLoading(false);
     }
   };
+
+  const oAuthButtons = [
+    {
+      text: "Sign in with Google",
+      icon: <Google color="primary" />,
+      key: "oAuth-google",
+    },
+    {
+      text: "Sign in with GitHub",
+      icon: <GitHub color="primary" />,
+      key: "oAuth-github",
+    },
+    {
+      text: "Sign in with Microsoft",
+      icon: <Microsoft color="primary" />,
+      key: "oAuth-microsoft",
+    },
+    {
+      text: "Sign in with Facebook",
+      icon: <Facebook color="primary" />,
+      key: "oAuth-facebook",
+    },
+  ];
 
   return (
     <>
@@ -316,6 +340,41 @@ const Auth = () => {
                         Forgot Password?
                       </MUILink>
                     </Box>
+                  )}
+
+                  {/* OAuth Buttons Section */}
+                  {(mode === "login" || mode === "register") && (
+                    <>
+                      <Box
+                        mt={3}
+                        display="flex"
+                        justifyContent="space-between"
+                        gap={2}
+                      >
+                        {oAuthButtons.map((oAuthButton) => (
+                          <IconButton
+                            key={oAuthButton.key}
+
+                            sx={{
+                              p: 1.7,
+                              textTransform: "none",
+                              fontWeight: 500,
+                              border: 1,
+                              borderRadius: 1,
+                              borderColor: "secondary.main",
+                              color: "secondary.main",
+                              "&:hover": {
+                                bgcolor: "rgba(0, 255, 255, 0.1)",
+                                borderColor: "secondary.light",
+                                boxShadow: "0 0 10px rgba(0, 255, 255, 0.2)",
+                              },
+                            }}
+                          >
+                            {oAuthButton.icon}
+                          </IconButton>
+                        ))}
+                      </Box>
+                    </>
                   )}
 
                   <Button
