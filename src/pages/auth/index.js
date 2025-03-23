@@ -22,10 +22,14 @@ import {
 } from "@/api/services/auth";
 
 // - - - - - API oAuth - - - - -
-import { googleLogin, githubLogin } from "@/api/services/oauth";
+import { googleLogin, githubLogin, facebookLogin } from "@/api/services/oauth";
 
 // - - - - - Firebase - - - - -
-import { signInWithGoogle, signInWithGithub } from "@/firebase";
+import {
+  signInWithGoogle,
+  signInWithGithub,
+  signInWithFacebook,
+} from "@/firebase";
 
 // - - - - - MUI - - - - -
 import {
@@ -168,6 +172,29 @@ const Auth = () => {
     }
   };
 
+  const doFacebookLogin = async () => {
+    setLoading(true);
+
+    try {
+      const { idToken } = await signInWithFacebook();
+
+      const response = await facebookLogin(idToken);
+
+      const { user, token } = response;
+
+      dispatch(setUser(user));
+      dispatch(setSession(token));
+
+      toast("Logged in with Facebook successfully!", { severity: "success" });
+    } catch (error) {
+      toast(error.message || "Failed to login with Facebook", {
+        severity: "error",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const oAuthButtons = [
     {
       text: "Sign in with Google",
@@ -182,16 +209,16 @@ const Auth = () => {
       onClick: doGithubLogin,
     },
     {
+      text: "Sign in with Facebook",
+      icon: <Facebook color="primary" />,
+      key: "oAuth-facebook",
+      onClick: doFacebookLogin,
+    },
+    {
       text: "Sign in with Microsoft",
       icon: <Microsoft color="primary" />,
       key: "oAuth-microsoft",
       onClick: () => toast("Microsoft Authentication is not implemented yet"),
-    },
-    {
-      text: "Sign in with Facebook",
-      icon: <Facebook color="primary" />,
-      key: "oAuth-facebook",
-      onClick: () => toast("Facebook Authentication is not implemented yet"),
     },
   ];
 
