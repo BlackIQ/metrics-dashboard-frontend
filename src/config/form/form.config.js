@@ -39,6 +39,19 @@ const forms = {
         required: true,
       },
     },
+    remember: {
+      type: "checkbox",
+      label: "Stay signed in",
+      grid: {
+        xs: 12,
+        sm: 12,
+        md: 12,
+        lg: 12,
+      },
+      advanced: {
+        required: false,
+      },
+    },
   },
   register: {
     firstName: {

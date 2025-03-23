@@ -50,23 +50,38 @@ const fieldComponents = {
     </FormControl>
   ),
   checkbox: ({ field, register, errors, def }) => (
-    <FormControl fullWidth margin="normal">
-      <FormControlLabel
-        label={field.label}
-        control={
-          <Checkbox
-            defaultChecked={def}
-            color="primary"
-            {...register(field.name, field.advanced)}
-          />
-        }
-      />
-      {errors && (
-        <Typography variant="caption" color="error.main">
-          {errors.message}
+    <FormControlLabel
+      label={
+        <Typography
+          sx={{
+            color: "white",
+            "&:hover": { color: "primary.main" },
+            fontSize: "0.9rem", // Slightly smaller for compactness
+          }}
+        >
+          {field.label}
         </Typography>
-      )}
-    </FormControl>
+      }
+      control={
+        <Checkbox
+          defaultChecked={def}
+          color="primary"
+          {...register(field.name, field.advanced)}
+          sx={{
+            color: "rgba(0, 255, 255, 0.7)",
+            "&.Mui-checked": { color: "primary.main" },
+            p: 0, // Remove default padding
+            mr: 1, // Small margin to separate checkbox from label
+          }}
+        />
+      }
+      sx={{
+        m: 0, // Remove default margin
+        mt: 1, // Small top margin to separate from previous field
+        display: "flex",
+        alignItems: "center",
+      }}
+    />
   ),
   checkData: ({ field, register, errors, def, selectData }) => (
     <FormControl fullWidth margin="normal">
@@ -259,13 +274,11 @@ const FormsComponent = ({
 
   const onSubmit = (data) => {
     const payload = {};
-
     Object.keys(form).forEach((key) => {
       if (data[key] !== undefined) {
         payload[key] = data[key];
       }
     });
-
     callback(payload);
   };
 
