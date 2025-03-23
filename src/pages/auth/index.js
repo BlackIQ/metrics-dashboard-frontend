@@ -125,17 +125,14 @@ const Auth = () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
 
-      console.log(result);
+      const idToken = await result.user.getIdToken();
 
-      return;
+      const response = await googleLogin(idToken);
 
-      // const idToken = await result.user.getIdToken();
+      const { user, token } = response;
 
-      // const response = await googleLogin(idToken);
-      // const { user, token } = response;
-
-      // dispatch(setUser(user));
-      // dispatch(setSession(token));
+      dispatch(setUser(user));
+      dispatch(setSession(token));
 
       toast("Logged in with Google successfully!", { severity: "success" });
     } catch (error) {
