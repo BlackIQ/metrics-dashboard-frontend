@@ -22,3 +22,13 @@ export const githubLogin = async (idToken) => {
     return Promise.reject(error.response.data);
   }
 };
+
+export const facebookLogin = async (idToken) => {
+  try {
+    const response = await API.post(`${oauth}/facebook`, { idToken });
+
+    return Promise.resolve(response.data);
+  } catch (error) {
+    return Promise.reject(error.response.data);
+  }
+};
