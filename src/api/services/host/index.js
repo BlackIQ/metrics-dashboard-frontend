@@ -62,3 +62,15 @@ export const checkHost = async (data) => {
     return Promise.reject(error.response.data);
   }
 };
+
+export const hostActions = async (page = 1, limit = 10, hostId) => {
+  try {
+    const response = await API.get(
+      `${host}/${hostId}/actions?page=${page}&limit=${limit}`
+    );
+
+    return Promise.resolve(response.data);
+  } catch (error) {
+    return Promise.reject(error.response.data);
+  }
+};
