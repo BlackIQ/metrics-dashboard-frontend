@@ -14,16 +14,18 @@ import { Form } from "@/components";
 // - - - - - Hooks - - - - -
 import { useAuth, useToast } from "@/hooks";
 
-// - - - - - API - - - - -
+// - - - - - API Auth - - - - -
 import {
   loginAccount,
   registerAccount,
   forgotPassword,
 } from "@/api/services/auth";
-import { googleLogin } from "@/api/services/oauth";
+
+// - - - - - API oAuth - - - - -
+import { googleLogin, githubLogin } from "@/api/services/oauth";
 
 // - - - - - Firebase - - - - -
-import { auth, googleProvider, signInWithPopup } from "@/firebase";
+import { signInWithGoogle, signInWithGithub } from "@/firebase";
 
 // - - - - - MUI - - - - -
 import {
@@ -122,10 +124,9 @@ const Auth = () => {
 
   const doGoogleLogin = async () => {
     setLoading(true);
-    try {
-      const result = await signInWithPopup(auth, googleProvider);
 
-      const idToken = await result.user.getIdToken();
+    try {
+      const { idToken } = await signInWithGoogle();
 
       const response = await googleLogin(idToken);
 
@@ -144,30 +145,53 @@ const Auth = () => {
     }
   };
 
+  const doGithubLogin = async () => {
+    setLoading(true);
+
+    try {
+      const { idToken } = await signInWithGithub();
+
+      const response = await githubLogin(idToken);
+
+      const { user, token } = response;
+
+      dispatch(setUser(user));
+      dispatch(setSession(token));
+
+      toast("Logged in with GitHub successfully!", { severity: "success" });
+    } catch (error) {
+      toast(error.message || "Failed to login with GitHub", {
+        severity: "error",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const oAuthButtons = [
     {
       text: "Sign in with Google",
       icon: <Google color="primary" />,
       key: "oAuth-google",
-      onclick: doGoogleLogin,
+      onClick: doGoogleLogin,
     },
     {
       text: "Sign in with GitHub",
       icon: <GitHub color="primary" />,
       key: "oAuth-github",
-      onclick: () => toast("GitHub Authentication is not implemented yet"),
+      onClick: doGithubLogin,
     },
     {
       text: "Sign in with Microsoft",
       icon: <Microsoft color="primary" />,
       key: "oAuth-microsoft",
-      onclick: () => toast("Microsoft Authentication is not implemented yet"),
+      onClick: () => toast("Microsoft Authentication is not implemented yet"),
     },
     {
       text: "Sign in with Facebook",
       icon: <Facebook color="primary" />,
       key: "oAuth-facebook",
-      onclick: () => toast("Facebook Authentication is not implemented yet"),
+      onClick: () => toast("Facebook Authentication is not implemented yet"),
     },
   ];
 
@@ -400,7 +424,7 @@ const Auth = () => {
                                 boxShadow: "0 0 10px rgba(0, 255, 255, 0.2)",
                               },
                             }}
-                            onClick={oAuthButton.onclick}
+                            onClick={oAuthButton.onClick}
                           >
                             {oAuthButton.icon}
                           </IconButton>
