@@ -8,10 +8,6 @@ import { useDispatch } from "react-redux";
 import { useRouter } from "next/router";
 import Head from "next/head";
 
-// - - - - - Store - - - - -
-import { setSession } from "@/redux/actions/session";
-import { setUser } from "@/redux/actions/user";
-
 // - - - - - Hooks - - - - -
 import { useToast } from "@/hooks";
 
@@ -52,7 +48,7 @@ const Confirm = () => {
   return (
     <>
       <Head>
-        <title>Confirm Email Change - OpenHubble Console</title>
+        <title>Confirm Email - OpenHubble Console</title>
       </Head>
 
       <Box
@@ -66,7 +62,7 @@ const Confirm = () => {
       >
         <Box sx={{ textAlign: "center", color: "#fff" }}>
           <CircularProgress sx={{ color: "#00e5ff", mb: 2 }} />
-          <Typography variant="h6">Confirming your email change...</Typography>
+          <Typography variant="h6">Confirming your email...</Typography>
         </Box>
       </Box>
     </>
