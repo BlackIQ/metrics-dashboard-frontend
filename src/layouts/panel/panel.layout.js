@@ -45,7 +45,7 @@ import { unsetSession } from "@/redux/actions/session";
 
 // - - - - - API - - - - -
 import API from "@/api";
-import { singleUser } from "@/api/services/user";
+import { me } from "@/api/services/user";
 import { logoutAccount } from "@/api/services/auth";
 
 // - - - - - Components - - - - -
@@ -129,7 +129,7 @@ const PanelLayout = ({ children }) => {
 
   const getData = async () => {
     try {
-      const data = await singleUser(user._id);
+      const data = await me();
 
       const nuser = { ...data.user, docs: data.docs };
 

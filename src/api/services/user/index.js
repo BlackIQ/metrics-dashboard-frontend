@@ -13,6 +13,16 @@ export const allUsers = async (page = 1, limit = 10) => {
   }
 };
 
+export const me = async () => {
+  try {
+    const response = await API.get(`${user}/me`);
+
+    return Promise.resolve(response.data);
+  } catch (error) {
+    return Promise.reject(error.response.data);
+  }
+};
+
 export const singleUser = async (id) => {
   try {
     const response = await API.get(`${user}/${id}`);
