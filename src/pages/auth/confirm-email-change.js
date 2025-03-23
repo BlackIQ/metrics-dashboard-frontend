@@ -19,7 +19,7 @@ import { useToast } from "@/hooks";
 import { Box, Typography, CircularProgress } from "@mui/material";
 
 // - - - - - API - - - - -
-import { confirmEmail } from "@/api/services/auth";
+import { confirmChangeEmail } from "@/api/services/auth";
 
 const Confirm = () => {
   const dispatch = useDispatch();
@@ -32,14 +32,9 @@ const Confirm = () => {
     if (rayid) {
       const fetchUserData = async () => {
         try {
-          const result = await confirmEmail(rayid);
+          await confirmChangeEmail(rayid);
 
-          const { user, token } = result;
-
-          dispatch(setUser(user));
-          dispatch(setSession(token));
-
-          toast("Acount confirmed! Welcome to OpenHubble Cloud.", {
+          toast("New email confirmed!", {
             severity: "success",
           });
 
@@ -57,7 +52,7 @@ const Confirm = () => {
   return (
     <>
       <Head>
-        <title>Confirm Account - OpenHubble Console</title>
+        <title>Confirm Email Change - OpenHubble Console</title>
       </Head>
 
       <Box
@@ -71,7 +66,7 @@ const Confirm = () => {
       >
         <Box sx={{ textAlign: "center", color: "#fff" }}>
           <CircularProgress sx={{ color: "#00e5ff", mb: 2 }} />
-          <Typography variant="h6">Confirming your account...</Typography>
+          <Typography variant="h6">Confirming your email change...</Typography>
         </Box>
       </Box>
     </>
