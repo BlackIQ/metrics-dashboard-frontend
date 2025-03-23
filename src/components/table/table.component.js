@@ -12,6 +12,7 @@ import {
   Button,
   Pagination,
   Chip,
+  Tooltip,
 } from "@mui/material";
 import { format as dateFormat } from "date-fns";
 import { Add, DeleteOutline, EditOutlined } from "@mui/icons-material";
@@ -92,14 +93,18 @@ const TableComponent = ({
           <Chip label={value ? "Yes" : "No"} color="default" size="small" />
         );
       case "agentAvailable":
-        return d.isActive ? (
-          value ? (
-            <Chip label="Connect" color="success" size="small" />
-          ) : (
-            <Chip label="Disconnect" color="error" size="small" />
-          )
-        ) : (
-          <Chip label="Inactive" color="default" size="small" />
+        return (
+          <Tooltip title={d.latestActionMessage} arrow>
+            {d.isActive ? (
+              value ? (
+                <Chip label="Connect" color="success" size="small" />
+              ) : (
+                <Chip label="Disconnect" color="error" size="small" />
+              )
+            ) : (
+              <Chip label="Inactive" color="default" size="small" />
+            )}
+          </Tooltip>
         );
       case "alertStatus":
         return value === "non-exists" ? (
