@@ -4,6 +4,7 @@ import {
   signInWithPopup,
   GoogleAuthProvider,
   GithubAuthProvider,
+  FacebookAuthProvider,
 } from "firebase/auth";
 
 // Firebase Config
@@ -26,6 +27,7 @@ const auth = getAuth(app);
 // OAuth Providers
 const googleProvider = new GoogleAuthProvider();
 const githubProvider = new GithubAuthProvider();
+const facebookProvider = new FacebookAuthProvider();
 
 // Google Login Function
 export const signInWithGoogle = async () => {
@@ -51,5 +53,16 @@ export const signInWithGithub = async () => {
   }
 };
 
+// Facebook Login Function
+export const signInWithFacebook = async () => {
+  try {
+    const result = await signInWithPopup(auth, facebookProvider);
+    const idToken = await result.user.getIdToken();
+    return { idToken, user: result.user };
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
 // Exports
-export { app, auth, googleProvider, githubProvider };
+export { app, auth, googleProvider, githubProvider, facebookProvider };
