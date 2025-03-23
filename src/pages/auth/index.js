@@ -20,6 +20,10 @@ import {
   registerAccount,
   forgotPassword,
 } from "@/api/services/auth";
+import { googleLogin } from "@/api/services/oauth";
+
+// - - - - - Firebase - - - - -
+import { auth, googleProvider, signInWithPopup } from "@/firebase";
 
 // - - - - - MUI - - - - -
 import {
@@ -116,26 +120,57 @@ const Auth = () => {
     }
   };
 
+  const doGoogleLogin = async () => {
+    setLoading(true);
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+
+      console.log(result);
+
+      return;
+
+      // const idToken = await result.user.getIdToken();
+
+      // const response = await googleLogin(idToken);
+      // const { user, token } = response;
+
+      // dispatch(setUser(user));
+      // dispatch(setSession(token));
+
+      toast("Logged in with Google successfully!", { severity: "success" });
+    } catch (error) {
+      toast(error.message || "Failed to login with Google", {
+        severity: "error",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const oAuthButtons = [
     {
       text: "Sign in with Google",
       icon: <Google color="primary" />,
       key: "oAuth-google",
+      onclick: doGoogleLogin,
     },
     {
       text: "Sign in with GitHub",
       icon: <GitHub color="primary" />,
       key: "oAuth-github",
+      onclick: () => toast("GitHub Authentication is not implemented yet"),
     },
     {
       text: "Sign in with Microsoft",
       icon: <Microsoft color="primary" />,
       key: "oAuth-microsoft",
+      onclick: () => toast("Microsoft Authentication is not implemented yet"),
     },
     {
       text: "Sign in with Facebook",
       icon: <Facebook color="primary" />,
       key: "oAuth-facebook",
+      onclick: () => toast("Facebook Authentication is not implemented yet"),
     },
   ];
 
@@ -354,7 +389,6 @@ const Auth = () => {
                         {oAuthButtons.map((oAuthButton) => (
                           <IconButton
                             key={oAuthButton.key}
-
                             sx={{
                               p: 1.7,
                               textTransform: "none",
@@ -369,6 +403,7 @@ const Auth = () => {
                                 boxShadow: "0 0 10px rgba(0, 255, 255, 0.2)",
                               },
                             }}
+                            onClick={oAuthButton.onclick}
                           >
                             {oAuthButton.icon}
                           </IconButton>
