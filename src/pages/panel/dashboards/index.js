@@ -86,6 +86,12 @@ const Index = () => {
     { label: "30 Minutes", value: "-30m" },
     { label: "45 Minutes", value: "-45m" },
     { label: "1 Hour", value: "-1h" },
+    { label: "2 Hour", value: "-2h" },
+    { label: "3 Hour", value: "-3h" },
+    { label: "6 Hour", value: "-6h" },
+    { label: "9 Hour", value: "-9h" },
+    { label: "12 Hour", value: "-12h" },
+    { label: "24 Hour", value: "-24h" },
   ];
 
   const handleHostChange = (event) => {
@@ -176,12 +182,6 @@ const Index = () => {
       toast(error.message);
     }
     setLoading(false);
-  };
-
-  const loadMore = () => {
-    const newOffset = offset + limit;
-    setOffset(newOffset);
-    getData(selectedHost, selectedTime, newOffset);
   };
 
   const cpuUsage = useMemo(
@@ -290,13 +290,16 @@ const Index = () => {
                   </Select>
                 </FormControl>
 
+                {loading && <Loading py={0} />}
+
                 {hasMore && (
                   <Button
                     variant="contained"
+                    size="large"
                     disabled={loading}
-                    onClick={loadMore}
+                    onClick={() => getData(selectedHost, selectedTime)}
                   >
-                    {!loading ? "Load More" : "Loading..."}
+                    Refresh
                   </Button>
                 )}
               </Box>

@@ -1,8 +1,8 @@
 import { CircularProgress, Box } from "@mui/material";
 
-const Loading = () => {
+const Loading = ({ py = 5 }) => {
   return (
-    <Box py={5} textAlign="center">
+    <Box py={py} textAlign="center">
       <CircularProgress />
     </Box>
   );
