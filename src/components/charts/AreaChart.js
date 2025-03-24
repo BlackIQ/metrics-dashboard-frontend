@@ -28,8 +28,8 @@ const AreaChart = ({
   title,
   data,
   labels,
-  backgroundColor = "rgba(63, 81, 181, 0.5)",
-  borderColor = "#3f51b5",
+  backgroundColor = "rgba(63, 81, 181, 0.5)", // Default semi-transparent blue
+  borderColor = "#3f51b5", // Default solid blue line
   unit = "", // Optional unit for tooltips (e.g., "%", "MB")
 }) => {
   const chartData = {
@@ -38,11 +38,12 @@ const AreaChart = ({
       {
         label: title,
         data: data || [],
-        borderColor,
-        backgroundColor,
-        fill: true, // Filled area for AreaChart
-        tension: 0.3,
-        pointRadius: 0, // Remove points for cleaner look
+        borderColor, // Line color
+        backgroundColor, // Fill color under the line
+        fill: true, // Ensures the area under the line is filled
+        tension: 0.3, // Smooth curve
+        pointRadius: 0, // No points to emphasize the filled area
+        borderWidth: 2, // Slightly thicker line for visibility
       },
     ],
   };
