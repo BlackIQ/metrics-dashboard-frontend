@@ -21,14 +21,14 @@ import LineChart from "@/components/charts/LineChart";
 // Dashboard Colors
 import { dashboardColors } from "@/theme/dashboard-colors";
 
-const processMetrics = (metrics, fields) => {
+const processMetrics = (metrics, fields, config) => {
   if (!metrics || !Object.keys(metrics).length) {
     console.log("No metrics provided:", metrics);
     return { labels: [], datasets: [] };
   }
 
   const normalizedFields = Array.isArray(fields) ? fields : [fields];
-  const datasets = normalizedFields.map((field, index) => {
+  const datasets = normalizedFields.map((field) => {
     const fieldData = metrics[field] || [];
     if (!fieldData.length) {
       console.log(`No data for field: ${field}`);
@@ -36,7 +36,7 @@ const processMetrics = (metrics, fields) => {
     return {
       label: field.replace("_", " "),
       data: fieldData.map((d) => d.value || 0),
-      borderColor: dashboardColors[index % dashboardColors.length],
+      borderColor: config.colors[field] || dashboardColors[9],
     };
   });
 
@@ -56,6 +56,9 @@ const CHART_CONFIGS = {
     title: "CPU Total Usage (%)",
     chart: AreaChart,
     unit: "%",
+    colors: {
+      total_usage: dashboardColors[6],
+    },
   },
   memory: {
     measurement: "host_memory_metrics",
@@ -63,24 +66,40 @@ const CHART_CONFIGS = {
     title: "Memory Usage (%)",
     chart: AreaChart,
     unit: "%",
+    colors: {
+      percent: dashboardColors[5],
+    },
   },
   disk: {
     measurement: "host_disk_io_metrics",
     fields: ["read_bytes", "write_bytes"],
     title: "Disk IO",
     chart: LineChart,
+    colors: {
+      read_bytes: dashboardColors[3],
+      write_bytes: dashboardColors[7],
+    },
   },
   network: {
     measurement: "host_network_io_metrics",
     fields: ["bytes_sent", "bytes_received"],
     title: "Network IO",
     chart: LineChart,
+    colors: {
+      bytes_sent: dashboardColors[4],
+      bytes_received: dashboardColors[8],
+    },
   },
   systemLoad: {
     measurement: "host_system_load_metrics",
     fields: ["1_min", "5_min", "15_min"],
     title: "System Load",
     chart: LineChart,
+    colors: {
+      "1_min": dashboardColors[0],
+      "5_min": dashboardColors[1],
+      "15_min": dashboardColors[2],
+    },
   },
 };
 
@@ -174,7 +193,7 @@ const Index = () => {
       Object.fromEntries(
         Object.entries(CHART_CONFIGS).map(([key, config]) => [
           key,
-          processMetrics(metrics[config.measurement], config.fields),
+          processMetrics(metrics[config.measurement], config.fields, config),
         ])
       ),
     [metrics]
