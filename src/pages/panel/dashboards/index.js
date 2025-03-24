@@ -227,121 +227,127 @@ const Index = () => {
       <Box width="100%" p={2}>
         {initLoading ? (
           <Loading />
-        ) : hosts.length === 0 ? (
-          <Box textAlign="center" py={4}>
-            <Typography variant="h5" color="primary.main" gutterBottom>
-              No Hosts Available
-            </Typography>
-            <Typography variant="body1" color="textSecondary">
-              It looks like you haven’t added any hosts yet. Add a host to start
-              monitoring metrics!
-            </Typography>
-            <Button
-              variant="contained"
-              color="primary"
-              size="large"
-              onClick={() => router.push("/panel/hosts")}
-              sx={{
-                mt: 4,
-                py: 1.5,
-                px: 4,
-                borderRadius: 2,
-                boxShadow: "0 0 15px rgba(0, 255, 255, 0.5)",
-                "&:hover": {
-                  bgcolor: "primary.dark",
-                  boxShadow: "0 0 18px rgba(0, 255, 255, 0.7)",
-                },
-              }}
-            >
-              Add your first host
-            </Button>
-          </Box>
         ) : (
           <>
-            <Box mb={4} display="flex" gap={2} alignItems="center">
-              <FormControl sx={{ minWidth: 200 }}>
-                <InputLabel>Host</InputLabel>
-                <Select
-                  value={selectedHost}
-                  label="Host"
-                  onChange={handleHostChange}
+            {hosts.length === 0 ? (
+              <Box textAlign="center" py={4}>
+                <Typography variant="h5" color="primary.main" gutterBottom>
+                  No Hosts Available
+                </Typography>
+                <Typography variant="body1" color="textSecondary">
+                  It looks like you haven’t added any hosts yet. Add a host to
+                  start monitoring metrics!
+                </Typography>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  size="large"
+                  onClick={() => router.push("/panel/hosts")}
+                  sx={{
+                    mt: 4,
+                    py: 1.5,
+                    px: 4,
+                    borderRadius: 2,
+                    boxShadow: "0 0 15px rgba(0, 255, 255, 0.5)",
+                    "&:hover": {
+                      bgcolor: "primary.dark",
+                      boxShadow: "0 0 18px rgba(0, 255, 255, 0.7)",
+                    },
+                  }}
                 >
-                  {hosts.map((host) => (
-                    <MenuItem key={host._id} value={host._id}>
-                      {host.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-
-              <FormControl sx={{ minWidth: 200 }}>
-                <InputLabel>Time Range</InputLabel>
-                <Select
-                  value={selectedTime}
-                  label="Time Range"
-                  onChange={handleTimeChange}
-                >
-                  {timeOptions.map((option) => (
-                    <MenuItem key={option.value} value={option.value}>
-                      {option.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-
-              {hasMore && !loading && (
-                <Button variant="contained" onClick={loadMore}>
-                  Load More
+                  Add your first host
                 </Button>
-              )}
-            </Box>
-
-            {loading ? (
-              <Loading />
+              </Box>
             ) : (
-              <Grid container spacing={2}>
-                <Grid item xs={12} md={6}>
-                  <AreaChart
-                    title="CPU Total Usage (%)"
-                    data={cpuUsage.data}
-                    labels={cpuUsage.labels}
-                    borderColor="#1976d2"
-                    unit="%"
-                  />
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <AreaChart
-                    title="Memory Usage (%)"
-                    data={memoryPercent.data}
-                    labels={memoryPercent.labels}
-                    borderColor="#1976d2"
-                    unit="%"
-                  />
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <LineChart
-                    title="Disk IO"
-                    datasets={diskMetrics.datasets}
-                    labels={diskMetrics.labels}
-                  />
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <LineChart
-                    title="Network IO"
-                    datasets={networkMetrics.datasets}
-                    labels={networkMetrics.labels}
-                  />
-                </Grid>
-                <Grid item xs={12} md={12}>
-                  <LineChart
-                    title="System Load"
-                    datasets={systemLoadMetrics.datasets}
-                    labels={systemLoadMetrics.labels}
-                  />
-                </Grid>
-              </Grid>
+              <Box mb={4} display="flex" gap={2} alignItems="center">
+                <FormControl sx={{ minWidth: 200 }}>
+                  <InputLabel>Host</InputLabel>
+                  <Select
+                    value={selectedHost}
+                    label="Host"
+                    onChange={handleHostChange}
+                  >
+                    {hosts.map((host) => (
+                      <MenuItem key={host._id} value={host._id}>
+                        {host.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+
+                <FormControl sx={{ minWidth: 200 }}>
+                  <InputLabel>Time Range</InputLabel>
+                  <Select
+                    value={selectedTime}
+                    label="Time Range"
+                    onChange={handleTimeChange}
+                  >
+                    {timeOptions.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+
+                {hasMore && (
+                  <Button
+                    variant="contained"
+                    disabled={loading}
+                    onClick={loadMore}
+                  >
+                    {!loading ? "Load More" : "Loading..."}
+                  </Button>
+                )}
+              </Box>
             )}
           </>
+        )}
+
+        {loading && initLoading ? (
+          <Loading />
+        ) : (
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={6}>
+              <AreaChart
+                title="CPU Total Usage (%)"
+                data={cpuUsage.data}
+                labels={cpuUsage.labels}
+                borderColor="#1976d2"
+                unit="%"
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <AreaChart
+                title="Memory Usage (%)"
+                data={memoryPercent.data}
+                labels={memoryPercent.labels}
+                borderColor="#1976d2"
+                unit="%"
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <LineChart
+                title="Disk IO"
+                datasets={diskMetrics.datasets}
+                labels={diskMetrics.labels}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <LineChart
+                title="Network IO"
+                datasets={networkMetrics.datasets}
+                labels={networkMetrics.labels}
+              />
+            </Grid>
+            <Grid item xs={12} md={12}>
+              <LineChart
+                title="System Load"
+                datasets={systemLoadMetrics.datasets}
+                labels={systemLoadMetrics.labels}
+              />
+            </Grid>
+          </Grid>
         )}
       </Box>
     </>
