@@ -1,5 +1,6 @@
-"use client"; // Required for Next.js client-side rendering
+"use client";
 
+// - - - - - ChartJS  - - - - -
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -10,10 +11,15 @@ import {
   Title,
   Tooltip,
   Legend,
+  Filler,
 } from "chart.js";
+
+// - - - - - MUI  - - - - -
 import { Box, Paper, Typography } from "@mui/material";
 
-// Register ChartJS components
+// Dashboard Colors
+import { dashboardColors } from "@/theme/dashboard-colors";
+
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -21,40 +27,46 @@ ChartJS.register(
   LineElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  Filler
 );
 
-const AreaChart = ({
-  title,
-  data,
-  labels,
-  backgroundColor = "rgba(63, 81, 181, 0.5)", // Default semi-transparent blue
-  borderColor = "#3f51b5", // Default solid blue line
-  unit = "", // Optional unit for tooltips (e.g., "%", "MB")
-}) => {
+const AreaChart = ({ title, datasets, labels, unit }) => {
   const chartData = {
     labels: labels || [],
-    datasets: [
-      {
-        label: title,
-        data: data || [],
-        borderColor, // Line color
-        backgroundColor, // Fill color under the line
-        fill: true, // Ensures the area under the line is filled
-        tension: 0.3, // Smooth curve
-        pointRadius: 0, // No points to emphasize the filled area
-        borderWidth: 2, // Slightly thicker line for visibility
-      },
-    ],
+    datasets: (datasets || []).map((dataset, index) => ({
+      label: dataset.label,
+      data: dataset.data || [],
+      borderColor:
+        dataset.borderColor || dashboardColors[index % dashboardColors.length],
+      backgroundColor:
+        (dataset.borderColor ||
+          dashboardColors[index % dashboardColors.length]) + "33",
+      borderWidth: 2,
+      fill: "start",
+      tension: 0,
+      pointRadius: 1,
+      pointHoverRadius: 1,
+    })),
   };
 
   const options = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { position: "top" },
+      legend: {
+        position: "top",
+        labels: {
+          font: { size: 12, family: "Arial" },
+          color: "#666",
+        },
+      },
       title: { display: false },
       tooltip: {
+        backgroundColor: "#333",
+        titleFont: { size: 12 },
+        bodyFont: { size: 12 },
+        padding: 8,
         callbacks: {
           label: (context) =>
             `${context.dataset.label}: ${context.parsed.y} ${unit}`,
@@ -63,22 +75,29 @@ const AreaChart = ({
     },
     scales: {
       x: {
-        grid: { display: false },
-        ticks: {
-          maxTicksLimit: 10, // Limit x-axis labels for readability
-        },
+        grid: { color: "#444", borderDash: [2, 2] },
+        ticks: { color: "#666", maxTicksLimit: 8 },
       },
       y: {
-        grid: { color: "rgba(0, 0, 0, 0.1)" },
-        beginAtZero: true, // Start y-axis at 0
-        suggestedMax: Math.max(...(data || [100])) * 1.1, // Dynamic max with 10% buffer
+        grid: { color: "#444", borderDash: [2, 2] },
+        ticks: { color: "#666" },
+        beginAtZero: true,
+        suggestedMax:
+          Math.max(...(datasets || []).flatMap((d) => d.data || [100])) * 1.1,
       },
     },
   };
 
   return (
-    <Box component={Paper} p={2} elevation={3} sx={{ height: "100%" }}>
-      <Typography variant="h6" gutterBottom>
+    <Box
+      component={Paper}
+      p={2}
+      elevation={2}
+      sx={{
+        height: "100%",
+      }}
+    >
+      <Typography variant="h6" gutterBottom sx={{ fontSize: "14px" }}>
         {title}
       </Typography>
       <Box sx={{ height: "300px" }}>

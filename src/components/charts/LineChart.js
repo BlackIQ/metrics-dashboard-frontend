@@ -1,5 +1,6 @@
-"use client"; // Required for Next.js client-side rendering
+"use client";
 
+// - - - - - ChartJS  - - - - -
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -11,9 +12,13 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+
+// - - - - - MUI  - - - - -
 import { Box, Paper, Typography } from "@mui/material";
 
-// Register ChartJS components
+// Dashboard Colors
+import { dashboardColors } from "@/theme/dashboard-colors";
+
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -24,22 +29,22 @@ ChartJS.register(
   Legend
 );
 
-const LineChart = ({
-  title,
-  datasets,
-  labels,
-  unit = "", // Optional unit for tooltips
-}) => {
+const LineChart = ({ title, datasets, labels }) => {
   const chartData = {
     labels: labels || [],
-    datasets: (datasets || []).map((dataset) => ({
+    datasets: (datasets || []).map((dataset, index) => ({
       label: dataset.label,
       data: dataset.data || [],
-      borderColor: dataset.borderColor || "#3f51b5",
-      backgroundColor: dataset.borderColor || "#3f51b5", // For points
-      fill: false, // No fill for LineChart
-      tension: 0.3,
-      pointRadius: 2, // Small points for visibility
+      borderColor:
+        dataset.borderColor || dashboardColors[index % dashboardColors.length],
+      backgroundColor:
+        (dataset.borderColor ||
+          dashboardColors[index % dashboardColors.length]) + "33",
+      borderWidth: 2,
+      fill: false,
+      tension: 0,
+      pointRadius: 1,
+      pointHoverRadius: 1,
     })),
   };
 
@@ -47,34 +52,44 @@ const LineChart = ({
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { position: "top" },
+      legend: {
+        position: "top",
+        labels: {
+          font: { size: 12, family: "Arial" },
+          color: "#666",
+        },
+      },
       title: { display: false },
       tooltip: {
-        callbacks: {
-          label: (context) =>
-            `${context.dataset.label}: ${context.parsed.y} ${unit}`,
-        },
+        backgroundColor: "#333",
+        titleFont: { size: 12 },
+        bodyFont: { size: 12 },
+        padding: 8,
       },
     },
     scales: {
       x: {
-        grid: { display: false },
-        ticks: {
-          maxTicksLimit: 10, // Limit x-axis labels for readability
-        },
+        grid: { color: "#444", borderDash: [2, 2] },
+        ticks: { color: "#666", maxTicksLimit: 8 },
       },
       y: {
-        grid: { color: "rgba(0, 0, 0, 0.1)" },
+        grid: { color: "#444", borderDash: [2, 2] },
+        ticks: { color: "#666" },
         beginAtZero: true,
-        suggestedMax:
-          Math.max(...(datasets || []).flatMap((d) => d.data || [100])) * 1.1, // Dynamic max with 10% buffer
       },
     },
   };
 
   return (
-    <Box component={Paper} p={2} elevation={3} sx={{ height: "100%" }}>
-      <Typography variant="h6" gutterBottom>
+    <Box
+      component={Paper}
+      p={2}
+      elevation={2}
+      sx={{
+        height: "100%",
+      }}
+    >
+      <Typography variant="h6" gutterBottom sx={{ fontSize: "14px" }}>
         {title}
       </Typography>
       <Box sx={{ height: "300px" }}>
