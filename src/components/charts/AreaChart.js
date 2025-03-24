@@ -29,17 +29,20 @@ const AreaChart = ({
   data,
   labels,
   backgroundColor = "rgba(63, 81, 181, 0.5)",
+  borderColor = "#3f51b5",
+  unit = "", // Optional unit for tooltips (e.g., "%", "MB")
 }) => {
   const chartData = {
-    labels: labels,
+    labels: labels || [],
     datasets: [
       {
         label: title,
-        data: data,
-        borderColor: "#3f51b5",
-        backgroundColor: backgroundColor,
-        fill: true, // Filled area confirmed
+        data: data || [],
+        borderColor,
+        backgroundColor,
+        fill: true, // Filled area for AreaChart
         tension: 0.3,
+        pointRadius: 0, // Remove points for cleaner look
       },
     ],
   };
@@ -50,10 +53,25 @@ const AreaChart = ({
     plugins: {
       legend: { position: "top" },
       title: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (context) =>
+            `${context.dataset.label}: ${context.parsed.y} ${unit}`,
+        },
+      },
     },
     scales: {
-      x: { grid: { display: false } },
-      y: { grid: { color: "rgba(0, 0, 0, 0.1)" } },
+      x: {
+        grid: { display: false },
+        ticks: {
+          maxTicksLimit: 10, // Limit x-axis labels for readability
+        },
+      },
+      y: {
+        grid: { color: "rgba(0, 0, 0, 0.1)" },
+        beginAtZero: true, // Start y-axis at 0
+        suggestedMax: Math.max(...(data || [100])) * 1.1, // Dynamic max with 10% buffer
+      },
     },
   };
 

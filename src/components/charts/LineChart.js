@@ -1,4 +1,4 @@
-"use client";
+"use client"; // Required for Next.js client-side rendering
 
 import { Line } from "react-chartjs-2";
 import {
@@ -13,6 +13,7 @@ import {
 } from "chart.js";
 import { Box, Paper, Typography } from "@mui/material";
 
+// Register ChartJS components
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -23,16 +24,22 @@ ChartJS.register(
   Legend
 );
 
-const LineChart = ({ title, datasets, labels }) => {
+const LineChart = ({
+  title,
+  datasets,
+  labels,
+  unit = "", // Optional unit for tooltips
+}) => {
   const chartData = {
-    labels: labels,
-    datasets: datasets.map((dataset) => ({
+    labels: labels || [],
+    datasets: (datasets || []).map((dataset) => ({
       label: dataset.label,
-      data: dataset.data,
-      borderColor: dataset.borderColor,
-      backgroundColor: dataset.backgroundColor || "rgba(0, 0, 0, 0)",
-      fill: false,
+      data: dataset.data || [],
+      borderColor: dataset.borderColor || "#3f51b5",
+      backgroundColor: dataset.borderColor || "#3f51b5", // For points
+      fill: false, // No fill for LineChart
       tension: 0.3,
+      pointRadius: 2, // Small points for visibility
     })),
   };
 
@@ -42,10 +49,26 @@ const LineChart = ({ title, datasets, labels }) => {
     plugins: {
       legend: { position: "top" },
       title: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (context) =>
+            `${context.dataset.label}: ${context.parsed.y} ${unit}`,
+        },
+      },
     },
     scales: {
-      x: { grid: { display: false } },
-      y: { grid: { color: "rgba(0, 0, 0, 0.1)" } },
+      x: {
+        grid: { display: false },
+        ticks: {
+          maxTicksLimit: 10, // Limit x-axis labels for readability
+        },
+      },
+      y: {
+        grid: { color: "rgba(0, 0, 0, 0.1)" },
+        beginAtZero: true,
+        suggestedMax:
+          Math.max(...(datasets || []).flatMap((d) => d.data || [100])) * 1.1, // Dynamic max with 10% buffer
+      },
     },
   };
 
