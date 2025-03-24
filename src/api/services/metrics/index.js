@@ -5,14 +5,14 @@ const { metrics } = URLs;
 
 export const readMetrics = async (
   hostID,
-  measurements = ["host_system_load_metrics"],
+  query,
   start = "-1m",
   end = "now()"
 ) => {
   try {
     const response = await API.post(
       `${metrics}/${hostID}`,
-      { measurements },
+      { ...query },
       {
         params: {
           start,

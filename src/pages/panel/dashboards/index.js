@@ -1,11 +1,6 @@
-// - - - - - React - - - - -
 import { useState, useEffect, useMemo } from "react";
-
-// - - - - - Next - - - - -
 import Head from "next/head";
 import { useRouter } from "next/router";
-
-// - - - - - MUI - - - - -
 import {
   Box,
   Grid,
@@ -16,67 +11,89 @@ import {
   Button,
   Typography,
 } from "@mui/material";
-
-// - - - - - Components - - - - -
 import { Loading } from "@/components";
-
-// - - - - - Hooks - - - - -
 import { useToast } from "@/hooks";
-
-// - - - - - API - - - - -
 import { readMetrics as readData } from "@/api/services/metrics";
 import { allHosts } from "@/api/services/host";
-
-// - - - - - Charts - - - - -
 import AreaChart from "@/components/charts/AreaChart";
 import LineChart from "@/components/charts/LineChart";
 
-const processMetrics = (metrics, fields) => {
-  if (!metrics) return { labels: [], data: [] };
+// Dashboard Colors
+import { dashboardColors } from "@/theme/dashboard-colors";
 
-  if (Array.isArray(fields)) {
-    const datasets = fields.map((field, index) => {
-      const fieldData = metrics[field] || [];
-      const data = fieldData.map((d) => d.value);
-      const labels = fieldData.map((d) =>
-        new Date(d.time).toLocaleTimeString()
-      );
-      return {
-        label: `${field.replace("_", " ")}`,
-        data,
-        borderColor: ["#d32f2f", "#388e3c", "#0288d1"][index % 3],
-      };
-    });
-    const labels = datasets[0]?.data.length
-      ? datasets[0].data.map((_, i) =>
-          new Date(metrics[fields[0]][i].time).toLocaleTimeString()
-        )
-      : [];
-    return { labels, datasets };
-  } else {
-    const fieldData = metrics[fields] || [];
-    const labels = fieldData.map((d) => new Date(d.time).toLocaleTimeString());
-    const data = fieldData.map((d) => d.value);
-    return { labels, data };
+const processMetrics = (metrics, fields) => {
+  if (!metrics || !Object.keys(metrics).length) {
+    console.log("No metrics provided:", metrics);
+    return { labels: [], datasets: [] };
   }
+
+  const normalizedFields = Array.isArray(fields) ? fields : [fields];
+  const datasets = normalizedFields.map((field, index) => {
+    const fieldData = metrics[field] || [];
+    if (!fieldData.length) {
+      console.log(`No data for field: ${field}`);
+    }
+    return {
+      label: field.replace("_", " "),
+      data: fieldData.map((d) => d.value || 0),
+      borderColor: dashboardColors[index % dashboardColors.length],
+    };
+  });
+
+  const labels = datasets[0]?.data.length
+    ? metrics[normalizedFields[0]].map((d) =>
+        new Date(d.time).toLocaleTimeString()
+      )
+    : [];
+
+  return { labels, datasets };
+};
+
+const CHART_CONFIGS = {
+  cpu: {
+    measurement: "host_cpu_metrics",
+    fields: ["total_usage"],
+    title: "CPU Total Usage (%)",
+    chart: AreaChart,
+    unit: "%",
+  },
+  memory: {
+    measurement: "host_memory_metrics",
+    fields: ["percent"],
+    title: "Memory Usage (%)",
+    chart: AreaChart,
+    unit: "%",
+  },
+  disk: {
+    measurement: "host_disk_io_metrics",
+    fields: ["read_bytes", "write_bytes"],
+    title: "Disk IO",
+    chart: LineChart,
+  },
+  network: {
+    measurement: "host_network_io_metrics",
+    fields: ["bytes_sent", "bytes_received"],
+    title: "Network IO",
+    chart: LineChart,
+  },
+  systemLoad: {
+    measurement: "host_system_load_metrics",
+    fields: ["1_min", "5_min", "15_min"],
+    title: "System Load",
+    chart: LineChart,
+  },
 };
 
 const Index = () => {
   const router = useRouter();
-
-  const [loading, setLoading] = useState(true);
-  const [initLoading, setInitLoading] = useState(true);
-  const [metrics, setMetrics] = useState({});
-  const [offset, setOffset] = useState(0);
-  const [hasMore, setHasMore] = useState(false);
-
   const toast = useToast();
 
+  const [loading, setLoading] = useState(false);
+  const [initLoading, setInitLoading] = useState(true);
+  const [metrics, setMetrics] = useState({});
   const [hosts, setHosts] = useState([]);
   const [selectedHost, setSelectedHost] = useState("");
   const [selectedTime, setSelectedTime] = useState("-5m");
-
-  const limit = 100;
 
   const timeOptions = [
     { label: "1 Minute", value: "-1m" },
@@ -84,99 +101,55 @@ const Index = () => {
     { label: "10 Minutes", value: "-10m" },
     { label: "15 Minutes", value: "-15m" },
     { label: "30 Minutes", value: "-30m" },
-    { label: "45 Minutes", value: "-45m" },
     { label: "1 Hour", value: "-1h" },
-    { label: "2 Hour", value: "-2h" },
-    { label: "3 Hour", value: "-3h" },
-    { label: "6 Hour", value: "-6h" },
-    { label: "9 Hour", value: "-9h" },
-    { label: "12 Hour", value: "-12h" },
-    { label: "24 Hour", value: "-24h" },
+    { label: "24 Hours", value: "-24h" },
   ];
 
-  const handleHostChange = (event) => {
-    setSelectedHost(event.target.value);
-    setOffset(0);
-    getData(event.target.value, selectedTime, 0);
-  };
-
-  const handleTimeChange = (event) => {
-    setSelectedTime(event.target.value);
-    setOffset(0);
-    getData(selectedHost, event.target.value, 0);
-  };
-
   useEffect(() => {
-    getHosts();
+    const fetchHosts = async () => {
+      setInitLoading(true);
+      try {
+        const { hosts } = await allHosts(1, 100);
+        const updatedHosts = hosts.map((host, index) => ({
+          ...host,
+          selected: index === 0,
+        }));
+        setHosts(updatedHosts);
+        setSelectedHost(updatedHosts[0]?._id || "");
+        await fetchMetrics(updatedHosts[0]?._id, selectedTime);
+        toast("Hosts fetched successfully");
+      } catch (error) {
+        toast(error.message);
+      }
+      setInitLoading(false);
+    };
+    fetchHosts();
   }, []);
 
-  const getHosts = async () => {
-    setInitLoading(true);
-    try {
-      const { hosts } = await allHosts(1, 100);
-      const updatedHosts = hosts.map((host, index) => ({
-        ...host,
-        selected: index === 0,
-      }));
-      setHosts(updatedHosts);
-      setSelectedHost(updatedHosts[0]?._id || "");
-      getData(updatedHosts[0]?._id, selectedTime, 0);
-      toast("Hosts fetched successfully");
-    } catch (error) {
-      toast(error.message);
-    }
-    setInitLoading(false);
-  };
-
-  const getData = async (
-    hostId = selectedHost,
-    time = selectedTime,
-    offsetVal = offset
-  ) => {
-    if (!hostId || !time) return;
+  const fetchMetrics = async (hostId, timeRange) => {
+    if (!hostId || !timeRange) return;
 
     setLoading(true);
-    const measurements = [
-      "host_system_load_metrics",
-      "host_memory_metrics",
-      "host_cpu_metrics",
-      "host_disk_io_metrics",
-      "host_network_io_metrics",
-    ];
-    const params = { start: time, end: "now()", limit, offset: offsetVal };
-
     try {
+      const measurements = Object.values(CHART_CONFIGS).map(
+        (config) => config.measurement
+      );
+      const fields = Object.fromEntries(
+        Object.entries(CHART_CONFIGS).map(([_, config]) => [
+          config.measurement,
+          config.fields,
+        ])
+      );
+
+      const query = { measurements, fields };
       const { metrics: newMetrics } = await readData(
         hostId,
-        measurements,
-        params.start,
-        params.end,
-        limit,
-        offsetVal
+        query,
+        timeRange,
+        "now()"
       );
 
-      setMetrics((prev) => {
-        if (offsetVal === 0) return newMetrics;
-        const merged = { ...prev };
-        Object.keys(newMetrics).forEach((measurement) => {
-          if (!merged[measurement]) merged[measurement] = {};
-          Object.keys(newMetrics[measurement]).forEach((field) => {
-            merged[measurement][field] = [
-              ...(merged[measurement][field] || []),
-              ...newMetrics[measurement][field],
-            ];
-          });
-        });
-        return merged;
-      });
-
-      const totalPoints = Object.values(newMetrics).reduce(
-        (sum, fields) =>
-          sum + Object.values(fields).reduce((s, arr) => s + arr.length, 0),
-        0
-      );
-      setHasMore(totalPoints >= limit);
-
+      setMetrics(newMetrics || {});
       toast("Metrics fetched successfully");
     } catch (error) {
       toast(error.message);
@@ -184,37 +157,26 @@ const Index = () => {
     setLoading(false);
   };
 
-  const cpuUsage = useMemo(
-    () => processMetrics(metrics.host_cpu_metrics, "total_usage"),
-    [metrics]
-  );
-  const memoryPercent = useMemo(
-    () => processMetrics(metrics.host_memory_metrics, "percent"),
-    [metrics]
-  );
-  const systemLoadMetrics = useMemo(
+  const handleHostChange = (event) => {
+    const hostId = event.target.value;
+    setSelectedHost(hostId);
+    fetchMetrics(hostId, selectedTime);
+  };
+
+  const handleTimeChange = (event) => {
+    const timeRange = event.target.value;
+    setSelectedTime(timeRange);
+    fetchMetrics(selectedHost, timeRange);
+  };
+
+  const chartData = useMemo(
     () =>
-      processMetrics(metrics.host_system_load_metrics, [
-        "1_min",
-        "5_min",
-        "15_min",
-      ]),
-    [metrics]
-  );
-  const diskMetrics = useMemo(
-    () =>
-      processMetrics(metrics.host_disk_io_metrics, [
-        "read_bytes",
-        "write_bytes",
-      ]),
-    [metrics]
-  );
-  const networkMetrics = useMemo(
-    () =>
-      processMetrics(metrics.host_network_io_metrics, [
-        "bytes_sent",
-        "bytes_received",
-      ]),
+      Object.fromEntries(
+        Object.entries(CHART_CONFIGS).map(([key, config]) => [
+          key,
+          processMetrics(metrics[config.measurement], config.fields),
+        ])
+      ),
     [metrics]
   );
 
@@ -227,130 +189,78 @@ const Index = () => {
       <Box width="100%" p={2}>
         {initLoading ? (
           <Loading />
+        ) : hosts.length === 0 ? (
+          <Box textAlign="center" py={4}>
+            <Typography variant="h5" color="primary.main" gutterBottom>
+              No Hosts Available
+            </Typography>
+            <Typography variant="body1" color="textSecondary">
+              It looks like you haven’t added any hosts yet. Add a host to start
+              monitoring metrics!
+            </Typography>
+            <Button
+              variant="contained"
+              color="primary"
+              size="large"
+              onClick={() => router.push("/panel/hosts")}
+              sx={{ mt: 4, py: 1.5, px: 4, borderRadius: 2 }}
+            >
+              Add your first host
+            </Button>
+          </Box>
         ) : (
           <>
-            {hosts.length === 0 ? (
-              <Box textAlign="center" py={4}>
-                <Typography variant="h5" color="primary.main" gutterBottom>
-                  No Hosts Available
-                </Typography>
-                <Typography variant="body1" color="textSecondary">
-                  It looks like you haven’t added any hosts yet. Add a host to
-                  start monitoring metrics!
-                </Typography>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  size="large"
-                  onClick={() => router.push("/panel/hosts")}
-                  sx={{
-                    mt: 4,
-                    py: 1.5,
-                    px: 4,
-                    borderRadius: 2,
-                    boxShadow: "0 0 15px rgba(0, 255, 255, 0.5)",
-                    "&:hover": {
-                      bgcolor: "primary.dark",
-                      boxShadow: "0 0 18px rgba(0, 255, 255, 0.7)",
-                    },
-                  }}
+            <Box mb={4} display="flex" gap={2} alignItems="center">
+              <FormControl sx={{ minWidth: 200 }}>
+                <InputLabel>Host</InputLabel>
+                <Select
+                  value={selectedHost}
+                  label="Host"
+                  onChange={handleHostChange}
                 >
-                  Add your first host
-                </Button>
-              </Box>
-            ) : (
-              <Box mb={4} display="flex" gap={2} alignItems="center">
-                <FormControl sx={{ minWidth: 200 }}>
-                  <InputLabel>Host</InputLabel>
-                  <Select
-                    value={selectedHost}
-                    label="Host"
-                    onChange={handleHostChange}
-                  >
-                    {hosts.map((host) => (
-                      <MenuItem key={host._id} value={host._id}>
-                        {host.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+                  {hosts.map((host) => (
+                    <MenuItem key={host._id} value={host._id}>
+                      {host.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
 
-                <FormControl sx={{ minWidth: 200 }}>
-                  <InputLabel>Time Range</InputLabel>
-                  <Select
-                    value={selectedTime}
-                    label="Time Range"
-                    onChange={handleTimeChange}
-                  >
-                    {timeOptions.map((option) => (
-                      <MenuItem key={option.value} value={option.value}>
-                        {option.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+              <FormControl sx={{ minWidth: 200 }}>
+                <InputLabel>Time Range</InputLabel>
+                <Select
+                  value={selectedTime}
+                  label="Time Range"
+                  onChange={handleTimeChange}
+                >
+                  {timeOptions.map((option) => (
+                    <MenuItem key={option.value} value={option.value}>
+                      {option.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
 
-                {loading && <Loading py={0} />}
+              {loading && <Loading py={0} />}
+            </Box>
 
-                {hasMore && (
-                  <Button
-                    variant="contained"
-                    size="large"
-                    disabled={loading}
-                    onClick={() => getData(selectedHost, selectedTime)}
-                  >
-                    Refresh
-                  </Button>
-                )}
-              </Box>
-            )}
+            <Grid container spacing={2}>
+              {Object.entries(CHART_CONFIGS).map(([key, config]) => {
+                const ChartComponent = config.chart;
+                const data = chartData[key];
+                return (
+                  <Grid item xs={12} md={6} key={key}>
+                    <ChartComponent
+                      title={config.title}
+                      datasets={data.datasets}
+                      labels={data.labels}
+                      unit={config.unit}
+                    />
+                  </Grid>
+                );
+              })}
+            </Grid>
           </>
-        )}
-
-        {loading && initLoading ? (
-          <Loading />
-        ) : (
-          <Grid container spacing={2}>
-            <Grid item xs={12} md={6}>
-              <AreaChart
-                title="CPU Total Usage (%)"
-                data={cpuUsage.data}
-                labels={cpuUsage.labels}
-                borderColor="#1976d2"
-                unit="%"
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <AreaChart
-                title="Memory Usage (%)"
-                data={memoryPercent.data}
-                labels={memoryPercent.labels}
-                borderColor="#1976d2"
-                unit="%"
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <LineChart
-                title="Disk IO"
-                datasets={diskMetrics.datasets}
-                labels={diskMetrics.labels}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <LineChart
-                title="Network IO"
-                datasets={networkMetrics.datasets}
-                labels={networkMetrics.labels}
-              />
-            </Grid>
-            <Grid item xs={12} md={12}>
-              <LineChart
-                title="System Load"
-                datasets={systemLoadMetrics.datasets}
-                labels={systemLoadMetrics.labels}
-              />
-            </Grid>
-          </Grid>
         )}
       </Box>
     </>
