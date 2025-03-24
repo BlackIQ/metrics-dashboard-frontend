@@ -1,5 +1,11 @@
+// - - - - - React - - - - -
 import { useState, useEffect, useMemo } from "react";
+
+// - - - - - Next - - - - -
 import Head from "next/head";
+import { useRouter } from "next/router";
+
+// - - - - - MUI - - - - -
 import {
   Box,
   Grid,
@@ -8,16 +14,25 @@ import {
   Select,
   MenuItem,
   Button,
+  Typography,
 } from "@mui/material";
+
+// - - - - - Components - - - - -
 import { Loading } from "@/components";
+
+// - - - - - Hooks - - - - -
 import { useToast } from "@/hooks";
+
+// - - - - - API - - - - -
 import { readMetrics as readData } from "@/api/services/metrics";
 import { allHosts } from "@/api/services/host";
+
+// - - - - - Charts - - - - -
 import AreaChart from "@/components/charts/AreaChart";
 import LineChart from "@/components/charts/LineChart";
 
 const processMetrics = (metrics, fields) => {
-  if (!metrics) return { labels: [], data: [] }; // Early return for empty data
+  if (!metrics) return { labels: [], data: [] };
 
   if (Array.isArray(fields)) {
     const datasets = fields.map((field, index) => {
@@ -29,7 +44,7 @@ const processMetrics = (metrics, fields) => {
       return {
         label: `${field.replace("_", " ")}`,
         data,
-        borderColor: ["#d32f2f", "#388e3c", "#0288d1"][index % 3], // Red, Green, Blue
+        borderColor: ["#d32f2f", "#388e3c", "#0288d1"][index % 3],
       };
     });
     const labels = datasets[0]?.data.length
@@ -47,6 +62,8 @@ const processMetrics = (metrics, fields) => {
 };
 
 const Index = () => {
+  const router = useRouter();
+
   const [loading, setLoading] = useState(true);
   const [initLoading, setInitLoading] = useState(true);
   const [metrics, setMetrics] = useState({});
@@ -59,7 +76,7 @@ const Index = () => {
   const [selectedHost, setSelectedHost] = useState("");
   const [selectedTime, setSelectedTime] = useState("-5m");
 
-  const limit = 100; // Number of data points per fetch
+  const limit = 100;
 
   const timeOptions = [
     { label: "1 Minute", value: "-1m" },
@@ -73,13 +90,13 @@ const Index = () => {
 
   const handleHostChange = (event) => {
     setSelectedHost(event.target.value);
-    setOffset(0); // Reset pagination
+    setOffset(0);
     getData(event.target.value, selectedTime, 0);
   };
 
   const handleTimeChange = (event) => {
     setSelectedTime(event.target.value);
-    setOffset(0); // Reset pagination
+    setOffset(0);
     getData(selectedHost, event.target.value, 0);
   };
 
@@ -132,9 +149,8 @@ const Index = () => {
         offsetVal
       );
 
-      // Merge new data with existing data if paginating
       setMetrics((prev) => {
-        if (offsetVal === 0) return newMetrics; // Replace if starting fresh
+        if (offsetVal === 0) return newMetrics;
         const merged = { ...prev };
         Object.keys(newMetrics).forEach((measurement) => {
           if (!merged[measurement]) merged[measurement] = {};
@@ -148,7 +164,6 @@ const Index = () => {
         return merged;
       });
 
-      // Check if there's more data to fetch
       const totalPoints = Object.values(newMetrics).reduce(
         (sum, fields) =>
           sum + Object.values(fields).reduce((s, arr) => s + arr.length, 0),
@@ -169,7 +184,6 @@ const Index = () => {
     getData(selectedHost, selectedTime, newOffset);
   };
 
-  // Memoize processed data to avoid recalculating on every render
   const cpuUsage = useMemo(
     () => processMetrics(metrics.host_cpu_metrics, "total_usage"),
     [metrics]
@@ -213,6 +227,35 @@ const Index = () => {
       <Box width="100%" p={2}>
         {initLoading ? (
           <Loading />
+        ) : hosts.length === 0 ? (
+          <Box textAlign="center" py={4}>
+            <Typography variant="h5" color="primary.main" gutterBottom>
+              No Hosts Available
+            </Typography>
+            <Typography variant="body1" color="textSecondary">
+              It looks like you haven’t added any hosts yet. Add a host to start
+              monitoring metrics!
+            </Typography>
+            <Button
+              variant="contained"
+              color="primary"
+              size="large"
+              onClick={() => router.push("/panel/hosts")}
+              sx={{
+                mt: 4,
+                py: 1.5,
+                px: 4,
+                borderRadius: 2,
+                boxShadow: "0 0 15px rgba(0, 255, 255, 0.5)",
+                "&:hover": {
+                  bgcolor: "primary.dark",
+                  boxShadow: "0 0 18px rgba(0, 255, 255, 0.7)",
+                },
+              }}
+            >
+              Add your first host
+            </Button>
+          </Box>
         ) : (
           <>
             <Box mb={4} display="flex" gap={2} alignItems="center">
@@ -252,51 +295,53 @@ const Index = () => {
                 </Button>
               )}
             </Box>
-          </>
-        )}
 
-        {loading && initLoading ? (
-          <Loading />
-        ) : (
-          <Grid container spacing={2}>
-            <Grid item xs={12} md={6}>
-              <AreaChart
-                title="CPU Total Usage (%)"
-                data={cpuUsage.data}
-                labels={cpuUsage.labels}
-                backgroundColor="rgba(25, 118, 210, 0.5)"
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <AreaChart
-                title="Memory Usage (%)"
-                data={memoryPercent.data}
-                labels={memoryPercent.labels}
-                backgroundColor="rgba(25, 118, 210, 0.5)"
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <LineChart
-                title="Disk IO"
-                datasets={diskMetrics.datasets}
-                labels={diskMetrics.labels}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <LineChart
-                title="Network IO"
-                datasets={networkMetrics.datasets}
-                labels={networkMetrics.labels}
-              />
-            </Grid>
-            <Grid item xs={12} md={12}>
-              <LineChart
-                title="System Load"
-                datasets={systemLoadMetrics.datasets}
-                labels={systemLoadMetrics.labels}
-              />
-            </Grid>
-          </Grid>
+            {loading ? (
+              <Loading />
+            ) : (
+              <Grid container spacing={2}>
+                <Grid item xs={12} md={6}>
+                  <AreaChart
+                    title="CPU Total Usage (%)"
+                    data={cpuUsage.data}
+                    labels={cpuUsage.labels}
+                    borderColor="#1976d2"
+                    unit="%"
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <AreaChart
+                    title="Memory Usage (%)"
+                    data={memoryPercent.data}
+                    labels={memoryPercent.labels}
+                    borderColor="#1976d2"
+                    unit="%"
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <LineChart
+                    title="Disk IO"
+                    datasets={diskMetrics.datasets}
+                    labels={diskMetrics.labels}
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <LineChart
+                    title="Network IO"
+                    datasets={networkMetrics.datasets}
+                    labels={networkMetrics.labels}
+                  />
+                </Grid>
+                <Grid item xs={12} md={12}>
+                  <LineChart
+                    title="System Load"
+                    datasets={systemLoadMetrics.datasets}
+                    labels={systemLoadMetrics.labels}
+                  />
+                </Grid>
+              </Grid>
+            )}
+          </>
         )}
       </Box>
     </>
