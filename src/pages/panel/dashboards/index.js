@@ -1,30 +1,45 @@
-"use client";
-
+// - - - - - React - - - - -
 import { useState, useEffect } from "react";
+
+// - - - - - Next - - - - -
 import Head from "next/head";
+
+// - - - - - MUI - - - - -
 import { Box, Button, Grid } from "@mui/material";
+
+// - - - - - Components - - - - -
 import { Loading } from "@/components";
+
+// - - - - - Hooks - - - - -
 import { useToast } from "@/hooks";
-import { READ as readData } from "@/api/services/metrics";
-import { all as allHosts } from "@/api/services/host";
+
+// - - - - - API - - - - -
+import { readMetrics as readData } from "@/api/services/metrics";
+import { allHosts } from "@/api/services/host";
+
+// - - - - - Redux - - - - -
 import { useSelector } from "react-redux";
+
+// - - - - - Charts - - - - -
 import AreaChart from "@/components/charts/AreaChart";
 import LineChart from "@/components/charts/LineChart";
 
-// Process metrics for single or multiple fields
 const processMetrics = (metrics, fields) => {
   if (Array.isArray(fields)) {
     const uniqueTimes = [
       ...new Set(metrics.map((m) => new Date(m._time).toLocaleTimeString())),
-    ].sort(); // Unique sorted timestamps
+    ].sort();
+
     return fields.map((field) => {
       const filteredMetrics = metrics.filter((m) => m._field === field);
       const data = uniqueTimes.map((time) => {
         const metric = filteredMetrics.find(
           (m) => new Date(m._time).toLocaleTimeString() === time
         );
-        return metric ? metric._value : null; // Null for missing data
+
+        return metric ? metric._value : null;
       });
+
       return { field, data };
     });
   } else {
@@ -32,7 +47,9 @@ const processMetrics = (metrics, fields) => {
     const labels = filteredMetrics.map((m) =>
       new Date(m._time).toLocaleTimeString()
     );
+
     const data = filteredMetrics.map((m) => m._value);
+
     return { labels, data };
   }
 };
@@ -90,15 +107,19 @@ const Index = () => {
 
   const getHosts = async () => {
     setInitLoading(true);
-    const filter = role?.value === "user" ? { user: _id } : {};
+
     try {
-      const { hosts } = await allHosts(filter);
+      const { hosts } = await allHosts((page = 1), (limit = 100));
+
       const updatedHosts = hosts.map((host, index) => ({
         ...host,
         selected: index === 0,
       }));
+
       setHosts(updatedHosts);
+
       getData();
+
       toast("Hosts fetched successfully");
     } catch (error) {
       toast(error.message);
@@ -108,9 +129,11 @@ const Index = () => {
 
   const getData = async () => {
     const filter = getSelected();
+
     if (!filter.host || !filter.time) return;
 
     setLoading(true);
+
     const hostID = filter.host;
     const measurements = [
       "host_system_load_metrics",
@@ -128,6 +151,7 @@ const Index = () => {
         params.start,
         params.end
       );
+
       setSystemloadData(
         metrics.filter((m) => m._measurement === "host_system_load_metrics")
       );
@@ -141,6 +165,7 @@ const Index = () => {
         metrics.filter((m) => m._measurement === "host_network_io_metrics")
       );
       setCpuData(metrics.filter((m) => m._measurement === "host_cpu_metrics"));
+
       toast("Metrics fetched successfully");
     } catch (error) {
       toast(error.message);
@@ -200,6 +225,7 @@ const Index = () => {
       <Head>
         <title>Dashboards - OpenHubble Console</title>
       </Head>
+
       <Box width="100%" p={2}>
         {initLoading ? (
           <Loading />
@@ -235,6 +261,7 @@ const Index = () => {
             </Box>
           </>
         )}
+        
         {loading ? (
           <Loading />
         ) : (
