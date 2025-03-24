@@ -12,6 +12,8 @@ import {
   Container,
   Grid,
   Paper,
+  Tabs,
+  Tab,
 } from "@mui/material";
 
 // - - - - - Components - - - - -
@@ -54,6 +56,12 @@ const Index = () => {
   const { user } = useSelector((state) => state);
 
   const [loading, setLoading] = useState(true);
+
+  const [tabValue, setTabValue] = useState(0);
+
+  const handleTabChange = (event, newValue) => {
+    setTabValue(newValue);
+  };
 
   const getData = async () => {
     try {
@@ -151,158 +159,165 @@ const Index = () => {
             >
               Settings
             </Typography>
-            <Grid container spacing={4}>
-              <Grid item xs={12} md={6}>
-                <Paper
-                  elevation={0}
-                  sx={{
-                    p: 3,
-                    bgcolor: "rgba(30, 30, 30, 0.9)",
-                    border: "1px solid rgba(0, 255, 255, 0.3)",
-                    borderRadius: 2,
-                    backdropFilter: "blur(10px)",
-                    "&:hover": {
-                      boxShadow: "0 0 20px rgba(0, 255, 255, 0.2)",
-                    },
-                  }}
+            <Tabs
+              value={tabValue}
+              onChange={handleTabChange}
+              sx={{ mb: 4 }}
+              textColor="primary"
+              indicatorColor="primary"
+            >
+              <Tab label="Information" />
+              <Tab label="Account" />
+              <Tab label="Security" />
+            </Tabs>
+
+            {/* Tab Panels */}
+            {tabValue === 0 && (
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 3,
+                  bgcolor: "rgba(30, 30, 30, 0.9)",
+                  border: "1px solid rgba(0, 255, 255, 0.3)",
+                  borderRadius: 2,
+                  backdropFilter: "blur(10px)",
+                  "&:hover": { boxShadow: "0 0 20px rgba(0, 255, 255, 0.2)" },
+                }}
+              >
+                <Typography
+                  variant="h6"
+                  fontFamily="Orbitron"
+                  color="primary.main"
+                  gutterBottom
                 >
-                  <Typography
-                    variant="h6"
-                    fontFamily="Orbitron"
-                    color="primary.main"
-                    gutterBottom
-                  >
-                    Information
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    color="rgba(255, 255, 255, 0.7)"
-                    gutterBottom
-                  >
-                    Update your personal details
-                  </Typography>
-                  <Divider
-                    sx={{
-                      my: 2,
-                      bgcolor: "primary.main",
-                      height: "2px",
-                      animation: `${dividerGlow} 2s ease-in-out infinite`,
-                    }}
-                  />
-                  <Form
-                    name="userProfileMe"
-                    callback={updateData}
-                    btnStyle={{
-                      fullWidth: false,
-                      disabled: loading,
-                      color: "primary",
-                    }}
-                    def={user}
-                    button="Change Info"
-                  />
-                </Paper>
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <Paper
-                  elevation={0}
-                  sx={{
-                    p: 3,
-                    bgcolor: "rgba(30, 30, 30, 0.9)",
-                    border: "1px solid rgba(0, 255, 255, 0.3)",
-                    borderRadius: 2,
-                    backdropFilter: "blur(10px)",
-                    "&:hover": {
-                      boxShadow: "0 0 20px rgba(0, 255, 255, 0.2)",
-                    },
-                  }}
+                  Information
+                </Typography>
+                <Typography
+                  variant="body2"
+                  color="rgba(255, 255, 255, 0.7)"
+                  gutterBottom
                 >
-                  <Typography
-                    variant="h6"
-                    fontFamily="Orbitron"
-                    color="primary.main"
-                    gutterBottom
-                  >
-                    Password
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    color="rgba(255, 255, 255, 0.7)"
-                    gutterBottom
-                  >
-                    Change your account password
-                  </Typography>
-                  <Divider
-                    sx={{
-                      my: 2,
-                      bgcolor: "primary.main",
-                      height: "2px",
-                      animation: `${dividerGlow} 2s ease-in-out infinite`,
-                    }}
-                  />
-                  <Form
-                    name="changePassword"
-                    callback={changePasswordUser}
-                    btnStyle={{
-                      fullWidth: false,
-                      disabled: loading,
-                      color: "primary",
-                    }}
-                    def={{ _id: user._id }}
-                    button="Change Password"
-                  />
-                </Paper>
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <Paper
-                  elevation={0}
+                  Update your personal details
+                </Typography>
+                <Divider
                   sx={{
-                    p: 3,
-                    bgcolor: "rgba(30, 30, 30, 0.9)",
-                    border: "1px solid rgba(0, 255, 255, 0.3)",
-                    borderRadius: 2,
-                    backdropFilter: "blur(10px)",
-                    "&:hover": {
-                      boxShadow: "0 0 20px rgba(0, 255, 255, 0.2)",
-                    },
+                    my: 2,
+                    bgcolor: "primary.main",
+                    height: "2px",
+                    animation: `${dividerGlow} 2s ease-in-out infinite`,
                   }}
+                />
+                <Form
+                  name="userProfileMe"
+                  callback={updateData}
+                  btnStyle={{
+                    fullWidth: false,
+                    disabled: loading,
+                    color: "primary",
+                  }}
+                  def={user}
+                  button="Change Info"
+                />
+              </Paper>
+            )}
+
+            {tabValue === 1 && (
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 3,
+                  bgcolor: "rgba(30, 30, 30, 0.9)",
+                  border: "1px solid rgba(0, 255, 255, 0.3)",
+                  borderRadius: 2,
+                  backdropFilter: "blur(10px)",
+                  "&:hover": { boxShadow: "0 0 20px rgba(0, 255, 255, 0.2)" },
+                }}
+              >
+                <Typography
+                  variant="h6"
+                  fontFamily="Orbitron"
+                  color="primary.main"
+                  gutterBottom
                 >
-                  <Typography
-                    variant="h6"
-                    fontFamily="Orbitron"
-                    color="primary.main"
-                    gutterBottom
-                  >
-                    Email
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    color="rgba(255, 255, 255, 0.7)"
-                    gutterBottom
-                  >
-                    Change your account email address
-                  </Typography>
-                  <Divider
-                    sx={{
-                      my: 2,
-                      bgcolor: "primary.main",
-                      height: "2px",
-                      animation: `${dividerGlow} 2s ease-in-out infinite`,
-                    }}
-                  />
-                  <Form
-                    name="changeEmail"
-                    callback={changeEmailUser}
-                    btnStyle={{
-                      fullWidth: false,
-                      disabled: loading,
-                      color: "primary",
-                    }}
-                    def={{ _id: user._id, newEmail: user.email }}
-                    button="Change email"
-                  />
-                </Paper>
-              </Grid>
-            </Grid>
+                  Email
+                </Typography>
+                <Typography
+                  variant="body2"
+                  color="rgba(255, 255, 255, 0.7)"
+                  gutterBottom
+                >
+                  Change your account email address
+                </Typography>
+                <Divider
+                  sx={{
+                    my: 2,
+                    bgcolor: "primary.main",
+                    height: "2px",
+                    animation: `${dividerGlow} 2s ease-in-out infinite`,
+                  }}
+                />
+                <Form
+                  name="changeEmail"
+                  callback={changeEmailUser}
+                  btnStyle={{
+                    fullWidth: false,
+                    disabled: loading,
+                    color: "primary",
+                  }}
+                  def={{ _id: user._id, newEmail: user.email }}
+                  button="Change Email"
+                />
+              </Paper>
+            )}
+
+            {tabValue === 2 && (
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 3,
+                  bgcolor: "rgba(30, 30, 30, 0.9)",
+                  border: "1px solid rgba(0, 255, 255, 0.3)",
+                  borderRadius: 2,
+                  backdropFilter: "blur(10px)",
+                  "&:hover": { boxShadow: "0 0 20px rgba(0, 255, 255, 0.2)" },
+                }}
+              >
+                <Typography
+                  variant="h6"
+                  fontFamily="Orbitron"
+                  color="primary.main"
+                  gutterBottom
+                >
+                  Password
+                </Typography>
+                <Typography
+                  variant="body2"
+                  color="rgba(255, 255, 255, 0.7)"
+                  gutterBottom
+                >
+                  Change your account password
+                </Typography>
+                <Divider
+                  sx={{
+                    my: 2,
+                    bgcolor: "primary.main",
+                    height: "2px",
+                    animation: `${dividerGlow} 2s ease-in-out infinite`,
+                  }}
+                />
+                <Form
+                  name="changePassword"
+                  callback={changePasswordUser}
+                  btnStyle={{
+                    fullWidth: false,
+                    disabled: loading,
+                    color: "primary",
+                  }}
+                  def={{ _id: user._id }}
+                  button="Change Password"
+                />
+              </Paper>
+            )}
           </Container>
         )}
       </Box>
