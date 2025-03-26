@@ -5,7 +5,7 @@ const { graphs } = URLs;
 
 export const allGraphs = async (page) => {
   try {
-    const response = await API.get(`${graphs}${page}`);
+    const response = await API.get(`${graphs}/${page}`);
 
     return Promise.resolve(response.data);
   } catch (error) {
