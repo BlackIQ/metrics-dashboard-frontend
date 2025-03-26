@@ -1,11 +1,6 @@
-// - - - - - React - - - - -
-import { useState, useEffect } from "react";
-
-// - - - - - Next - - - - -
+import { useState, useEffect, useMemo } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
-
-// - - - - - MUI - - - - -
 import {
   Box,
   Button,
@@ -18,95 +13,267 @@ import {
   IconButton,
   Menu,
   MenuItem,
+  FormControl,
+  InputLabel,
+  Select,
 } from "@mui/material";
-
 import { MoreVert } from "@mui/icons-material";
-
-// - - - - - Components - - - - -
 import { Loading, Confirm } from "@/components";
-
-// - - - - - Forms - - - - -
 import PageForm from "@/forms/page";
-
-// - - - - - Hooks - - - - -
 import { useToast, useDisclosure } from "@/hooks";
-
-// - - - - - APIs - - - - -
 import { allPages, deletePage } from "@/api/services/page";
+import { allGraphs } from "@/api/services/graph";
+import { readMetrics as readData } from "@/api/services/metrics";
+import AreaChart from "@/components/charts/AreaChart";
+import LineChart from "@/components/charts/LineChart";
+
+// Chart Components Map
+const CHART_COMPONENTS = {
+  AreaChart: AreaChart,
+  LineChart: LineChart,
+};
+
+// Process metrics data (from previous version)
+const processMetrics = (metrics, fields, colors) => {
+  if (!metrics || !Object.keys(metrics).length) {
+    return { labels: [], datasets: [] };
+  }
+
+  const normalizedFields = Array.isArray(fields) ? fields : [fields];
+  const datasets = normalizedFields.map((field) => ({
+    label: field.replace("_", " "),
+    data: (metrics[field] || []).map((d) => d.value || 0),
+    borderColor: colors[field] || "#000000",
+  }));
+
+  const labels = datasets[0]?.data.length
+    ? metrics[normalizedFields[0]].map((d) =>
+        new Date(d.time).toLocaleTimeString()
+      )
+    : [];
+
+  return { labels, datasets };
+};
+
+// Custom Components
+const PageTabs = ({ pages, tabValue, handleTabChange, handleMenuOpen }) => (
+  <Tabs
+    value={tabValue}
+    onChange={handleTabChange}
+    aria-label="page tabs"
+    sx={{ borderBottom: 1, borderColor: "divider" }}
+  >
+    {pages.map((page, index) => (
+      <Tab
+        key={page._id}
+        label={
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            {page.title}
+            <IconButton
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleMenuOpen(e, page._id);
+              }}
+              sx={{ ml: 1 }}
+            >
+              <MoreVert fontSize="small" />
+            </IconButton>
+          </Box>
+        }
+        id={`tab-${index}`}
+        aria-controls={`tabpanel-${index}`}
+      />
+    ))}
+    <Tab
+      label="Add New Page"
+      id="tab-add-page"
+      sx={{ fontWeight: "bold", color: "primary.main" }}
+    />
+  </Tabs>
+);
+
+const GraphsDisplay = ({ graphs, metrics, selectedTime, setSelectedTime }) => {
+  const timeOptions = [
+    { label: "1 Minute", value: "-1m" },
+    { label: "5 Minutes", value: "-5m" },
+    { label: "10 Minutes", value: "-10m" },
+    { label: "15 Minutes", value: "-15m" },
+    { label: "30 Minutes", value: "-30m" },
+    { label: "1 Hour", value: "-1h" },
+    { label: "24 Hours", value: "-24h" },
+  ];
+
+  return (
+    <Box sx={{ p: 3 }}>
+      <Box mb={4} display="flex" gap={2} alignItems="center">
+        <FormControl sx={{ minWidth: 200 }}>
+          <InputLabel>Time Range</InputLabel>
+          <Select
+            value={selectedTime}
+            label="Time Range"
+            onChange={(e) => setSelectedTime(e.target.value)}
+          >
+            {timeOptions.map((option) => (
+              <MenuItem key={option.value} value={option.value}>
+                {option.label}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Box>
+
+      {!graphs.length ? (
+        <Box
+          sx={{
+            height: "100vh",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            textAlign: "center",
+          }}
+        >
+          <Box>
+            <Typography variant="h5" color="primary.main" gutterBottom>
+              No Graphs Available
+            </Typography>
+            <Typography variant="body1" color="textSecondary">
+              There are no graphs on this page. Add your first graph!
+            </Typography>
+            <Button
+              variant="contained"
+              color="primary"
+              size="large"
+              sx={{ mt: 4, py: 1.5, px: 4, borderRadius: 2 }}
+            >
+              Add a graph
+            </Button>
+          </Box>
+        </Box>
+      ) : (
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
+          {graphs.map((graph) => {
+            const ChartComponent = CHART_COMPONENTS[graph.chart];
+            const data = processMetrics(
+              metrics[graph.measurement] || {},
+              graph.fields,
+              graph.colors
+            );
+
+            return (
+              <Box key={graph._id} sx={{ width: { xs: "100%", md: "48%" } }}>
+                <ChartComponent
+                  title={graph.title}
+                  datasets={data.datasets}
+                  labels={data.labels}
+                />
+              </Box>
+            );
+          })}
+        </Box>
+      )}
+    </Box>
+  );
+};
 
 const Index = () => {
   const router = useRouter();
   const toast = useToast();
 
-  // Loadings
-  const [pagesLoading, setPagesLoading] = useState(true); // Page
+  // State Management
+  const [pagesLoading, setPagesLoading] = useState(true);
+  const [graphsLoading, setGraphsLoading] = useState(true);
+  const [pages, setPages] = useState([]);
+  const [graphs, setGraphs] = useState([]);
+  const [metrics, setMetrics] = useState({});
+  const [currentPageData, setCurrentPageData] = useState({});
+  const [tabValue, setTabValue] = useState(0);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedPageId, setSelectedPageId] = useState(null);
+  const [selectedTime, setSelectedTime] = useState("-5m");
 
-  // States
-  const [pages, setPages] = useState([]); // Page
-
-  // Dialogs Data
-  const [currentPageData, setCurrentPageData] = useState({}); // Page
-
-  // Dialog State
+  // Dialog Controls
   const { isOpen: dialogPageOpen, onToggle: handleDialogPage } =
-    useDisclosure(); // Page
-
+    useDisclosure();
   const { isOpen: confirmPageOpen, onToggle: handlePageConfirm } =
-    useDisclosure(); // Confirm
+    useDisclosure();
 
-  // Functions
-
-  const getPagse = async () => {
+  // API Calls
+  const fetchPages = async () => {
     setPagesLoading(true);
-
     try {
-      const { pages } = await allPages(1, 100);
-
+      const { pages } = await allPages();
       setPages(pages);
-
+      if (pages.length) {
+        setTabValue(0);
+        fetchGraphsAndMetrics(pages[0]._id);
+      }
       toast("Pages retrieved", { severity: "success" });
     } catch (error) {
       toast(error.message, { severity: "error" });
+    } finally {
+      setPagesLoading(false);
     }
-
-    setPagesLoading(false);
   };
-  const deleteOnePage = async () => {
-    setPagesLoading(true);
 
+  const fetchGraphsAndMetrics = async (pageId) => {
+    setGraphsLoading(true);
     try {
-      await deletePage(currentPageData._id);
+      // Fetch graphs
+      const { graphs } = await allGraphs(pageId);
+      setGraphs(graphs);
 
-      toast("Page deleted", { severity: "success" });
+      if (graphs.length) {
+        // Fetch metrics for all graphs
+        const measurements = graphs.map((graph) => graph.measurement);
+        const fields = Object.fromEntries(
+          graphs.map((graph) => [graph.measurement, graph.fields])
+        );
+        const hostId = graphs[0].host; // Assuming all graphs on page use same host
 
-      handlePageConfirm();
-      setCurrentPageData({});
+        const query = { measurements, fields };
+        const { metrics: newMetrics } = await readData(
+          hostId,
+          query,
+          selectedTime,
+          "now()"
+        );
 
-      getPagse();
+        setMetrics(newMetrics || {});
+      }
+      toast("Graphs and metrics retrieved", { severity: "success" });
     } catch (error) {
       toast(error.message, { severity: "error" });
+    } finally {
+      setGraphsLoading(false);
     }
-
-    setPagesLoading(false);
   };
 
-  // Tabs
-  const [tabValue, setTabValue] = useState(0);
+  const handleDeletePage = async () => {
+    setPagesLoading(true);
+    try {
+      await deletePage(currentPageData._id);
+      toast("Page deleted", { severity: "success" });
+      handlePageConfirm();
+      setCurrentPageData({});
+      fetchPages();
+    } catch (error) {
+      toast(error.message, { severity: "error" });
+    } finally {
+      setPagesLoading(false);
+    }
+  };
 
+  // Event Handlers
   const handleTabChange = (event, newValue) => {
     if (newValue === pages.length) {
       setCurrentPageData(null);
       handleDialogPage();
-
-      setTabValue(0);
     } else {
       setTabValue(newValue);
+      fetchGraphsAndMetrics(pages[newValue]._id);
     }
   };
-
-  // Menu state
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [selectedPageId, setSelectedPageId] = useState(null);
 
   const handleMenuOpen = (event, pageId) => {
     setAnchorEl(event.currentTarget);
@@ -120,157 +287,40 @@ const Index = () => {
 
   const handleMenuItemClick = (action) => {
     const selectedPage = pages.find((page) => page._id === selectedPageId);
-
-    if (selectedPage) {
-      if (action === "rename") {
-        setCurrentPageData(selectedPage);
-        handleDialogPage();
-      }
-
-      if (action === "delete") {
-        setCurrentPageData(selectedPage);
-        handlePageConfirm();
-      }
-    } else {
-      toast("Error :(", {
-        severity: "error",
-      });
+    if (!selectedPage) {
+      toast("Error :(", { severity: "error" });
+      return handleMenuClose();
     }
 
+    if (action === "rename") {
+      setCurrentPageData(selectedPage);
+      handleDialogPage();
+    } else if (action === "delete") {
+      setCurrentPageData(selectedPage);
+      handlePageConfirm();
+    }
     handleMenuClose();
   };
 
-  // UseEffect
+  // Effects
   useEffect(() => {
-    getPagse();
+    fetchPages();
   }, []);
 
+  useEffect(() => {
+    if (pages.length && !graphsLoading) {
+      fetchGraphsAndMetrics(pages[tabValue]._id);
+    }
+  }, [selectedTime]);
+
+  // Render
   return (
     <>
       <Head>
         <title>Dashboards - OpenHubble Console</title>
       </Head>
-
       <Box width="100%">
-        {!pagesLoading ? (
-          <>
-            {pages.length !== 0 ? (
-              <Box>
-                <Tabs
-                  value={tabValue}
-                  onChange={handleTabChange}
-                  aria-label="page tabs"
-                  sx={{ borderBottom: 1, borderColor: "divider" }}
-                >
-                  {pages.map((page, index) => (
-                    <Tab
-                      key={page._id}
-                      label={
-                        <Box sx={{ display: "flex", alignItems: "center" }}>
-                          {page.title}
-                          <IconButton
-                            size="small"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleMenuOpen(e, page._id);
-                            }}
-                            sx={{ ml: 1 }}
-                          >
-                            <MoreVert fontSize="small" />
-                          </IconButton>
-                        </Box>
-                      }
-                      id={`tab-${index}`}
-                      aria-controls={`tabpanel-${index}`}
-                    />
-                  ))}
-                  <Tab
-                    label="Add New Page"
-                    id="tab-add-page"
-                    sx={{ fontWeight: "bold", color: "primary.main" }}
-                  />
-                </Tabs>
-                <Menu
-                  anchorEl={anchorEl}
-                  open={Boolean(anchorEl)}
-                  onClose={handleMenuClose}
-                  PaperProps={{
-                    sx: {
-                      bgcolor: "rgba(30, 30, 30, 0.9)",
-                      border: "1px solid rgba(0, 255, 255, 0.3)",
-                    },
-                  }}
-                >
-                  <MenuItem onClick={() => handleMenuItemClick("rename")}>
-                    Rename
-                  </MenuItem>
-                  <MenuItem onClick={() => handleMenuItemClick("delete")}>
-                    Delete
-                  </MenuItem>
-                </Menu>
-                <Box sx={{ p: 3 }}>
-                  {pages.map((page, index) => (
-                    <div
-                      key={page._id}
-                      role="tabpanel"
-                      hidden={tabValue !== index}
-                      id={`tabpanel-${index}`}
-                      aria-labelledby={`tab-${index}`}
-                    >
-                      {tabValue === index && (
-                        <Box>
-                          <Typography variant="h6">{page.title}</Typography>
-                          <Typography variant="body2" color="text.secondary">
-                            Created by: {page.user.firstName} ({page.user.email}
-                            )
-                          </Typography>
-                          <Typography variant="body1" sx={{ mt: 2 }}>
-                            {page.description}
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            Created: {new Date(page.createdAt).toLocaleString()}
-                          </Typography>
-                        </Box>
-                      )}
-                    </div>
-                  ))}
-                </Box>
-              </Box>
-            ) : (
-              <Box
-                sx={{
-                  height: "100vh",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  textAlign: "center",
-                }}
-              >
-                <Box>
-                  <Typography variant="h5" color="primary.main" gutterBottom>
-                    No page Available
-                  </Typography>
-                  <Typography variant="body1" color="textSecondary">
-                    It looks like you haven’t added any pages yet. Add a page to
-                    add graphs!
-                  </Typography>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    size="large"
-                    onClick={() => {
-                      setCurrentPageData(null);
-                      handleDialogPage();
-                    }}
-                    sx={{ mt: 4, py: 1.5, px: 4, borderRadius: 2 }}
-                  >
-                    Add a page
-                  </Button>
-                </Box>
-              </Box>
-            )}
-          </>
-        ) : (
+        {pagesLoading ? (
           <Box
             sx={{
               height: "100vh",
@@ -284,8 +334,72 @@ const Index = () => {
               <Typography variant="body1" color="textSecondary">
                 Loading pages
               </Typography>
-
               <Loading />
+            </Box>
+          </Box>
+        ) : pages.length ? (
+          <Box>
+            <PageTabs
+              pages={pages}
+              tabValue={tabValue}
+              handleTabChange={handleTabChange}
+              handleMenuOpen={handleMenuOpen}
+            />
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleMenuClose}
+              PaperProps={{
+                sx: {
+                  bgcolor: "rgba(30, 30, 30, 0.9)",
+                  border: "1px solid rgba(0, 255, 255, 0.3)",
+                },
+              }}
+            >
+              <MenuItem onClick={() => handleMenuItemClick("rename")}>
+                Rename
+              </MenuItem>
+              <MenuItem onClick={() => handleMenuItemClick("delete")}>
+                Delete
+              </MenuItem>
+            </Menu>
+            <GraphsDisplay
+              graphs={graphs}
+              metrics={metrics}
+              selectedTime={selectedTime}
+              setSelectedTime={setSelectedTime}
+            />
+          </Box>
+        ) : (
+          <Box
+            sx={{
+              height: "100vh",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              textAlign: "center",
+            }}
+          >
+            <Box>
+              <Typography variant="h5" color="primary.main" gutterBottom>
+                No page Available
+              </Typography>
+              <Typography variant="body1" color="textSecondary">
+                It looks like you haven’t added any pages yet. Add a page to add
+                graphs!
+              </Typography>
+              <Button
+                variant="contained"
+                color="primary"
+                size="large"
+                onClick={() => {
+                  setCurrentPageData(null);
+                  handleDialogPage();
+                }}
+                sx={{ mt: 4, py: 1.5, px: 4, borderRadius: 2 }}
+              >
+                Add a page
+              </Button>
             </Box>
           </Box>
         )}
@@ -306,19 +420,14 @@ const Index = () => {
         }}
       >
         <DialogTitle>
-          <Typography
-            variant="h6"
-            // fontFamily="Orbitron"
-            color="primary.main"
-            // sx={{ animation: `${neonGlow} 2s ease-in-out infinite` }}
-          >
+          <Typography variant="h6" color="primary.main">
             {currentPageData ? "Edit page" : "Add page"}
           </Typography>
         </DialogTitle>
         <DialogContent>
           <PageForm
             currentData={currentPageData}
-            getData={getPagse}
+            getData={fetchPages}
             handleClose={handleDialogPage}
             loading={pagesLoading}
             setLoading={setPagesLoading}
@@ -328,7 +437,7 @@ const Index = () => {
       </Dialog>
 
       <Confirm
-        onConfirm={deleteOnePage}
+        onConfirm={handleDeletePage}
         isOpen={confirmPageOpen}
         handleOpen={handlePageConfirm}
       />
