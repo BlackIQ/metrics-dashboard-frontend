@@ -380,6 +380,38 @@ const forms = {
       },
     },
   },
+  page: {
+    title: {
+      type: "text",
+      label: "Title",
+      placeholder: "Enter page title",
+      secure: false,
+      grid: {
+        xs: 12,
+        sm: 12,
+        md: 12,
+        lg: 12,
+      },
+      advanced: {
+        required: true,
+      },
+    },
+    description: {
+      type: "textarea",
+      label: "Description",
+      placeholder: "Enter a description for this page",
+      secure: false,
+      grid: {
+        xs: 12,
+        sm: 12,
+        md: 12,
+        lg: 12,
+      },
+      advanced: {
+        required: true,
+      },
+    },
+  },
   group: {
     label: {
       type: "text",
