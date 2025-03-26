@@ -10,6 +10,7 @@ const urls = {
   metrics: "metrics",
   alerts: "alerts",
   pages: "pages",
+  graphs: "graphs",
 };
 
 export default urls;

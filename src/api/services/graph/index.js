@@ -1,11 +1,11 @@
 import API from "@/api";
 import URLs from "@/api/urls";
 
-const { pages } = URLs;
+const { graphs } = URLs;
 
-export const allPages = async () => {
+export const allGraphs = async (page) => {
   try {
-    const response = await API.get(pages);
+    const response = await API.get(`${graphs}${page}`);
 
     return Promise.resolve(response.data);
   } catch (error) {
@@ -13,9 +13,9 @@ export const allPages = async () => {
   }
 };
 
-export const singlePage = async (id) => {
+export const singleGraph = async (id) => {
   try {
-    const response = await API.get(`${pages}/${id}`);
+    const response = await API.get(`${graphs}/${id}`);
 
     return Promise.resolve(response.data);
   } catch (error) {
@@ -23,9 +23,9 @@ export const singlePage = async (id) => {
   }
 };
 
-export const createPage = async (data) => {
+export const createGraph = async (data) => {
   try {
-    const response = await API.post(pages, data);
+    const response = await API.post(graphs, data);
 
     return Promise.resolve(response.data);
   } catch (error) {
@@ -33,9 +33,9 @@ export const createPage = async (data) => {
   }
 };
 
-export const deletePage = async (id) => {
+export const deleteGraph = async (id) => {
   try {
-    const response = await API.delete(`${pages}/${id}`);
+    const response = await API.delete(`${graphs}/${id}`);
 
     return Promise.resolve(response.data);
   } catch (error) {
@@ -43,9 +43,9 @@ export const deletePage = async (id) => {
   }
 };
 
-export const updatePage = async (id, data) => {
+export const updateGraph = async (id, data) => {
   try {
-    const response = await API.patch(`${pages}/${id}`, data);
+    const response = await API.patch(`${graphs}/${id}`, data);
 
     return Promise.resolve(response.data);
   } catch (error) {
