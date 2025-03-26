@@ -9,6 +9,7 @@ const urls = {
   group: "groups",
   metrics: "metrics",
   alerts: "alerts",
+  pages: "pages",
 };
 
 export default urls;
