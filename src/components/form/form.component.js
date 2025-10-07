@@ -26,12 +26,16 @@ const neonGlow = keyframes`
 `;
 
 const fieldComponents = {
-  radio: ({ field, register, errors, def }) => (
+  radio: ({ field, register, errors, def, onChange, getValues }) => (
     <FormControl fullWidth margin="normal">
       <FormLabel sx={{ color: "primary.main", fontFamily: "Orbitron", mb: 1 }}>
         {field.label}
       </FormLabel>
-      <RadioGroup row defaultValue={def}>
+      <RadioGroup
+        row
+        defaultValue={def}
+        onChange={(e) => onChange?.(field.name, e.target.value, getValues())}
+      >
         {field.items.map((item) => (
           <FormControlLabel
             key={item.value}
@@ -49,14 +53,14 @@ const fieldComponents = {
       )}
     </FormControl>
   ),
-  checkbox: ({ field, register, errors, def }) => (
+  checkbox: ({ field, register, errors, def, onChange, getValues }) => (
     <FormControlLabel
       label={
         <Typography
           sx={{
             color: "white",
             "&:hover": { color: "primary.main" },
-            fontSize: "0.9rem", // Slightly smaller for compactness
+            fontSize: "0.9rem",
           }}
         >
           {field.label}
@@ -67,23 +71,34 @@ const fieldComponents = {
           defaultChecked={def}
           color="primary"
           {...register(field.name, field.advanced)}
+          onChange={(e) =>
+            onChange?.(field.name, e.target.checked, getValues())
+          }
           sx={{
             color: "rgba(0, 255, 255, 0.7)",
             "&.Mui-checked": { color: "primary.main" },
-            p: 0, // Remove default padding
-            mr: 1, // Small margin to separate checkbox from label
+            p: 0,
+            mr: 1,
           }}
         />
       }
       sx={{
-        m: 0, // Remove default margin
-        mt: 1, // Small top margin to separate from previous field
+        m: 0,
+        mt: 1,
         display: "flex",
         alignItems: "center",
       }}
     />
   ),
-  checkData: ({ field, register, errors, def, selectData }) => (
+  checkData: ({
+    field,
+    register,
+    errors,
+    def,
+    selectData,
+    onChange,
+    getValues,
+  }) => (
     <FormControl fullWidth margin="normal">
       <FormLabel sx={{ color: "primary.main", fontFamily: "Orbitron", mb: 1 }}>
         {field.label}
@@ -99,6 +114,13 @@ const fieldComponents = {
                 defaultChecked={def?.includes(option._id)}
                 color="primary"
                 {...register(field.name, field.advanced)}
+                onChange={(e) => {
+                  const currentValues = getValues(field.name) || [];
+                  const newValues = e.target.checked
+                    ? [...currentValues, option._id]
+                    : currentValues.filter((id) => id !== option._id);
+                  onChange?.(field.name, newValues, getValues());
+                }}
               />
             }
           />
@@ -111,13 +133,22 @@ const fieldComponents = {
       )}
     </FormControl>
   ),
-  selectData: ({ field, register, errors, def, selectData }) => (
+  selectData: ({
+    field,
+    register,
+    errors,
+    def,
+    selectData,
+    onChange,
+    getValues,
+  }) => (
     <FormControl fullWidth margin="normal">
       <InputLabel sx={{ color: "primary.main" }}>{field.label}</InputLabel>
       <Select
         defaultValue={def || ""}
         label={field.label}
         {...register(field.name, field.advanced)}
+        onChange={(e) => onChange?.(field.name, e.target.value, getValues())}
         sx={{
           "& .MuiOutlinedInput-notchedOutline": {
             borderColor: "rgba(0, 255, 255, 0.3)",
@@ -141,13 +172,14 @@ const fieldComponents = {
       )}
     </FormControl>
   ),
-  select: ({ field, register, errors, def }) => (
+  select: ({ field, register, errors, def, onChange, getValues }) => (
     <FormControl fullWidth margin="normal">
       <InputLabel sx={{ color: "primary.main" }}>{field.label}</InputLabel>
       <Select
         defaultValue={def || ""}
         label={field.label}
         {...register(field.name, field.advanced)}
+        onChange={(e) => onChange?.(field.name, e.target.value, getValues())}
         sx={{
           "& .MuiOutlinedInput-notchedOutline": {
             borderColor: "rgba(0, 255, 255, 0.3)",
@@ -171,7 +203,7 @@ const fieldComponents = {
       )}
     </FormControl>
   ),
-  textarea: ({ field, register, errors }) => (
+  textarea: ({ field, register, errors, onChange, getValues }) => (
     <TextField
       fullWidth
       margin="normal"
@@ -180,6 +212,7 @@ const fieldComponents = {
       multiline
       rows={5}
       {...register(field.name, field.advanced)}
+      onChange={(e) => onChange?.(field.name, e.target.value, getValues())}
       error={!!errors}
       helperText={errors?.message}
       sx={{
@@ -192,13 +225,14 @@ const fieldComponents = {
       }}
     />
   ),
-  color: ({ field, register, errors }) => (
+  color: ({ field, register, errors, onChange, getValues }) => (
     <TextField
       fullWidth
       margin="normal"
       label={field.label}
       type="color"
       {...register(field.name, field.advanced)}
+      onChange={(e) => onChange?.(field.name, e.target.value, getValues())}
       error={!!errors}
       helperText={errors?.message}
       sx={{
@@ -211,7 +245,7 @@ const fieldComponents = {
       }}
     />
   ),
-  file: ({ field, register, errors }) => (
+  file: ({ field, register, errors, onChange, getValues }) => (
     <TextField
       fullWidth
       margin="normal"
@@ -219,6 +253,7 @@ const fieldComponents = {
       type="file"
       inputProps={{ accept: field.accepts || "*" }}
       {...register(field.name, field.advanced)}
+      onChange={(e) => onChange?.(field.name, e.target.files[0], getValues())}
       error={!!errors}
       helperText={errors?.message}
       sx={{
@@ -254,6 +289,7 @@ const fieldComponents = {
   ),
 };
 
+// FormsComponent remains unchanged
 const FormsComponent = ({
   name,
   button,

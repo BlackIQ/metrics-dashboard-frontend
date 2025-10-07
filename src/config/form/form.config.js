@@ -630,6 +630,75 @@ const forms = {
       },
     },
   },
+  graph: {
+    title: {
+      type: "text",
+      label: "Title",
+      placeholder: "Enter graph title",
+      grid: {
+        xs: 12,
+        sm: 12,
+        md: 12,
+        lg: 12,
+      },
+      advanced: { required: true },
+    },
+    chart: {
+      type: "select",
+      label: "Chart Type",
+      options: [
+        { value: "LineChart", label: "Line Chart" },
+        { value: "AreaChart", label: "Area Chart" },
+      ],
+      grid: {
+        xs: 12,
+        sm: 12,
+        md: 12,
+        lg: 12,
+      },
+      advanced: { required: true },
+    },
+    host: {
+      type: "selectData",
+      label: "Host",
+      placeholder: "Select the host",
+      secure: false,
+      grid: {
+        xs: 12,
+        sm: 12,
+        md: 12,
+        lg: 12,
+      },
+      advanced: {
+        required: true,
+      },
+    },
+    measurement: {
+      type: "selectData",
+      label: "Measurement",
+      options: [],
+      grid: {
+        xs: 12,
+        sm: 12,
+        md: 12,
+        lg: 12,
+      },
+      advanced: { required: true },
+    },
+    fields: {
+      type: "checkData",
+      label: "Fields",
+      multiple: true,
+      options: [],
+      grid: {
+        xs: 12,
+        sm: 12,
+        md: 12,
+        lg: 12,
+      },
+      advanced: { required: true },
+    },
+  },
 };
 
 export default forms;

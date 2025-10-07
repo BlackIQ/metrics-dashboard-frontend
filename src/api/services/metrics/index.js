@@ -26,3 +26,13 @@ export const readMetrics = async (
     return Promise.reject(error.response.data);
   }
 };
+
+export const getKeys = async (host) => {
+  try {
+    const response = await API.get(`${metrics}/keys/${host}`);
+
+    return Promise.resolve(response.data);
+  } catch (error) {
+    return Promise.reject(error.response.data);
+  }
+};

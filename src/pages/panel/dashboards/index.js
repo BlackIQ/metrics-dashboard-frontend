@@ -20,6 +20,7 @@ import {
 import { MoreVert } from "@mui/icons-material";
 import { Loading, Confirm } from "@/components";
 import PageForm from "@/forms/page";
+import GraphForm from "@/forms/graph";
 import { useToast, useDisclosure } from "@/hooks";
 import { allPages, deletePage } from "@/api/services/page";
 import { allGraphs } from "@/api/services/graph";
@@ -33,7 +34,7 @@ const CHART_COMPONENTS = {
   LineChart: LineChart,
 };
 
-// Process metrics data (from previous version)
+// Process metrics data
 const processMetrics = (metrics, fields, colors) => {
   if (!metrics || !Object.keys(metrics).length) {
     return { labels: [], datasets: [] };
@@ -93,64 +94,51 @@ const PageTabs = ({ pages, tabValue, handleTabChange, handleMenuOpen }) => (
   </Tabs>
 );
 
-const GraphsDisplay = ({ graphs, metrics, selectedTime, setSelectedTime }) => {
-  const timeOptions = [
-    { label: "1 Minute", value: "-1m" },
-    { label: "5 Minutes", value: "-5m" },
-    { label: "10 Minutes", value: "-10m" },
-    { label: "15 Minutes", value: "-15m" },
-    { label: "30 Minutes", value: "-30m" },
-    { label: "1 Hour", value: "-1h" },
-    { label: "24 Hours", value: "-24h" },
-  ];
-
-  return (
-    <Box sx={{ p: 3 }}>
-      <Box mb={4} display="flex" gap={2} alignItems="center">
-        <FormControl sx={{ minWidth: 200 }}>
-          <InputLabel>Time Range</InputLabel>
-          <Select
-            value={selectedTime}
-            label="Time Range"
-            onChange={(e) => setSelectedTime(e.target.value)}
+const GraphsDisplay = ({
+  graphs,
+  metrics,
+  setDialogGraphOpen,
+  handleGraphEdit,
+}) => (
+  <Box sx={{ p: 3 }}>
+    {!graphs.length ? (
+      <Box
+        sx={{
+          height: "100vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          textAlign: "center",
+        }}
+      >
+        <Box>
+          <Typography variant="h5" color="primary.main" gutterBottom>
+            No Graphs Available
+          </Typography>
+          <Typography variant="body1" color="textSecondary">
+            There are no graphs on this page. Add your first graph!
+          </Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            size="large"
+            onClick={() => setDialogGraphOpen(true)}
+            sx={{ mt: 4, py: 1.5, px: 4, borderRadius: 2 }}
           >
-            {timeOptions.map((option) => (
-              <MenuItem key={option.value} value={option.value}>
-                {option.label}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </Box>
-
-      {!graphs.length ? (
-        <Box
-          sx={{
-            height: "100vh",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            textAlign: "center",
-          }}
-        >
-          <Box>
-            <Typography variant="h5" color="primary.main" gutterBottom>
-              No Graphs Available
-            </Typography>
-            <Typography variant="body1" color="textSecondary">
-              There are no graphs on this page. Add your first graph!
-            </Typography>
-            <Button
-              variant="contained"
-              color="primary"
-              size="large"
-              sx={{ mt: 4, py: 1.5, px: 4, borderRadius: 2 }}
-            >
-              Add a graph
-            </Button>
-          </Box>
+            Add a graph
+          </Button>
         </Box>
-      ) : (
+      </Box>
+    ) : (
+      <Box>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => setDialogGraphOpen(true)}
+          sx={{ mb: 2 }}
+        >
+          Add New Graph
+        </Button>
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
           {graphs.map((graph) => {
             const ChartComponent = CHART_COMPONENTS[graph.chart];
@@ -159,22 +147,35 @@ const GraphsDisplay = ({ graphs, metrics, selectedTime, setSelectedTime }) => {
               graph.fields,
               graph.colors
             );
-
             return (
               <Box key={graph._id} sx={{ width: { xs: "100%", md: "48%" } }}>
-                <ChartComponent
-                  title={graph.title}
-                  datasets={data.datasets}
-                  labels={data.labels}
-                />
+                <Box sx={{ position: "relative" }}>
+                  <ChartComponent
+                    title={graph.title}
+                    datasets={data.datasets}
+                    labels={data.labels}
+                  />
+                  <IconButton
+                    size="small"
+                    onClick={() => handleGraphEdit(graph)}
+                    sx={{
+                      position: "absolute",
+                      top: 8,
+                      right: 8,
+                      bgcolor: "rgba(30, 30, 30, 0.8)",
+                    }}
+                  >
+                    <MoreVert fontSize="small" />
+                  </IconButton>
+                </Box>
               </Box>
             );
           })}
         </Box>
-      )}
-    </Box>
-  );
-};
+      </Box>
+    )}
+  </Box>
+);
 
 const Index = () => {
   const router = useRouter();
@@ -187,16 +188,29 @@ const Index = () => {
   const [graphs, setGraphs] = useState([]);
   const [metrics, setMetrics] = useState({});
   const [currentPageData, setCurrentPageData] = useState({});
+  const [currentGraph, setCurrentGraph] = useState(null);
   const [tabValue, setTabValue] = useState(0);
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedPageId, setSelectedPageId] = useState(null);
   const [selectedTime, setSelectedTime] = useState("-5m");
+  const [dialogGraphOpen, setDialogGraphOpen] = useState(false);
 
   // Dialog Controls
   const { isOpen: dialogPageOpen, onToggle: handleDialogPage } =
     useDisclosure();
   const { isOpen: confirmPageOpen, onToggle: handlePageConfirm } =
     useDisclosure();
+
+  // Time Options
+  const timeOptions = [
+    { label: "1 Minute", value: "-1m" },
+    { label: "5 Minutes", value: "-5m" },
+    { label: "10 Minutes", value: "-10m" },
+    { label: "15 Minutes", value: "-15m" },
+    { label: "30 Minutes", value: "-30m" },
+    { label: "1 Hour", value: "-1h" },
+    { label: "24 Hours", value: "-24h" },
+  ];
 
   // API Calls
   const fetchPages = async () => {
@@ -219,17 +233,15 @@ const Index = () => {
   const fetchGraphsAndMetrics = async (pageId) => {
     setGraphsLoading(true);
     try {
-      // Fetch graphs
       const { graphs } = await allGraphs(pageId);
       setGraphs(graphs);
 
       if (graphs.length) {
-        // Fetch metrics for all graphs
         const measurements = graphs.map((graph) => graph.measurement);
         const fields = Object.fromEntries(
           graphs.map((graph) => [graph.measurement, graph.fields])
         );
-        const hostId = graphs[0].host; // Assuming all graphs on page use same host
+        const hostId = graphs[0].host;
 
         const query = { measurements, fields };
         const { metrics: newMetrics } = await readData(
@@ -285,6 +297,11 @@ const Index = () => {
     setSelectedPageId(null);
   };
 
+  const handleGraphEdit = (graph) => {
+    setCurrentGraph(graph);
+    setDialogGraphOpen(true);
+  };
+
   const handleMenuItemClick = (action) => {
     const selectedPage = pages.find((page) => page._id === selectedPageId);
     if (!selectedPage) {
@@ -303,6 +320,7 @@ const Index = () => {
   };
 
   // Effects
+  // Effects
   useEffect(() => {
     fetchPages();
   }, []);
@@ -319,7 +337,7 @@ const Index = () => {
       <Head>
         <title>Dashboards - OpenHubble Console</title>
       </Head>
-      <Box width="100%">
+      <Box width="100%" p={2}>
         {pagesLoading ? (
           <Box
             sx={{
@@ -337,71 +355,92 @@ const Index = () => {
               <Loading />
             </Box>
           </Box>
-        ) : pages.length ? (
-          <Box>
-            <PageTabs
-              pages={pages}
-              tabValue={tabValue}
-              handleTabChange={handleTabChange}
-              handleMenuOpen={handleMenuOpen}
-            />
-            <Menu
-              anchorEl={anchorEl}
-              open={Boolean(anchorEl)}
-              onClose={handleMenuClose}
-              PaperProps={{
-                sx: {
-                  bgcolor: "rgba(30, 30, 30, 0.9)",
-                  border: "1px solid rgba(0, 255, 255, 0.3)",
-                },
-              }}
-            >
-              <MenuItem onClick={() => handleMenuItemClick("rename")}>
-                Rename
-              </MenuItem>
-              <MenuItem onClick={() => handleMenuItemClick("delete")}>
-                Delete
-              </MenuItem>
-            </Menu>
-            <GraphsDisplay
-              graphs={graphs}
-              metrics={metrics}
-              selectedTime={selectedTime}
-              setSelectedTime={setSelectedTime}
-            />
-          </Box>
         ) : (
-          <Box
-            sx={{
-              height: "100vh",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              textAlign: "center",
-            }}
-          >
-            <Box>
-              <Typography variant="h5" color="primary.main" gutterBottom>
-                No page Available
-              </Typography>
-              <Typography variant="body1" color="textSecondary">
-                It looks like you haven’t added any pages yet. Add a page to add
-                graphs!
-              </Typography>
-              <Button
-                variant="contained"
-                color="primary"
-                size="large"
-                onClick={() => {
-                  setCurrentPageData(null);
-                  handleDialogPage();
-                }}
-                sx={{ mt: 4, py: 1.5, px: 4, borderRadius: 2 }}
-              >
-                Add a page
-              </Button>
+          <>
+            <Box mb={2} display="flex" gap={2} alignItems="center">
+              <FormControl sx={{ minWidth: 200 }}>
+                <InputLabel>Time Range</InputLabel>
+                <Select
+                  value={selectedTime}
+                  label="Time Range"
+                  onChange={(e) => setSelectedTime(e.target.value)}
+                >
+                  {timeOptions.map((option) => (
+                    <MenuItem key={option.value} value={option.value}>
+                      {option.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </Box>
-          </Box>
+
+            {pages.length ? (
+              <Box>
+                <PageTabs
+                  pages={pages}
+                  tabValue={tabValue}
+                  handleTabChange={handleTabChange}
+                  handleMenuOpen={handleMenuOpen}
+                />
+                <Menu
+                  anchorEl={anchorEl}
+                  open={Boolean(anchorEl)}
+                  onClose={handleMenuClose}
+                  PaperProps={{
+                    sx: {
+                      bgcolor: "rgba(30, 30, 30, 0.9)",
+                      border: "1px solid rgba(0, 255, 255, 0.3)",
+                    },
+                  }}
+                >
+                  <MenuItem onClick={() => handleMenuItemClick("rename")}>
+                    Rename
+                  </MenuItem>
+                  <MenuItem onClick={() => handleMenuItemClick("delete")}>
+                    Delete
+                  </MenuItem>
+                </Menu>
+                <GraphsDisplay
+                  graphs={graphs}
+                  metrics={metrics}
+                  setDialogGraphOpen={setDialogGraphOpen}
+                  handleGraphEdit={handleGraphEdit}
+                />
+              </Box>
+            ) : (
+              <Box
+                sx={{
+                  height: "100vh",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  textAlign: "center",
+                }}
+              >
+                <Box>
+                  <Typography variant="h5" color="primary.main" gutterBottom>
+                    No page Available
+                  </Typography>
+                  <Typography variant="body1" color="textSecondary">
+                    It looks like you haven’t added any pages yet. Add a page to
+                    add graphs!
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    size="large"
+                    onClick={() => {
+                      setCurrentPageData(null);
+                      handleDialogPage();
+                    }}
+                    sx={{ mt: 4, py: 1.5, px: 4, borderRadius: 2 }}
+                  >
+                    Add a page
+                  </Button>
+                </Box>
+              </Box>
+            )}
+          </>
         )}
       </Box>
 
@@ -432,6 +471,44 @@ const Index = () => {
             loading={pagesLoading}
             setLoading={setPagesLoading}
             updateMode={!!currentPageData}
+          />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={dialogGraphOpen}
+        onClose={() => {
+          setDialogGraphOpen(false);
+          setCurrentGraph(null);
+        }}
+        PaperProps={{
+          sx: {
+            bgcolor: "rgba(30, 30, 30, 0.9)",
+            border: "1px solid rgba(0, 255, 255, 0.3)",
+            borderRadius: 2,
+            backdropFilter: "blur(10px)",
+            boxShadow: "0 0 20px rgba(0, 255, 255, 0.2)",
+            minWidth: { xs: "90%", sm: 400 },
+          },
+        }}
+      >
+        <DialogTitle>
+          <Typography variant="h6" color="primary.main">
+            {currentGraph ? "Edit Graph" : "Add New Graph"}
+          </Typography>
+        </DialogTitle>
+        <DialogContent>
+          <GraphForm
+            pageId={pages[tabValue]?._id}
+            setLoading={setGraphsLoading}
+            getData={() => fetchGraphsAndMetrics(pages[tabValue]._id)}
+            loading={graphsLoading}
+            handleClose={() => {
+              setDialogGraphOpen(false);
+              setCurrentGraph(null);
+            }}
+            currentGraph={currentGraph}
+            updateMode={!!currentGraph}
           />
         </DialogContent>
       </Dialog>
