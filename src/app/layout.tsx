@@ -7,8 +7,12 @@ import { ThemeProvider, CssBaseline } from "@mui/material";
 // - - - - - Theme - - - - -
 import theme from "@/theme";
 
+// - - - - - Redux - - - - -
+import { Provider } from "react-redux";
+import store from "@/redux"; // Store
+
 // - - - - - Components - - - - -
-// import { Toast } from "@/components";
+import { Toast } from "@/components";
 
 export default function RootLayout({
   children,
@@ -22,14 +26,16 @@ export default function RootLayout({
       </head>
       <body>
         <div>
-          <ThemeProvider theme={theme}>
-            <CssBaseline />
-            <Box>
-              {children}
+          <Provider store={store}>
+            <ThemeProvider theme={theme}>
+              <CssBaseline />
+              <Box>
+                {children}
 
-              {/* <Toast /> */}
-            </Box>
-          </ThemeProvider>
+                <Toast />
+              </Box>
+            </ThemeProvider>
+          </Provider>
         </div>
       </body>
     </html>

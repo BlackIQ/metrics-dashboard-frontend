@@ -2,13 +2,13 @@
 
 // - - - - - Next - - - - -
 import Head from "next/head";
-// import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 // - - - - - MUI - - - - -
 import { Typography, Box, Button } from "@mui/material";
 
 export default function Home() {
-  // const router = useRouter();
+  const router = useRouter();
 
   return (
     <>
@@ -36,7 +36,6 @@ export default function Home() {
           <Box>
             <Typography
               variant="h2"
-              color="white"
               sx={{
                 mb: 2,
               }}
@@ -45,7 +44,6 @@ export default function Home() {
             </Typography>
             <Typography
               variant="h6"
-              color="white"
               sx={{
                 mb: 3,
               }}
@@ -54,7 +52,6 @@ export default function Home() {
             </Typography>
             <Typography
               variant="body2"
-              color="white"
               sx={{
                 mb: 4,
               }}
@@ -65,7 +62,7 @@ export default function Home() {
               variant="contained"
               color="primary"
               size="large"
-              onClick={() => {}}
+              onClick={() => router.push("/auth")}
             >
               Enter the Console
             </Button>
