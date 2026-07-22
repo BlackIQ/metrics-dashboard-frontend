@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Table,
   TableContainer,
@@ -15,7 +17,7 @@ import {
   Tooltip,
 } from "@mui/material";
 import { format as dateFormat } from "date-fns";
-import { Add, DeleteOutline, EditOutlined } from "@mui/icons-material";
+import { Add, DeleteOutlineOutlined, EditOutlined } from "@mui/icons-material";
 import { tables } from "@/config";
 import { useEffect, useState } from "react";
 import { keyframes } from "@mui/system";
