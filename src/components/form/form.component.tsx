@@ -15,15 +15,8 @@ import {
   Grid,
   Typography,
 } from "@mui/material";
-import { forms } from "@/config";
-import { keyframes } from "@mui/system";
 
-// Neon glow animation
-const neonGlow = keyframes`
-  0% { text-shadow: 0 0 5px #00e5ff, 0 0 10px #00e5ff, 0 0 15px #00e5ff; }
-  50% { text-shadow: 0 0 8px #00e5ff, 0 0 15px #00e5ff, 0 0 20px #00e5ff; }
-  100% { text-shadow: 0 0 5px #00e5ff, 0 0 10px #00e5ff, 0 0 15px #00e5ff; }
-`;
+import { forms } from "@/config";
 
 const fieldComponents = {
   radio: ({ field, register, errors, def, onChange, getValues }) => (
@@ -55,17 +48,7 @@ const fieldComponents = {
   ),
   checkbox: ({ field, register, errors, def, onChange, getValues }) => (
     <FormControlLabel
-      label={
-        <Typography
-          sx={{
-            color: "white",
-            "&:hover": { color: "primary.main" },
-            fontSize: "0.9rem",
-          }}
-        >
-          {field.label}
-        </Typography>
-      }
+      label={<Typography>{field.label}</Typography>}
       control={
         <Checkbox
           defaultChecked={def}
@@ -74,20 +57,8 @@ const fieldComponents = {
           onChange={(e) =>
             onChange?.(field.name, e.target.checked, getValues())
           }
-          sx={{
-            color: "rgba(0, 255, 255, 0.7)",
-            "&.Mui-checked": { color: "primary.main" },
-            p: 0,
-            mr: 1,
-          }}
         />
       }
-      sx={{
-        m: 0,
-        mt: 1,
-        display: "flex",
-        alignItems: "center",
-      }}
     />
   ),
   checkData: ({
@@ -149,15 +120,6 @@ const fieldComponents = {
         label={field.label}
         {...register(field.name, field.advanced)}
         onChange={(e) => onChange?.(field.name, e.target.value, getValues())}
-        sx={{
-          "& .MuiOutlinedInput-notchedOutline": {
-            borderColor: "rgba(0, 255, 255, 0.3)",
-          },
-          "&:hover .MuiOutlinedInput-notchedOutline": {
-            borderColor: "primary.main",
-          },
-          color: "white",
-        }}
       >
         {selectData[field.name]?.map((option) => (
           <MenuItem key={option._id} value={option._id}>
@@ -180,15 +142,6 @@ const fieldComponents = {
         label={field.label}
         {...register(field.name, field.advanced)}
         onChange={(e) => onChange?.(field.name, e.target.value, getValues())}
-        sx={{
-          "& .MuiOutlinedInput-notchedOutline": {
-            borderColor: "rgba(0, 255, 255, 0.3)",
-          },
-          "&:hover .MuiOutlinedInput-notchedOutline": {
-            borderColor: "primary.main",
-          },
-          color: "white",
-        }}
       >
         {field.options.map((option) => (
           <MenuItem key={option.value} value={option.value}>
@@ -215,14 +168,6 @@ const fieldComponents = {
       onChange={(e) => onChange?.(field.name, e.target.value, getValues())}
       error={!!errors}
       helperText={errors?.message}
-      sx={{
-        "& .MuiOutlinedInput-root": {
-          "& fieldset": { borderColor: "rgba(0, 255, 255, 0.3)" },
-          "&:hover fieldset": { borderColor: "primary.main" },
-          color: "white",
-        },
-        "& .MuiInputLabel-root": { color: "primary.main" },
-      }}
     />
   ),
   color: ({ field, register, errors, onChange, getValues }) => (
@@ -235,14 +180,6 @@ const fieldComponents = {
       onChange={(e) => onChange?.(field.name, e.target.value, getValues())}
       error={!!errors}
       helperText={errors?.message}
-      sx={{
-        "& .MuiOutlinedInput-root": {
-          "& fieldset": { borderColor: "rgba(0, 255, 255, 0.3)" },
-          "&:hover fieldset": { borderColor: "primary.main" },
-          color: "white",
-        },
-        "& .MuiInputLabel-root": { color: "primary.main" },
-      }}
     />
   ),
   file: ({ field, register, errors, onChange, getValues }) => (
@@ -256,14 +193,6 @@ const fieldComponents = {
       onChange={(e) => onChange?.(field.name, e.target.files[0], getValues())}
       error={!!errors}
       helperText={errors?.message}
-      sx={{
-        "& .MuiOutlinedInput-root": {
-          "& fieldset": { borderColor: "rgba(0, 255, 255, 0.3)" },
-          "&:hover fieldset": { borderColor: "primary.main" },
-          color: "white",
-        },
-        "& .MuiInputLabel-root": { color: "primary.main" },
-      }}
     />
   ),
   text: ({ field, register, errors, onChange, getValues }) => (
@@ -277,14 +206,6 @@ const fieldComponents = {
       onChange={(e) => onChange?.(field.name, e.target.value, getValues())}
       error={!!errors}
       helperText={errors?.message}
-      sx={{
-        "& .MuiOutlinedInput-root": {
-          "& fieldset": { borderColor: "rgba(0, 255, 255, 0.3)" },
-          "&:hover fieldset": { borderColor: "primary.main" },
-          color: "white",
-        },
-        "& .MuiInputLabel-root": { color: "primary.main" },
-      }}
     />
   ),
 };
@@ -330,7 +251,7 @@ const FormsComponent = ({
             const Component =
               fieldComponents[field.type] || fieldComponents.text;
             return (
-              <Grid key={fieldName} item {...field.grid}>
+              <Grid key={fieldName} size={field.size}>
                 <Component
                   field={{ ...field, name: fieldName }}
                   register={register}
@@ -353,16 +274,6 @@ const FormsComponent = ({
               fullWidth={btnStyle.fullWidth !== false}
               disabled={btnStyle.disabled}
               disableElevation
-              sx={{
-                py: 1.5,
-                px: 3,
-                bgcolor: "primary.main",
-                borderRadius: 1,
-                "&:hover": {
-                  bgcolor: "primary.dark",
-                  boxShadow: "0 0 10px rgba(0, 255, 255, 0.5)",
-                },
-              }}
             >
               {button}
             </Button>
