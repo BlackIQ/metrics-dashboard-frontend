@@ -1,37 +1,18 @@
-import React, { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 
-const useDisclosure = (initialState = false) => {
-  const [isOpen, setIsOpen] = useState(initialState);
+export const useDisclosure = (initialState: boolean = false) => {
+  const [isOpen, setIsOpen] = useState<boolean>(initialState);
 
-  const onClose = () => {
-    setIsOpen(false);
-  };
+  const onOpen = () => setIsOpen(true);
 
-  const onToggle = () => {
-    setIsOpen((prevState) => !prevState);
-  };
+  const onClose = () => setIsOpen(false);
 
-  const isOpenRef = useRef(isOpen);
-
-  useEffect(() => {
-    isOpenRef.current = isOpen;
-  }, [isOpen]);
-
-  const getDisclosureProps = (props = {}) => {
-    return {
-      ...props,
-      onClick: () => onToggle(),
-      "aria-expanded": isOpenRef.current,
-      "aria-controls": props.id || undefined,
-    };
-  };
+  const onToggle = () => setIsOpen((prev) => !prev);
 
   return {
     isOpen,
+    onOpen,
     onClose,
     onToggle,
-    getDisclosureProps,
   };
 };
-
-export default useDisclosure;
