@@ -68,15 +68,12 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 10,
-
           "& fieldset": {
             borderColor: "#E5E7EB",
           },
-
           "&:hover fieldset": {
             borderColor: "#C7C7C7",
           },
-
           "&.Mui-focused fieldset": {
             borderColor: "#111",
             borderWidth: 2,
