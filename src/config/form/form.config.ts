@@ -14,7 +14,7 @@ const forms = {
       label: "Email",
       placeholder: "Enter your email",
       secure: false,
-      grid: {
+      size: {
         xs: 12,
         sm: 12,
         md: 12,
@@ -29,7 +29,7 @@ const forms = {
       label: "Password",
       placeholder: "Enter your password",
       secure: true,
-      grid: {
+      size: {
         xs: 12,
         sm: 12,
         md: 12,
@@ -42,7 +42,7 @@ const forms = {
     remember: {
       type: "checkbox",
       label: "Stay signed in",
-      grid: {
+      size: {
         xs: 12,
         sm: 12,
         md: 12,
@@ -59,7 +59,7 @@ const forms = {
       label: "First Name",
       placeholder: "Enter your firstname",
       secure: false,
-      grid: {
+      size: {
         xs: 12,
         sm: 12,
         md: 12,
@@ -74,7 +74,7 @@ const forms = {
       label: "Last Name",
       placeholder: "Enter your lastname",
       secure: false,
-      grid: {
+      size: {
         xs: 12,
         sm: 12,
         md: 12,
@@ -89,7 +89,7 @@ const forms = {
       label: "Email",
       placeholder: "Enter your email",
       secure: false,
-      grid: {
+      size: {
         xs: 12,
         sm: 12,
         md: 12,
@@ -104,7 +104,7 @@ const forms = {
       label: "Password",
       placeholder: "Choose a strong password",
       secure: true,
-      grid: {
+      size: {
         xs: 12,
         sm: 12,
         md: 12,
@@ -130,7 +130,7 @@ const forms = {
       label: "Email",
       placeholder: "Enter your email",
       secure: false,
-      grid: {
+      size: {
         xs: 12,
         sm: 12,
         md: 12,
@@ -147,7 +147,7 @@ const forms = {
       label: "Firstname",
       placeholder: "Enter user firstname",
       secure: false,
-      grid: {
+      size: {
         xs: 12,
         sm: 12,
         md: 12,
@@ -162,7 +162,7 @@ const forms = {
       label: "Lastname",
       placeholder: "Enter user lastname",
       secure: false,
-      grid: {
+      size: {
         xs: 12,
         sm: 12,
         md: 12,
@@ -177,7 +177,7 @@ const forms = {
       label: "Email",
       placeholder: "Enter user email",
       secure: false,
-      grid: {
+      size: {
         xs: 12,
         sm: 12,
         md: 12,
@@ -192,7 +192,7 @@ const forms = {
       label: "Role",
       placeholder: "Enter user role",
       secure: false,
-      grid: {
+      size: {
         xs: 12,
         sm: 12,
         md: 12,
@@ -209,7 +209,7 @@ const forms = {
       label: "Firstname",
       placeholder: "Enter user firstname",
       secure: false,
-      grid: {
+      size: {
         xs: 12,
         sm: 6,
         md: 6,
@@ -224,7 +224,7 @@ const forms = {
       label: "Lastname",
       placeholder: "Enter user lastname",
       secure: false,
-      grid: {
+      size: {
         xs: 12,
         sm: 6,
         md: 6,
@@ -241,7 +241,7 @@ const forms = {
       label: "New password",
       placeholder: "Enter your new password",
       secure: true,
-      grid: {
+      size: {
         xs: 12,
         sm: 12,
         md: 12,
@@ -256,7 +256,7 @@ const forms = {
       label: "Confirm password",
       placeholder: "Enter your confirm password",
       secure: true,
-      grid: {
+      size: {
         xs: 12,
         sm: 12,
         md: 12,
@@ -273,7 +273,7 @@ const forms = {
       label: "Email",
       placeholder: "Enter new email",
       secure: false,
-      grid: {
+      size: {
         xs: 12,
         sm: 12,
         md: 12,
@@ -290,7 +290,7 @@ const forms = {
       label: "Name",
       placeholder: "Enter permission name",
       secure: false,
-      grid: {
+      size: {
         xs: 12,
         sm: 12,
         md: 12,
@@ -305,7 +305,7 @@ const forms = {
       label: "Identifier",
       placeholder: "Enter identifier name",
       secure: false,
-      grid: {
+      size: {
         xs: 12,
         sm: 12,
         md: 12,
@@ -322,7 +322,7 @@ const forms = {
       label: "Name",
       placeholder: "Enter role name",
       secure: false,
-      grid: {
+      size: {
         xs: 12,
         sm: 12,
         md: 12,
@@ -337,7 +337,7 @@ const forms = {
       label: "Identifier",
       placeholder: "Enter identifier name",
       secure: false,
-      grid: {
+      size: {
         xs: 12,
         sm: 12,
         md: 12,
@@ -352,7 +352,7 @@ const forms = {
       label: "Permissions",
       placeholder: "Choose permissions",
       secure: false,
-      grid: {
+      size: {
         xs: 12,
         sm: 12,
         md: 12,
@@ -369,7 +369,7 @@ const forms = {
       label: "Name",
       placeholder: "Enter tag name",
       secure: false,
-      grid: {
+      size: {
         xs: 12,
         sm: 12,
         md: 12,
@@ -386,7 +386,7 @@ const forms = {
       label: "Title",
       placeholder: "Enter page title",
       secure: false,
-      grid: {
+      size: {
         xs: 12,
         sm: 12,
         md: 12,
@@ -401,7 +401,7 @@ const forms = {
       label: "Description",
       placeholder: "Enter a description for this page",
       secure: false,
-      grid: {
+      size: {
         xs: 12,
         sm: 12,
         md: 12,
@@ -418,7 +418,7 @@ const forms = {
       label: "Name",
       placeholder: "Enter group name",
       secure: false,
-      grid: {
+      size: {
         xs: 12,
         sm: 12,
         md: 12,
@@ -435,7 +435,7 @@ const forms = {
       label: "Hostname",
       placeholder: "Enter host name",
       secure: false,
-      grid: {
+      size: {
         xs: 12,
         sm: 12,
         md: 12,
@@ -450,7 +450,7 @@ const forms = {
       label: "IP",
       placeholder: "Enter host IP",
       secure: false,
-      grid: {
+      size: {
         xs: 12,
         sm: 6,
         md: 6,
@@ -465,7 +465,7 @@ const forms = {
       label: "DNS",
       placeholder: "Enter host DNS",
       secure: false,
-      grid: {
+      size: {
         xs: 12,
         sm: 6,
         md: 6,
@@ -480,7 +480,7 @@ const forms = {
       label: "Port",
       placeholder: "Enter host port",
       secure: false,
-      grid: {
+      size: {
         xs: 12,
         sm: 6,
         md: 6,
@@ -495,7 +495,7 @@ const forms = {
       label: "Communication",
       placeholder: "Choose agent communication",
       options: communicationTypes,
-      grid: {
+      size: {
         xs: 12,
         sm: 6,
         md: 6,
@@ -510,7 +510,7 @@ const forms = {
       label: "API Key",
       placeholder: "Enter host API Key",
       secure: false,
-      grid: {
+      size: {
         xs: 12,
         sm: 12,
         md: 12,
@@ -525,7 +525,7 @@ const forms = {
       label: "Docker",
       placeholder: "You can choose to collect Docker metrics",
       options: dockerTypes,
-      grid: {
+      size: {
         xs: 12,
         sm: 6,
         md: 6,
@@ -540,7 +540,7 @@ const forms = {
       label: "Active / Inactive",
       placeholder: "Is agent active or not!?",
       options: activeTypes,
-      grid: {
+      size: {
         xs: 12,
         sm: 6,
         md: 6,
@@ -555,7 +555,7 @@ const forms = {
       label: "Groups",
       placeholder: "Choose groups",
       secure: false,
-      grid: {
+      size: {
         xs: 12,
         sm: 12,
         md: 12,
@@ -570,7 +570,7 @@ const forms = {
       label: "Tags",
       placeholder: "Choose tags",
       secure: false,
-      grid: {
+      size: {
         xs: 12,
         sm: 12,
         md: 12,
@@ -587,7 +587,7 @@ const forms = {
       label: "Chat ID",
       placeholder: "Enter your channel/group/pv chat ID",
       secure: false,
-      grid: {
+      size: {
         xs: 12,
         sm: 12,
         md: 12,
@@ -602,7 +602,7 @@ const forms = {
       label: "Bot Token",
       placeholder: "Enter your Bot token",
       secure: false,
-      grid: {
+      size: {
         xs: 12,
         sm: 12,
         md: 12,
@@ -619,7 +619,7 @@ const forms = {
       label: "Email",
       placeholder: "Enter your Email to get alerts",
       secure: false,
-      grid: {
+      size: {
         xs: 12,
         sm: 12,
         md: 12,
@@ -635,7 +635,7 @@ const forms = {
       type: "text",
       label: "Title",
       placeholder: "Enter graph title",
-      grid: {
+      size: {
         xs: 12,
         sm: 12,
         md: 12,
@@ -650,7 +650,7 @@ const forms = {
         { value: "LineChart", label: "Line Chart" },
         { value: "AreaChart", label: "Area Chart" },
       ],
-      grid: {
+      size: {
         xs: 12,
         sm: 12,
         md: 12,
@@ -663,7 +663,7 @@ const forms = {
       label: "Host",
       placeholder: "Select the host",
       secure: false,
-      grid: {
+      size: {
         xs: 12,
         sm: 12,
         md: 12,
@@ -677,7 +677,7 @@ const forms = {
       type: "selectData",
       label: "Measurement",
       options: [],
-      grid: {
+      size: {
         xs: 12,
         sm: 12,
         md: 12,
@@ -690,7 +690,7 @@ const forms = {
       label: "Fields",
       multiple: true,
       options: [],
-      grid: {
+      size: {
         xs: 12,
         sm: 12,
         md: 12,
