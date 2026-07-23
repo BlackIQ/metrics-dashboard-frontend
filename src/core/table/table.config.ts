@@ -12,7 +12,8 @@ const tables = {
   tag: {
     title: "Tags",
     fields: {
-      label: "Name",
+      name: "Name",
+      update: "Update",
       delete: "Delete",
     },
   },
