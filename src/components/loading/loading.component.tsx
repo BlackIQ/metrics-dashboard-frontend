@@ -1,11 +1,14 @@
 import { CircularProgress, Box } from "@mui/material";
 
-const Loading = ({ py = 5 }) => {
+export default function Loading() {
   return (
-    <Box py={py} textAlign="center">
+    <Box
+      sx={{
+        py: 5,
+        textAlign: "center",
+      }}
+    >
       <CircularProgress />
     </Box>
   );
-};
-
-export default Loading;
+}
