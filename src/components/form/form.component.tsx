@@ -17,9 +17,7 @@ import {
   Grid,
   Typography,
 } from "@mui/material";
-import { forms } from "@/config";
-
-// ====================== TYPES ======================
+import forms from "@/core/form/form.config";
 
 type FieldType =
   | "text"
@@ -72,8 +70,6 @@ interface FormProps {
   selectData?: Record<string, SelectDataOption[]>;
   disables?: string[]; // new prop from your usage
 }
-
-// ====================== FIELD COMPONENTS ======================
 
 const fieldComponents: Record<FieldType, React.FC<any>> = {
   radio: ({ field, register, errors, def, onChange, getValues }) => (
