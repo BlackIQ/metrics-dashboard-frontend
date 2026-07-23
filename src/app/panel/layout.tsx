@@ -1,3 +1,5 @@
+"use client";
+
 // - - - - - MUI - - - - -
 import {
   Drawer as MuiDrawer,
@@ -11,7 +13,6 @@ import {
   Divider,
   Typography,
 } from "@mui/material";
-import { keyframes } from "@mui/system";
 
 // - - - - - MUI Icons - - - - -
 import {
@@ -21,17 +22,13 @@ import {
   Home,
   LocalOffer,
   Category,
-  LocalPolice,
-  Key,
-  Groups,
   Warning,
   Logout,
   Dashboard,
-  Notifications,
 } from "@mui/icons-material";
 
 // - - - - - Next - - - - -
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 // - - - - - Redux - - - - -
 import { useDispatch, useSelector } from "react-redux";
@@ -40,38 +37,20 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 
 // - - - - - Store - - - - -
-import { setUser, unsetUser } from "@/redux/actions/user";
-import { unsetSession } from "@/redux/actions/session";
+import { setUser, clearUser } from "@/redux/slices/user.slice";
+import { clearSession } from "@/redux/slices/session.slice";
 
 // - - - - - API - - - - -
-import API from "@/api";
+import { API } from "@/api";
 import { me } from "@/api/services/user";
-import { logoutAccount } from "@/api/services/auth";
 
 // - - - - - Components - - - - -
-import { Loading } from "@/components";
+import Loading from "@/components/loading/loading.component";
 
 import { styled } from "@mui/material/styles";
 
-// - - - - - Hooks - - - - -
-import { useToast } from "@/hooks";
-
 // - - - - - Config - - - - -
 import { appConfig } from "@/config";
-
-// Neon glow animation
-const neonGlow = keyframes`
-  0% { text-shadow: 0 0 5px #00e5ff, 0 0 10px #00e5ff, 0 0 15px #00e5ff; }
-  50% { text-shadow: 0 0 8px #00e5ff, 0 0 15px #00e5ff, 0 0 20px #00e5ff; }
-  100% { text-shadow: 0 0 5px #00e5ff, 0 0 10px #00e5ff, 0 0 15px #00e5ff; }
-`;
-
-// Divider glow animation
-const dividerGlow = keyframes`
-  0% { box-shadow: 0 0 5px #00e5ff, 0 0 10px #00e5ff; }
-  50% { box-shadow: 0 0 10px #00e5ff, 0 0 15px #00e5ff; }
-  100% { box-shadow: 0 0 5px #00e5ff, 0 0 10px #00e5ff; }
-`;
 
 const drawerWidth = 240;
 
@@ -102,44 +81,39 @@ const Drawer = styled(MuiDrawer, {
         : theme.transitions.duration.leavingScreen,
     }),
     overflowX: "hidden",
-    backgroundColor: "rgba(30, 30, 30, 0.9)",
-    backdropFilter: "blur(10px)",
-    borderRight: "1px solid rgba(0, 255, 255, 0.2)",
   },
 }));
 
-const PanelLayout = ({ children }) => {
+export default function PanelLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   const router = useRouter();
   const dispatch = useDispatch();
-  const toast = useToast();
 
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const { session: token, user } = useSelector((state) => state);
+  const {
+    session: { token },
+    user,
+  } = useSelector((state) => state);
+
+  console.log(user.user);
 
   const handleDrawer = () => {
-    setOpen((prev) => {
-      console.log("Drawer toggled, new state:", !prev);
-      return !prev;
-    });
+    setOpen((prev) => !prev);
   };
-
-  const [permissions, setPermissions] = useState([]);
 
   const getData = async () => {
     try {
-      const data = await me();
+      const user = await me();
 
-      const nuser = { ...data.user, docs: data.docs };
-
-      setPermissions(data.user.role.permissions);
-
-      dispatch(setUser(nuser));
+      dispatch(setUser(user));
       setLoading(false);
     } catch (error) {
-      toast(error.message, { severity: "error" });
-      logout();
+      console.log(error);
     }
   };
 
@@ -154,22 +128,10 @@ const PanelLayout = ({ children }) => {
   }, [token]);
 
   const logout = async () => {
-    setLoading(true);
+    dispatch(clearUser());
+    dispatch(clearSession());
 
-    try {
-      await logoutAccount();
-
-      console.log("Logout clicked");
-
-      dispatch(unsetUser());
-      dispatch(unsetSession());
-
-      router.push("/");
-    } catch (error) {
-      toast(error.message, { severity: "error" });
-    }
-
-    setLoading(false);
+    router.push("/");
   };
 
   const getIcon = (value) => {
@@ -184,22 +146,33 @@ const PanelLayout = ({ children }) => {
         return <LocalOffer />;
       case "groups":
         return <Category />;
-      case "roles":
-        return <LocalPolice />;
-      case "permissions":
-        return <Key />;
-      case "users":
-        return <Groups />;
-      case "dashboards":
+      case "dashboard":
         return <Dashboard />;
-      case "alerts":
-        return <Notifications />;
       case "logout":
         return <Logout sx={{ color: "error.main" }} />;
       default:
         return <Warning />;
     }
   };
+
+  const menu = [
+    {
+      name: "hosts",
+      label: "Hosts",
+    },
+    {
+      name: "tags",
+      label: "Tags",
+    },
+    {
+      name: "groups",
+      label: "Groups",
+    },
+    {
+      name: "dashboard",
+      label: "Dashboard",
+    },
+  ];
 
   return loading ? (
     <Box
@@ -208,7 +181,6 @@ const PanelLayout = ({ children }) => {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "linear-gradient(135deg, #1a1a1a 0%, #222 100%)",
       }}
     >
       <Loading />
@@ -216,28 +188,15 @@ const PanelLayout = ({ children }) => {
   ) : (
     <Box sx={{ display: "flex", minHeight: "100vh" }}>
       <CssBaseline />
-      <Drawer
-        variant="permanent"
-        open={open}
-        // onMouseEnter={() => {
-        //   setOpen(true);
-        // }}
-        // onMouseLeave={() => {
-        //   setOpen(false);
-        // }}
-      >
+      <Drawer variant="permanent" open={open}>
         <DrawerHeader>
           {open && (
             <Typography
               variant="h6"
-              fontFamily="Orbitron"
               color="primary.main"
               sx={{
                 flexGrow: 1,
-                pl: 2,
-                animation: open
-                  ? `${neonGlow} 2s ease-in-out infinite`
-                  : "none",
+                pl: 1,
               }}
             >
               OpenHubble
@@ -251,91 +210,55 @@ const PanelLayout = ({ children }) => {
         <List sx={{ px: open ? 1 : 0 }}>
           <ListItemButton
             onClick={() => {
-              console.log("Home clicked");
               router.push("/panel");
             }}
             sx={{
               m: open ? 1 : 0,
-              borderRadius: open ? 2 : 0,
-              bgcolor:
-                router.pathname === "/panel"
-                  ? "rgba(0, 255, 255, 0.1)"
-                  : "transparent",
-              "&:hover": { bgcolor: "rgba(0, 255, 255, 0.2)" },
+              borderRadius: open ? 1 : 0,
             }}
           >
             <ListItemIcon sx={{ color: "primary.main" }}>
               {getIcon("home")}
             </ListItemIcon>
-            {open && <ListItemText primary="Home" sx={{ color: "white" }} />}
+            {open && <ListItemText primary="Home" />}
           </ListItemButton>
-          {permissions.length > 0 ? (
-            permissions
-              .filter((permission) => permission.value !== "settings")
-              .map((permission) => (
-                <ListItemButton
-                  key={permission._id}
-                  onClick={() => {
-                    console.log(`${permission.label} clicked`);
-                    router.push(`/panel/${permission.value}`);
-                    setOpen(false);
-                  }}
-                  sx={{
-                    m: open ? 1 : 0,
-                    borderRadius: open ? 2 : 0,
-                    bgcolor:
-                      router.pathname === `/panel/${permission.value}`
-                        ? "rgba(0, 255, 255, 0.1)"
-                        : "transparent",
-                    "&:hover": { bgcolor: "rgba(0, 255, 255, 0.2)" },
-                  }}
-                >
-                  <ListItemIcon sx={{ color: "primary.main" }}>
-                    {getIcon(permission.value)}
-                  </ListItemIcon>
-                  {open && (
-                    <ListItemText
-                      primary={permission.label}
-                      sx={{ color: "white" }}
-                    />
-                  )}
-                </ListItemButton>
-              ))
-          ) : (
-            <Box sx={{ textAlign: "center", py: 2 }}>
-              <Typography variant="body2" color="rgba(255, 255, 255, 0.7)">
-                No permissions
-              </Typography>
-            </Box>
-          )}
+          {menu.map((item) => (
+            <ListItemButton
+              key={item.name}
+              onClick={() => {
+                router.push(`/panel/${item.name}`);
+                setOpen(false);
+              }}
+              sx={{
+                m: open ? 1 : 0,
+                borderRadius: open ? 1 : 0,
+              }}
+            >
+              <ListItemIcon sx={{ color: "primary.main" }}>
+                {getIcon(item.name)}
+              </ListItemIcon>
+              {open && <ListItemText primary={item.label} />}
+            </ListItemButton>
+          ))}
           <ListItemButton
             onClick={() => {
-              console.log("Settings clicked");
               router.push("/panel/settings");
             }}
             sx={{
               m: open ? 1 : 0,
-              borderRadius: open ? 2 : 0,
-              bgcolor:
-                router.pathname === "/panel/settings"
-                  ? "rgba(0, 255, 255, 0.1)"
-                  : "transparent",
-              "&:hover": { bgcolor: "rgba(0, 255, 255, 0.2)" },
+              borderRadius: open ? 1 : 0,
             }}
           >
             <ListItemIcon sx={{ color: "primary.main" }}>
               {getIcon("me")}
             </ListItemIcon>
-            {open && (
-              <ListItemText primary={user.firstName} sx={{ color: "white" }} />
-            )}
+            {open && <ListItemText primary={user.user.first_name} />}
           </ListItemButton>
           <ListItemButton
             onClick={logout}
             sx={{
               m: open ? 1 : 0,
-              borderRadius: open ? 2 : 0,
-              "&:hover": { bgcolor: "rgba(255, 0, 0, 0.2)" },
+              borderRadius: open ? 1 : 0,
             }}
           >
             <ListItemIcon>{getIcon("logout")}</ListItemIcon>
@@ -352,21 +275,14 @@ const PanelLayout = ({ children }) => {
                 mx: 2,
                 bgcolor: "primary.main",
                 height: "2px",
-                animation: `${dividerGlow} 2s ease-in-out infinite`,
               }}
             />
             <Box sx={{ textAlign: "center", mt: 2 }}>
-              <Typography
-                variant="h6"
-                fontFamily="Orbitron"
-                fontWeight="bold"
-                color="primary.main"
-                sx={{ animation: `${neonGlow} 2s ease-in-out infinite` }}
-              >
+              <Typography variant="h6" color="primary.main">
                 OpenHubble
               </Typography>
               <Typography variant="body2" color="white">
-                Cloud Console
+                Cloud Metrics
               </Typography>
               <Typography variant="caption" color="rgba(255, 255, 255, 0.7)">
                 {appConfig.version}
@@ -380,18 +296,8 @@ const PanelLayout = ({ children }) => {
         component="main"
         sx={{
           flexGrow: 1,
-          bgcolor: "background.default",
-          background: "linear-gradient(135deg, #1a1a1a 0%, #222 100%)",
           p: 3,
           position: "relative",
-          "&:before": {
-            content: '""',
-            position: "absolute",
-            background:
-              "radial-gradient(circle, rgba(0, 255, 255, 0.1) 0%, transparent 70%)",
-            animation: "pulse 8s infinite",
-            zIndex: 0,
-          },
           "& > *": { position: "relative", zIndex: 1 },
         }}
       >
@@ -399,13 +305,4 @@ const PanelLayout = ({ children }) => {
       </Box>
     </Box>
   );
-};
-
-// Pulse animation
-const pulse = keyframes`
-  0% { transform: scale(1); opacity: 0.5; }
-  50% { transform: scale(1.2); opacity: 0.3; }
-  100% { transform: scale(1); opacity: 0.5; }
-`;
-
-export default PanelLayout;
+}
