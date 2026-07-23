@@ -1,7 +1,7 @@
 import axios, { AxiosInstance } from "axios";
 
-import { apiConfig } from "@/config";
+import abc from "@/core/api/api.config";
 
 export const API: AxiosInstance = axios.create({
-  baseURL: apiConfig.endpoint,
+  baseURL: abc.endpoint,
 });
