@@ -39,19 +39,6 @@ const forms = {
         required: true,
       },
     },
-    remember: {
-      type: "checkbox",
-      label: "Stay signed in",
-      size: {
-        xs: 12,
-        sm: 12,
-        md: 12,
-        lg: 12,
-      },
-      advanced: {
-        required: false,
-      },
-    },
   },
   register: {
     firstName: {
@@ -114,15 +101,21 @@ const forms = {
         required: true,
       },
     },
-    //   role: {
-    //     type: "selectData",
-    //     label: "نقش کاربر",
-    //     placeholder: "نقش کاربر را وارد کنید",
-    //     secure: false,
-    //     advanced: {
-    //       required: true,
-    //     },
-    //   },
+    confirm_password: {
+      type: "text",
+      label: "Confirm Password",
+      placeholder: "Repeat strong password",
+      secure: true,
+      size: {
+        xs: 12,
+        sm: 12,
+        md: 12,
+        lg: 12,
+      },
+      advanced: {
+        required: true,
+      },
+    },
   },
   forgotPassword: {
     email: {
