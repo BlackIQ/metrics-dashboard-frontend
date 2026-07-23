@@ -1,6 +1,5 @@
 "use client";
 
-// - - - - - MUI - - - - -
 import {
   Drawer as MuiDrawer,
   List,
@@ -14,7 +13,6 @@ import {
   Typography,
 } from "@mui/material";
 
-// - - - - - MUI Icons - - - - -
 import {
   Menu as MenuIcon,
   Storage,
@@ -27,30 +25,21 @@ import {
   Dashboard,
 } from "@mui/icons-material";
 
-// - - - - - Next - - - - -
 import { useRouter } from "next/navigation";
 
-// - - - - - Redux - - - - -
 import { useDispatch, useSelector } from "react-redux";
 
-// - - - - - React - - - - -
 import { useEffect, useState } from "react";
 
-// - - - - - Store - - - - -
 import { setUser, clearUser } from "@/redux/slices/user.slice";
 import { clearSession } from "@/redux/slices/session.slice";
 
-// - - - - - API - - - - -
 import { API } from "@/api";
 import { me } from "@/api/services/user";
 
-// - - - - - Components - - - - -
 import Loading from "@/components/loading/loading.component";
 
 import { styled } from "@mui/material/styles";
-
-// - - - - - Config - - - - -
-import { appConfig } from "@/config";
 
 const drawerWidth = 240;
 
@@ -283,9 +272,6 @@ export default function PanelLayout({
               </Typography>
               <Typography variant="body2" color="white">
                 Cloud Metrics
-              </Typography>
-              <Typography variant="caption" color="rgba(255, 255, 255, 0.7)">
-                {appConfig.version}
               </Typography>
             </Box>
           </Box>

@@ -1,12 +1,7 @@
 "use client";
 
-// - - - - - React - - - - -
 import { useState, useEffect } from "react";
 
-// - - - - - Next - - - - -
-import Head from "next/head";
-
-// - - - - - MUI - - - - -
 import {
   Box,
   Dialog,
@@ -15,66 +10,84 @@ import {
   Typography,
 } from "@mui/material";
 
-// - - - - - Components - - - - -
 import Table from "@/components/table/table.component";
-import Confirm from "@/components/confirm/confirm.component";
+import Form from "@/components/form/form.component";
 import Loading from "@/components/loading/loading.component";
 
-// - - - - - Hooks - - - - -
 import { useDisclosure } from "@/hooks/useDisclosure/useDisclosure.hook";
 
-// - - - - - API - - - - -
-import { allGroups, deleteGroup } from "@/api/services/group";
+import {
+  allGroups,
+  createGroup,
+  updateGroup,
+  deleteGroup,
+} from "@/api/services/group";
 
-// - - - - - Forms - - - - -
-import GroupForm from "@/forms/group";
+import { GroupRead } from "@/types/group";
 
-const Index = () => {
-  const [groups, setGroups] = useState([]);
-
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+export default function Group() {
+  const [groups, setGroups] = useState<GroupRead[]>([]);
+  const [selectedGroup, setSelectedGroup] = useState<GroupRead>(undefined);
 
   const [loading, setLoading] = useState(true);
-  const [currentData, setCurrentData] = useState({});
 
-  const { isOpen: confirmOpen, onToggle: handleConfirm } = useDisclosure();
   const { isOpen: dialogOpen, onToggle: handleDialog } = useDisclosure();
 
   useEffect(() => {
-    getData(page);
-  }, [page]);
+    getData();
+  }, []);
 
-  const handlePageChange = (newPage) => {
-    setPage(newPage);
-  };
-
-  const getData = async (currentPage) => {
+  const getData = async () => {
     setLoading(true);
 
     try {
-      const { groups, pagination } = await allGroups(currentPage);
+      const test_groups = await allGroups();
 
-      setGroups(groups);
+      // console.log(test_groups);
 
-      setTotalPages(pagination.pages);
-
-    } catch (error) {
-    }
+      setGroups(test_groups);
+    } catch (error) {}
 
     setLoading(false);
   };
 
-  const deleteData = async () => {
+  const addData = async (data: GroupRead) => {
     setLoading(true);
 
     try {
-      await deleteGroup(currentData._id);
+      await createGroup(data);
 
-      handleConfirm();
-      setCurrentData({});
+      setSelectedGroup(undefined);
+      handleDialog();
 
-      getData(page);
+      getData();
+    } catch (error) {}
+
+    setLoading(false);
+  };
+
+  const updateData = async (data: GroupRead) => {
+    setLoading(true);
+
+    try {
+      await updateGroup(selectedGroup.id, data);
+
+      setSelectedGroup(undefined);
+      handleDialog();
+
+      getData();
+    } catch (error) {}
+
+    setLoading(false);
+  };
+
+  const deleteData = async (id: string) => {
+    setLoading(true);
+
+    try {
+      await deleteGroup(id);
+
+      getData();
     } catch (error) {}
 
     setLoading(false);
@@ -82,10 +95,6 @@ const Index = () => {
 
   return (
     <>
-      <Head>
-        <title>Groups - OpenHubble Console</title>
-      </Head>
-
       <Box>
         {!loading ? (
           <Table
@@ -93,20 +102,20 @@ const Index = () => {
             data={groups}
             addText="Add Group"
             add={() => {
-              setCurrentData(null);
+              setSelectedGroup(undefined);
               handleDialog();
             }}
             clk={(data) => {
-              setCurrentData(data);
+              setSelectedGroup(data);
+              handleDialog();
+            }}
+            upd={(data) => {
+              setSelectedGroup(data);
               handleDialog();
             }}
             del={(data) => {
-              setCurrentData(data);
-              handleConfirm();
+              deleteData(data.id);
             }}
-            page={page}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
           />
         ) : (
           <Loading />
@@ -116,28 +125,24 @@ const Index = () => {
       <Dialog open={dialogOpen} onClose={handleDialog}>
         <DialogTitle>
           <Typography variant="h6" color="primary.main">
-            {currentData ? "Edit Group" : "Add Group"}
+            {selectedGroup ? "Edit Group" : "Add Group"}
           </Typography>
         </DialogTitle>
         <DialogContent>
-          <GroupForm
-            currentData={currentData}
-            getData={getData}
-            handleClose={handleDialog}
-            loading={loading}
-            setLoading={setLoading}
-            updateMode={!!currentData}
+          <Form
+            name="group"
+            callback={selectedGroup ? updateData : addData}
+            disables={[]}
+            btnStyle={{
+              fullWidth: false,
+              disabled: loading,
+              color: "primary",
+            }}
+            def={selectedGroup ? selectedGroup : {}}
+            button={selectedGroup ? "Update" : "Create"}
           />
         </DialogContent>
       </Dialog>
-
-      <Confirm
-        onConfirm={deleteData}
-        isOpen={confirmOpen}
-        handleOpen={handleConfirm}
-      />
     </>
   );
-};
-
-export default Index;
+}
