@@ -199,7 +199,7 @@ export default function TableComponent({
       <TableContainer
         component={Paper}
         elevation={0}
-        sx={{ borderRadius: 2, overflow: "hidden" }}
+        sx={{ borderRadius: 1, overflow: "hidden" }}
       >
         <Table>
           <TableHead>
@@ -231,7 +231,6 @@ export default function TableComponent({
                   cursor: clk ? "pointer" : "default",
                 }}
                 onClick={() => {
-                  // Only trigger if click is not on action buttons
                   if (clk) clk(row);
                 }}
               >
