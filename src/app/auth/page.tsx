@@ -1,27 +1,22 @@
 "use client";
 
-// - - - - - Redux - - - - -
 import { useDispatch } from "react-redux";
 
-// - - - - - React - - - - -
 import { useState } from "react";
 
-// - - - - - Store - - - - -
 import { setSession } from "@/redux/slices/session.slice";
 
-// - - - - - Components - - - - -
 import Form from "@/components/form/form.component";
 
-// - - - - - Hooks - - - - -
 import useAuth from "@/hooks/useAuth/useAuth.hook";
 
-// - - - - - API Auth - - - - -
 import {
   signinAuthentication,
   signupAuthentication,
 } from "@/api/services/auth";
 
-// - - - - - MUI - - - - -
+import { Signin, Signup, Token } from "@/types/auth";
+
 import { Box, Typography, Button, Grid, Link as MUILink } from "@mui/material";
 import { Google } from "@mui/icons-material";
 
@@ -30,14 +25,14 @@ const Auth = () => {
 
   const dispatch = useDispatch();
 
-  const [loading, setLoading] = useState(false);
-  const [mode, setMode] = useState("login");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [mode, setMode] = useState<string>("login");
 
-  const changeMode = (newMode) => {
+  const changeMode = (newMode: string) => {
     setMode(newMode);
   };
 
-  const doLogin = async (callback) => {
+  const doLogin = async (callback: Signin) => {
     try {
       const { access_token } = await signinAuthentication(callback);
 
@@ -47,7 +42,7 @@ const Auth = () => {
     }
   };
 
-  const doRegister = async (callback) => {
+  const doRegister = async (callback: Signup) => {
     try {
       const { access_token } = await signupAuthentication(callback);
 
@@ -142,13 +137,6 @@ const Auth = () => {
                   btnStyle={{
                     fullWidth: true,
                     disabled: loading,
-                    sx: {
-                      py: 1.5,
-                      mt: 2,
-                      bgcolor: "primary.main",
-                      "&:hover": { bgcolor: "primary.dark" },
-                      boxShadow: "0 0 10px rgba(0, 255, 255, 0.3)",
-                    },
                   }}
                 />
               </Box>
@@ -159,11 +147,9 @@ const Auth = () => {
                     component="button"
                     onClick={() => changeMode("forgotPassword")}
                     sx={{
-                      // color: "secondary.main",
                       textDecoration: "none",
                       mb: 2,
                       "&:hover": {
-                        // color: "secondary.light",
                         textDecoration: "underline",
                       },
                     }}
