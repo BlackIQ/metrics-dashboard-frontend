@@ -1,9 +1,7 @@
-import axios from "axios";
+import axios, { AxiosInstance } from "axios";
 
 import { apiConfig } from "@/config";
 
-const API = axios.create({
+export const API: AxiosInstance = axios.create({
   baseURL: apiConfig.endpoint,
 });
-
-export default API;

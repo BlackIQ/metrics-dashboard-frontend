@@ -1,11 +1,11 @@
-import API from "@/api";
+import { API } from "@/api";
 import URLs from "@/api/urls";
 
 const { tag } = URLs;
 
-export const allTags = async (page = 1, limit = 10) => {
+export const allTags = async () => {
   try {
-    const response = await API.get(`${tag}?page=${page}&limit=${limit}`);
+    const response = await API.get(`${tag}`);
 
     return Promise.resolve(response.data);
   } catch (error) {
@@ -13,7 +13,7 @@ export const allTags = async (page = 1, limit = 10) => {
   }
 };
 
-export const singleTag = async (id) => {
+export const getTag = async (id) => {
   try {
     const response = await API.get(`${tag}/${id}`);
 

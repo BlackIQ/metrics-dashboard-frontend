@@ -1,4 +1,4 @@
-import API from "@/api";
+import { API } from "@/api";
 import URLs from "@/api/urls";
 
 const { pages } = URLs;
@@ -13,7 +13,7 @@ export const allPages = async () => {
   }
 };
 
-export const singlePage = async (id) => {
+export const getPage = async (id) => {
   try {
     const response = await API.get(`${pages}/${id}`);
 

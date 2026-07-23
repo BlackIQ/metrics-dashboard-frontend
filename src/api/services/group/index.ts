@@ -1,11 +1,11 @@
-import API from "@/api";
+import { API } from "@/api";
 import URLs from "@/api/urls";
 
 const { group } = URLs;
 
-export const allGroups = async (page = 1, limit = 10) => {
+export const allGroups = async () => {
   try {
-    const response = await API.get(`${group}?page=${page}&limit=${limit}`);
+    const response = await API.get(`${group}`);
 
     return Promise.resolve(response.data);
   } catch (error) {
@@ -13,7 +13,7 @@ export const allGroups = async (page = 1, limit = 10) => {
   }
 };
 
-export const singleGroup = async (id) => {
+export const getGroup = async (id) => {
   try {
     const response = await API.get(`${group}/${id}`);
 
