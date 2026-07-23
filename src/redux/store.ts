@@ -1,6 +1,8 @@
 import { configureStore } from "@reduxjs/toolkit";
 
 import sessionReducer from "@/redux/slices/session.slice";
+import userReducer from "@/redux/slices/user.slice";
+
 import { loadState, saveState } from "@/redux/loadstore";
 
 const preloadedState = loadState();
@@ -8,6 +10,7 @@ const preloadedState = loadState();
 export const store = configureStore({
   reducer: {
     session: sessionReducer,
+    user: userReducer,
   },
   preloadedState,
 });
@@ -15,6 +18,7 @@ export const store = configureStore({
 store.subscribe(() => {
   saveState({
     session: store.getState().session,
+    user: store.getState().user,
   });
 });
 
