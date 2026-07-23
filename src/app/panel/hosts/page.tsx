@@ -1,8 +1,7 @@
+"use client";
+
 // - - - - - React - - - - -
 import { useState, useEffect } from "react";
-
-// - - - - - Next - - - - -
-import Head from "next/head";
 
 // - - - - - MUI - - - - -
 import {
@@ -14,10 +13,12 @@ import {
 } from "@mui/material";
 
 // - - - - - Components - - - - -
-import { Table, Loading, Confirm } from "@/components";
+import Table from "@/components/table/table.component";
+import Confirm from "@/components/confirm/confirm.component";
+import Loading from "@/components/loading/loading.component";
 
 // - - - - - Hooks - - - - -
-import { useDisclosure, useToast } from "@/hooks";
+import { useDisclosure } from "@/hooks/useDisclosure/useDisclosure.hook";
 
 // - - - - - API - - - - -
 import { allHosts, deleteHost } from "@/api/services/host";
@@ -26,16 +27,6 @@ import { allTags } from "@/api/services/tag";
 
 // - - - - - Forms - - - - -
 import HostForm from "@/forms/host";
-
-// Neon glow animation
-import { keyframes } from "@mui/system";
-
-// Neon glow animation
-const neonGlow = keyframes`
-  0% { text-shadow: 0 0 5px #00e5ff, 0 0 10px #00e5ff, 0 0 15px #00e5ff; }
-  50% { text-shadow: 0 0 8px #00e5ff, 0 0 15px #00e5ff, 0 0 20px #00e5ff; }
-  100% { text-shadow: 0 0 5px #00e5ff, 0 0 10px #00e5ff, 0 0 15px #00e5ff; }
-`;
 
 const Index = () => {
   const [hosts, setHosts] = useState([]);
@@ -50,8 +41,6 @@ const Index = () => {
 
   const { isOpen: confirmOpen, onToggle: handleConfirm } = useDisclosure();
   const { isOpen: dialogOpen, onToggle: handleDialog } = useDisclosure();
-
-  const toast = useToast();
 
   useEffect(() => {
     getData(page);
@@ -74,11 +63,7 @@ const Index = () => {
       setTags(tags);
 
       setTotalPages(pagination.pages);
-
-      toast("Hosts fetched successfully", { severity: "success" });
-    } catch (error) {
-      toast(error.message, { severity: "error" });
-    }
+    } catch (error) {}
 
     setLoading(false);
   };
@@ -89,15 +74,11 @@ const Index = () => {
     try {
       await deleteHost(currentData._id);
 
-      toast("Host deleted successfully", { severity: "success" });
-
       handleConfirm();
       setCurrentData({});
 
       getData(page);
-    } catch (error) {
-      toast(error.message, { severity: "error" });
-    }
+    } catch (error) {}
 
     setLoading(false);
   };
@@ -140,27 +121,9 @@ const Index = () => {
         )}
       </Box>
 
-      <Dialog
-        open={dialogOpen}
-        onClose={handleDialog}
-        PaperProps={{
-          sx: {
-            bgcolor: "rgba(30, 30, 30, 0.9)",
-            border: "1px solid rgba(0, 255, 255, 0.3)",
-            borderRadius: 2,
-            backdropFilter: "blur(10px)",
-            boxShadow: "0 0 20px rgba(0, 255, 255, 0.2)",
-            minWidth: { xs: "90%", sm: 400 },
-          },
-        }}
-      >
+      <Dialog open={dialogOpen} onClose={handleDialog}>
         <DialogTitle>
-          <Typography
-            variant="h6"
-            // fontFamily="Orbitron"
-            color="primary.main"
-            // sx={{ animation: `${neonGlow} 2s ease-in-out infinite` }}
-          >
+          <Typography variant="h6" color="primary.main">
             {currentData ? "Edit Host" : "Add Host"}
           </Typography>
         </DialogTitle>
