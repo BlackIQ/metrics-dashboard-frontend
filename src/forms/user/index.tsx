@@ -1,11 +1,7 @@
+"use client";
+
 // - - - - - Components - - - - -
-import { Form } from "@/components";
-
-// - - - - - Hook - - - - -
-import { useToast } from "@/hooks";
-
-// - - - - - API - - - - -
-import { updateUser, changePassword } from "@/api/services/user";
+import Form from "@/components/form/form.component";
 
 // - - - - - MUI - - - - -
 import { Box, Tab } from "@mui/material";
@@ -23,8 +19,6 @@ const UserForm = ({
   handleClose,
   extraData,
 }) => {
-  const toast = useToast();
-
   const updateData = async (data) => {
     setLoading(true);
 

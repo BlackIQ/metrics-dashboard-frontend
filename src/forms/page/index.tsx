@@ -1,8 +1,7 @@
-// - - - - - Components - - - - -
-import { Form } from "@/components";
+"use client";
 
-// - - - - - Hooks - - - - -
-import { useToast } from "@/hooks";
+// - - - - - Components - - - - -
+import Form from "@/components/form/form.component";
 
 // - - - - - API - - - - -
 import { createPage, updatePage } from "@/api/services/page";

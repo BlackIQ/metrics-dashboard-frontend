@@ -1,16 +1,14 @@
+"use client";
+
 // - - - - - Components - - - - -
-import { Form, Confirm } from "@/components";
+import Form from "@/components/form/form.component";
+import Confirm from "@/components/confirm/confirm.component";
 
 // - - - - - Hooks - - - - -
-import { useToast, useDisclosure } from "@/hooks";
+import { useDisclosure } from "@/hooks/useDisclosure/useDisclosure.hook";
 
 // - - - - - API - - - - -
-import {
-  createHost,
-  updateHost,
-  deleteHost,
-  checkHost,
-} from "@/api/services/host";
+import { createHost, updateHost, deleteHost } from "@/api/services/host";
 
 // - - - - - MUI - - - - -
 import { Box, Button, colors, Divider, Typography } from "@mui/material";
@@ -27,8 +25,6 @@ const HostForm = ({
   handleClose,
   extraData,
 }) => {
-  const toast = useToast();
-
   const { isOpen: confirmOpen, onToggle: handleConfirm } = useDisclosure();
 
   const [formData, setFormData] = useState({});

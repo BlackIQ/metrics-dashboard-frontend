@@ -1,5 +1,7 @@
+"use client";
+
 // - - - - - Components - - - - -
-import { Form } from "@/components";
+import Form from "@/components/form/form.component";
 
 // - - - - - Hooks - - - - -
 import { useToast } from "@/hooks";
