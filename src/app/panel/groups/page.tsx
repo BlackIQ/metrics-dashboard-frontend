@@ -23,7 +23,7 @@ import {
   deleteGroup,
 } from "@/api/services/group";
 
-import { GroupRead } from "@/types/group";
+import { GroupRead, GroupCreate, GroupUpdate } from "@/types/group";
 
 export default function Group() {
   const [groups, setGroups] = useState<GroupRead[]>([]);
@@ -41,17 +41,15 @@ export default function Group() {
     setLoading(true);
 
     try {
-      const test_groups = await allGroups();
+      const groups = await allGroups();
 
-      // console.log(test_groups);
-
-      setGroups(test_groups);
+      setGroups(groups);
     } catch (error) {}
 
     setLoading(false);
   };
 
-  const addData = async (data: GroupRead) => {
+  const addData = async (data: GroupCreate) => {
     setLoading(true);
 
     try {
@@ -66,7 +64,7 @@ export default function Group() {
     setLoading(false);
   };
 
-  const updateData = async (data: GroupRead) => {
+  const updateData = async (data: GroupUpdate) => {
     setLoading(true);
 
     try {

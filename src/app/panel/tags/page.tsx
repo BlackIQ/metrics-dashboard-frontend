@@ -1,12 +1,7 @@
 "use client";
 
-// - - - - - React - - - - -
 import { useState, useEffect } from "react";
 
-// - - - - - Next - - - - -
-import Head from "next/head";
-
-// - - - - - MUI - - - - -
 import {
   Box,
   Dialog,
@@ -15,63 +10,77 @@ import {
   Typography,
 } from "@mui/material";
 
-// - - - - - Components - - - - -
 import Table from "@/components/table/table.component";
-import Confirm from "@/components/confirm/confirm.component";
+import Form from "@/components/form/form.component";
 import Loading from "@/components/loading/loading.component";
 
-// - - - - - Hooks - - - - -
 import { useDisclosure } from "@/hooks/useDisclosure/useDisclosure.hook";
 
-// - - - - - API - - - - -
-import { allTags, deleteTag } from "@/api/services/tag";
+import { allTags, createTag, updateTag, deleteTag } from "@/api/services/tag";
 
-// - - - - - Forms - - - - -
-import TagForm from "@/forms/tag";
+import { TagRead, TagUpdate, TagCreate } from "@/types/tag";
 
-const Index = () => {
-  const [tags, setTags] = useState([]);
-
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+export default function Tag() {
+  const [tags, setTags] = useState<TagRead[]>([]);
+  const [selectedTag, setSelectedTag] = useState<TagRead>(undefined);
 
   const [loading, setLoading] = useState(true);
-  const [currentData, setCurrentData] = useState({});
 
-  const { isOpen: confirmOpen, onToggle: handleConfirm } = useDisclosure();
   const { isOpen: dialogOpen, onToggle: handleDialog } = useDisclosure();
 
   useEffect(() => {
-    getData(page);
-  }, [page]);
+    getData();
+  }, []);
 
-  const handlePageChange = (newPage) => {
-    setPage(newPage);
-  };
-
-  const getData = async (currentPage) => {
+  const getData = async () => {
     setLoading(true);
 
     try {
-      const { tags, pagination } = await allTags(currentPage);
+      const tags = await allTags();
 
       setTags(tags);
-
-      setTotalPages(pagination.pages);
     } catch (error) {}
+
     setLoading(false);
   };
 
-  const deleteData = async () => {
+  const addData = async (data: TagCreate) => {
     setLoading(true);
 
     try {
-      await deleteTag(currentData._id);
+      await createTag(data);
 
-      handleConfirm();
-      setCurrentData({});
+      setSelectedTag(undefined);
+      handleDialog();
 
-      getData(page);
+      getData();
+    } catch (error) {}
+
+    setLoading(false);
+  };
+
+  const updateData = async (data: TagUpdate) => {
+    setLoading(true);
+
+    try {
+      await updateTag(selectedTag.id, data);
+
+      setSelectedTag(undefined);
+      handleDialog();
+
+      getData();
+    } catch (error) {}
+
+    setLoading(false);
+  };
+
+  const deleteData = async (id: string) => {
+    setLoading(true);
+
+    try {
+      await deleteTag(id);
+
+      getData();
     } catch (error) {}
 
     setLoading(false);
@@ -79,10 +88,6 @@ const Index = () => {
 
   return (
     <>
-      <Head>
-        <title>Tags - OpenHubble Console</title>
-      </Head>
-
       <Box>
         {!loading ? (
           <Table
@@ -90,20 +95,20 @@ const Index = () => {
             data={tags}
             addText="Add Tag"
             add={() => {
-              setCurrentData(null);
+              setSelectedTag(undefined);
               handleDialog();
             }}
             clk={(data) => {
-              setCurrentData(data);
+              setSelectedTag(data);
+              handleDialog();
+            }}
+            upd={(data) => {
+              setSelectedTag(data);
               handleDialog();
             }}
             del={(data) => {
-              setCurrentData(data);
-              handleConfirm();
+              deleteData(data.id);
             }}
-            page={page}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
           />
         ) : (
           <Loading />
@@ -113,28 +118,24 @@ const Index = () => {
       <Dialog open={dialogOpen} onClose={handleDialog}>
         <DialogTitle>
           <Typography variant="h6" color="primary.main">
-            {currentData ? "Edit Tag" : "Add Tag"}
+            {selectedTag ? "Edit Tag" : "Add Tag"}
           </Typography>
         </DialogTitle>
         <DialogContent>
-          <TagForm
-            currentData={currentData}
-            getData={getData}
-            handleClose={handleDialog}
-            loading={loading}
-            setLoading={setLoading}
-            updateMode={!!currentData}
+          <Form
+            name="tag"
+            callback={selectedTag ? updateData : addData}
+            disables={[]}
+            btnStyle={{
+              fullWidth: false,
+              disabled: loading,
+              color: "primary",
+            }}
+            def={selectedTag ? selectedTag : {}}
+            button={selectedTag ? "Update" : "Create"}
           />
         </DialogContent>
       </Dialog>
-
-      <Confirm
-        onConfirm={deleteData}
-        isOpen={confirmOpen}
-        handleOpen={handleConfirm}
-      />
     </>
   );
-};
-
-export default Index;
+}
