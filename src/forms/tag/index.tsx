@@ -1,8 +1,7 @@
-// - - - - - Components - - - - -
-import { Form } from "@/components";
+"use client";
 
-// - - - - - Hooks - - - - -
-import { useToast } from "@/hooks";
+// - - - - - Components - - - - -
+import Form from "@/components/form/form.component";
 
 // - - - - - API - - - - -
 import { createTag, updateTag } from "@/api/services/tag";
@@ -15,8 +14,6 @@ const TagForm = ({
   loading,
   handleClose,
 }) => {
-  const toast = useToast();
-
   const addData = async (callback) => {
     setLoading(true);
 

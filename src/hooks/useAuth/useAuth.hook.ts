@@ -1,14 +1,18 @@
+"use client";
+
 import { useEffect } from "react";
-import { useSelector } from "react-redux";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
+
+import { useAppSelector } from "@/redux/hooks";
 
 const useAuth = () => {
   const router = useRouter();
-  const { session } = useSelector((state) => state);
+
+  const token = useAppSelector((state) => state.session.token);
 
   useEffect(() => {
-    router.push(session ? `/panel` : "/auth");
-  }, [session]);
+    router.replace(token ? "/panel" : "/auth");
+  }, [token, router]);
 };
 
 export default useAuth;

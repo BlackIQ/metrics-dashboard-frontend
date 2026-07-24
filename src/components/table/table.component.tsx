@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Table,
   TableContainer,
@@ -10,57 +12,80 @@ import {
   IconButton,
   Typography,
   Button,
-  Pagination,
   Chip,
   Tooltip,
+  Pagination,
 } from "@mui/material";
+import { Add, Edit, Delete } from "@mui/icons-material";
+import { useEffect, useState, useMemo } from "react";
+import tables from "@/core/table/table.config";
 import { format as dateFormat } from "date-fns";
-import { Add, DeleteOutline, EditOutlined } from "@mui/icons-material";
-import { tables } from "@/config";
-import { useEffect, useState } from "react";
-import { keyframes } from "@mui/system";
 
-// Neon glow animation
-const neonGlow = keyframes`
-  0% { text-shadow: 0 0 5px #00e5ff, 0 0 10px #00e5ff, 0 0 15px #00e5ff; }
-  50% { text-shadow: 0 0 8px #00e5ff, 0 0 15px #00e5ff, 0 0 20px #00e5ff; }
-  100% { text-shadow: 0 0 5px #00e5ff, 0 0 10px #00e5ff, 0 0 15px #00e5ff; }
-`;
+// ====================== TYPES ======================
+interface TableConfig {
+  title: string;
+  fields: Record<string, string>;
+}
 
-const TableComponent = ({
+interface TableProps {
+  table: string;
+  data: any[];
+  addText?: string;
+  add?: () => void;
+  clk?: (row: any) => void;
+  del?: (row: any) => void;
+  upd?: (row: any) => void; // renamed from old "upd"
+  page?: number;
+  totalPages?: number;
+  onPageChange?: (newPage: number) => void;
+  removeItems?: string[];
+  addItems?: Record<string, string>;
+  details?: string;
+  loading?: boolean;
+}
+
+export default function TableComponent({
   table,
-  data,
+  data = [],
+  addText = "Add New",
+  add,
+  clk,
   del,
   upd,
-  add,
-  addText,
-  clk,
+  page = 1,
+  totalPages = 1,
+  onPageChange,
   removeItems = [],
   addItems = {},
   details,
-  page,
-  totalPages,
-  onPageChange,
-}) => {
-  const tbl = { ...tables[table] };
+}: TableProps) {
+  const baseConfig = tables[table] as TableConfig | undefined;
 
-  removeItems.forEach((item) => delete tbl.fields[item]);
-  Object.entries(addItems).forEach(([key, value]) => (tbl.fields[key] = value));
+  // Merge config dynamically
+  const config = useMemo(() => {
+    if (!baseConfig) return { title: "Table", fields: {} };
 
-  const [renderRows, setRenderRows] = useState([]);
+    const fields = { ...baseConfig.fields };
 
-  const handleChangePage = (e, newPage) => {
-    onPageChange(newPage);
-  };
+    removeItems.forEach((item) => delete fields[item]);
+    Object.entries(addItems).forEach(([key, value]) => {
+      fields[key] = value;
+    });
 
+    return { ...baseConfig, fields };
+  }, [baseConfig, removeItems, addItems]);
+
+  const [renderRows, setRenderRows] = useState<any[]>([]);
+
+  // Enrich data with action buttons
   useEffect(() => {
-    const enrichedData = data.map((d) => ({
-      ...d,
+    const enriched = data.map((row) => ({
+      ...row,
       ...(del && {
         delete: (
           <Box sx={{ textAlign: "center" }}>
-            <IconButton onClick={() => del(d)} sx={{ color: "error.main" }}>
-              <DeleteOutline fontSize="small" />
+            <IconButton onClick={() => del(row)} color="error" size="small">
+              <Delete fontSize="small" />
             </IconButton>
           </Box>
         ),
@@ -68,244 +93,177 @@ const TableComponent = ({
       ...(upd && {
         update: (
           <Box sx={{ textAlign: "center" }}>
-            <IconButton onClick={() => upd(d)} sx={{ color: "primary.main" }}>
-              <EditOutlined fontSize="small" />
+            <IconButton onClick={() => upd(row)} color="primary" size="small">
+              <Edit fontSize="small" />
             </IconButton>
           </Box>
         ),
       }),
     }));
-    setRenderRows(enrichedData);
+    setRenderRows(enriched);
   }, [data, del, upd]);
 
-  const renderSwitch = (d, key) => {
-    const props = key.split(".");
-    const value = props.reduce((acc, prop) => acc?.[prop], d);
+  const renderCell = (row: any, key: string) => {
+    const value = key.split(".").reduce((acc, prop) => acc?.[prop], row);
 
     switch (key) {
       case "createdAt":
       case "updatedAt":
-        return value ? dateFormat(new Date(value), "yyyy/MM/dd") : "N/A";
-      case "ipCommunication":
-        return value ? "IP" : "DNS";
-      case "dockerMetrics":
-        return (
-          <Chip label={value ? "Yes" : "No"} color="default" size="small" />
-        );
+      case "created_at":
+      case "updated_at":
+        return value ? dateFormat(new Date(value), "yyyy/MM/dd") : "—";
+
       case "agentAvailable":
         return (
-          <Tooltip title={d.latestActionMessage} arrow>
-            {d.isActive ? (
+          <Tooltip title={row.latestActionMessage || ""} arrow>
+            {row.isActive ? (
               value ? (
-                <Chip label="Connect" color="success" size="small" />
+                <Chip label="Connected" color="success" size="small" />
               ) : (
-                <Chip label="Disconnect" color="error" size="small" />
+                <Chip label="Disconnected" color="error" size="small" />
               )
             ) : (
               <Chip label="Inactive" color="default" size="small" />
             )}
           </Tooltip>
         );
+
       case "alertStatus":
-        return value === "non-exists" ? (
-          <Chip label="Not Implemented" color="default" size="small" />
-        ) : value === "active" ? (
-          <Chip label="Active" color="success" size="small" />
-        ) : (
-          <Chip label="Inactive" color="error" size="small" />
-        );
+        if (value === "non-exists")
+          return <Chip label="Not Implemented" color="default" size="small" />;
+        if (value === "active")
+          return <Chip label="Active" color="success" size="small" />;
+        return <Chip label="Inactive" color="error" size="small" />;
+
       default:
-        return value ?? "—"; // Default to dash if undefined/null
+        return value ?? "—";
     }
   };
 
+  if (data.length === 0) {
+    return (
+      <Box sx={{ py: 10, textAlign: "center" }}>
+        <Typography variant="h6" color="text.secondary" gutterBottom>
+          No data available
+        </Typography>
+        {add && (
+          <Button
+            onClick={add}
+            variant="contained"
+            startIcon={<Add />}
+            sx={{ mt: 2, borderRadius: 1 }}
+          >
+            {addText}
+          </Button>
+        )}
+      </Box>
+    );
+  }
+
   return (
     <Box sx={{ py: 2 }}>
-      {data.length > 0 ? (
-        <>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              mb: 3,
-            }}
-          >
-            <Box>
-              <Typography
-                variant="h4"
-                // fontFamily="Orbitron"
-                fontWeight="bold"
-                color="primary.main"
-                // sx={{ animation: `${neonGlow} 2s ease-in-out infinite` }}
-              >
-                {tbl.title}
-              </Typography>
-              {details && (
-                <Typography
-                  variant="body2"
-                  color="rgba(255, 255, 255, 0.7)"
-                  sx={{ mt: 1 }}
-                >
-                  {details}
-                </Typography>
-              )}
-            </Box>
-            {add && (
-              <Button
-                onClick={add}
-                variant="contained"
-                size="large"
-                startIcon={<Add />}
-                disableElevation
-                sx={{
-                  bgcolor: "primary.main",
-                  borderRadius: 2,
-                  py: 1,
-                  px: 3,
-                  "&:hover": {
-                    bgcolor: "primary.dark",
-                    boxShadow: "0 0 10px rgba(0, 255, 255, 0.5)",
-                  },
-                }}
-              >
-                {addText}
-              </Button>
-            )}
-          </Box>
+      {/* Header */}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 3,
+        }}
+      >
+        <Box>
+          <Typography variant="h4" color="text.primary">
+            {config.title}
+          </Typography>
+          {details && (
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+              {details}
+            </Typography>
+          )}
+        </Box>
 
-          <TableContainer
-            component={Paper}
-            elevation={0}
-            sx={{
-              bgcolor: "rgba(30, 30, 30, 0.9)",
-              border: "1px solid rgba(0, 255, 255, 0.3)",
-              borderRadius: 2,
-              backdropFilter: "blur(10px)",
-              // "&:hover": { boxShadow: "0 0 20px rgba(0, 255, 255, 0.2)" },
-            }}
+        {add && (
+          <Button
+            onClick={add}
+            variant="contained"
+            startIcon={<Add />}
+            sx={{ borderRadius: 1, px: 3, py: 1 }}
+            disableElevation
           >
-            <Table id={table}>
-              <TableHead>
-                <TableRow
+            {addText}
+          </Button>
+        )}
+      </Box>
+
+      {/* Table */}
+      <TableContainer
+        component={Paper}
+        elevation={0}
+        sx={{ borderRadius: 1, overflow: "hidden" }}
+      >
+        <Table>
+          <TableHead>
+            <TableRow sx={{ bgcolor: "background.paper" }}>
+              {Object.entries(config.fields).map(([key, label]) => (
+                <TableCell
+                  key={key}
                   sx={{
-                    bgcolor: "primary.main",
-                    "& th": {
-                      color: "black",
-                      textAlign: "center",
-                      // fontFamily: "Orbitron",
-                      fontWeight: "bold",
-                      borderBottom: "1px solid rgba(0, 255, 255, 0.5)",
-                    },
+                    fontWeight: 600,
+                    color: "text.primary",
+                    textAlign: "center",
+                    borderBottom: "2px solid",
+                    borderColor: "divider",
                   }}
                 >
-                  {Object.entries(tbl.fields).map(([key, label]) => (
-                    <TableCell key={key}>{label}</TableCell>
-                  ))}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {renderRows.map((row, idx) => (
-                  <TableRow
-                    key={idx}
-                    sx={{
-                      "&:hover": {
-                        bgcolor: "rgba(0, 255, 255, 0.1)",
-                        cursor:
-                          clk && !["delete", "update"].includes(row)
-                            ? "pointer"
-                            : "default",
-                      },
-                      "& td": {
-                        color: "white",
-                        textAlign: "center",
-                        borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
-                      },
-                    }}
-                  >
-                    {Object.keys(tbl.fields).map((key) => (
-                      <TableCell
-                        key={key}
-                        onClick={() =>
-                          !["delete", "update"].includes(key) && clk && clk(row)
-                        }
-                      >
-                        {renderSwitch(row, key)}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-                py: 2,
-              }}
-            >
-              <Pagination
-                count={totalPages}
-                page={page}
-                onChange={handleChangePage}
-                color="primary"
-                size="medium"
-                shape="rounded"
+                  {label}
+                </TableCell>
+              ))}
+            </TableRow>
+          </TableHead>
+
+          <TableBody>
+            {renderRows.map((row, idx) => (
+              <TableRow
+                key={idx}
+                hover
                 sx={{
-                  "& .MuiPaginationItem-root": {
-                    color: "white",
-                    "&:hover": { bgcolor: "rgba(0, 255, 255, 0.2)" },
-                    "&.Mui-selected": { bgcolor: "primary.main" },
-                  },
+                  "&:last-child td": { borderBottom: 0 },
+                  cursor: clk ? "pointer" : "default",
                 }}
-              />
-            </Box>
-          </TableContainer>
-        </>
-      ) : (
-        <Box
-          sx={{
-            py: 10,
-            textAlign: "center",
-            bgcolor: "rgba(30, 30, 30, 0.9)",
-            border: "1px solid rgba(0, 255, 255, 0.3)",
-            borderRadius: 2,
-            backdropFilter: "blur(10px)",
-          }}
-        >
-          <Typography
-            variant="h6"
-            color="white"
-            fontFamily="Orbitron"
-            sx={{ mb: 3 }}
-          >
-            No data available
-          </Typography>
-          {add && (
-            <Button
-              onClick={add}
-              variant="contained"
-              size="large"
-              startIcon={<Add />}
-              disableElevation
-              sx={{
-                bgcolor: "primary.main",
-                borderRadius: 2,
-                py: 1,
-                px: 3,
-                "&:hover": {
-                  bgcolor: "primary.dark",
-                  boxShadow: "0 0 10px rgba(0, 255, 255, 0.5)",
-                },
-              }}
-            >
-              {addText}
-            </Button>
-          )}
+                onClick={() => {
+                  if (clk) clk(row);
+                }}
+              >
+                {Object.keys(config.fields).map((key) => (
+                  <TableCell
+                    key={key}
+                    onClick={(e) => {
+                      if (["delete", "update"].includes(key))
+                        e.stopPropagation();
+                    }}
+                    sx={{ textAlign: "center", py: 2 }}
+                  >
+                    {renderCell(row, key)}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+
+      {/* Pagination */}
+      {totalPages > 1 && onPageChange && (
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+          <Pagination
+            count={totalPages}
+            page={page}
+            onChange={(_, newPage) => onPageChange(newPage)}
+            color="primary"
+            shape="rounded"
+          />
         </Box>
       )}
     </Box>
   );
-};
-
-export default TableComponent;
+}

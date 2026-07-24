@@ -1,54 +1,37 @@
-import API from "@/api";
+import { API } from "@/api";
 import URLs from "@/api/urls";
+
+import { GroupCreate, GroupUpdate, GroupRead } from "@/types/group";
 
 const { group } = URLs;
 
-export const allGroups = async (page = 1, limit = 10) => {
-  try {
-    const response = await API.get(`${group}?page=${page}&limit=${limit}`);
+export const allGroups = async (): Promise<GroupRead[]> => {
+  const response = await API.get<GroupRead[]>(group);
 
-    return Promise.resolve(response.data);
-  } catch (error) {
-    return Promise.reject(error.response.data);
-  }
+  return response.data;
 };
 
-export const singleGroup = async (id) => {
-  try {
-    const response = await API.get(`${group}/${id}`);
+export const getGroup = async (id: string): Promise<GroupRead> => {
+  const response = await API.get<GroupRead>(`${group}/${id}`);
 
-    return Promise.resolve(response.data);
-  } catch (error) {
-    return Promise.reject(error.response.data);
-  }
+  return response.data;
 };
 
-export const createGroup = async (data) => {
-  try {
-    const response = await API.post(group, data);
+export const createGroup = async (data: GroupCreate): Promise<GroupRead> => {
+  const response = await API.post<GroupRead>(group, data);
 
-    return Promise.resolve(response.data);
-  } catch (error) {
-    return Promise.reject(error.response.data);
-  }
+  return response.data;
 };
 
-export const deleteGroup = async (id) => {
-  try {
-    const response = await API.delete(`${group}/${id}`);
+export const updateGroup = async (
+  id: string,
+  data: GroupUpdate,
+): Promise<GroupRead> => {
+  const response = await API.patch<GroupRead>(`${group}/${id}`, data);
 
-    return Promise.resolve(response.data);
-  } catch (error) {
-    return Promise.reject(error.response.data);
-  }
+  return response.data;
 };
 
-export const updateGroup = async (id, data) => {
-  try {
-    const response = await API.patch(`${group}/${id}`, data);
-
-    return Promise.resolve(response.data);
-  } catch (error) {
-    return Promise.reject(error.response.data);
-  }
+export const deleteGroup = async (id: string): Promise<void> => {
+  await API.delete(`${group}/${id}`);
 };

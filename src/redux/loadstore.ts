@@ -1,6 +1,8 @@
-const key = "amir-monitoring-storage";
+import type { RootState } from "./store";
 
-export const loadState = () => {
+const key = "openhubble-metrics";
+
+export const loadState = (): Partial<RootState> | undefined => {
   try {
     const serializedState = localStorage.getItem(key);
 
