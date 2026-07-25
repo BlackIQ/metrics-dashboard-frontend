@@ -1,3 +1,8 @@
+export interface TableConfig {
+  title: string;
+  fields: Record<string, string>;
+}
+
 const tables = {
   tag: {
     title: "Tags",
@@ -29,6 +34,8 @@ const tables = {
       delete: "Delete",
     },
   },
-};
+} as const satisfies Record<string, TableConfig>;
+
+export type TableName = keyof typeof tables;
 
 export default tables;

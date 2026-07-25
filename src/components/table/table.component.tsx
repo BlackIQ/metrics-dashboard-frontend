@@ -18,17 +18,11 @@ import {
 } from "@mui/material";
 import { Add, Edit, Delete } from "@mui/icons-material";
 import { useEffect, useState, useMemo } from "react";
-import tables from "@/core/table/table.config";
+import tables, { TableConfig, TableName } from "@/core/table/table.config";
 import { format as dateFormat } from "date-fns";
 
-// ====================== TYPES ======================
-interface TableConfig {
-  title: string;
-  fields: Record<string, string>;
-}
-
 interface TableProps {
-  table: string;
+  table: TableName;
   data: any[];
   addText?: string;
   add?: () => void;
@@ -59,15 +53,19 @@ export default function TableComponent({
   addItems = {},
   details,
 }: TableProps) {
-  const baseConfig = tables[table] as TableConfig | undefined;
+  const baseConfig = tables[table];
 
   // Merge config dynamically
   const config = useMemo(() => {
-    if (!baseConfig) return { title: "Table", fields: {} };
+    if (!baseConfig)
+      return { title: "Table", fields: {} as Record<string, string> };
 
-    const fields = { ...baseConfig.fields };
+    const fields: Record<string, string> = { ...baseConfig.fields };
 
-    removeItems.forEach((item) => delete fields[item]);
+    removeItems.forEach((item) => {
+      delete fields[item];
+    });
+
     Object.entries(addItems).forEach(([key, value]) => {
       fields[key] = value;
     });

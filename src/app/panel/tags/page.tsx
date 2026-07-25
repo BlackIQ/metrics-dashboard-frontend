@@ -22,7 +22,7 @@ import { TagRead, TagUpdate, TagCreate } from "@/types/tag";
 
 export default function Tag() {
   const [tags, setTags] = useState<TagRead[]>([]);
-  const [selectedTag, setSelectedTag] = useState<TagRead>(undefined);
+  const [selectedTag, setSelectedTag] = useState<TagRead>();
 
   const [loading, setLoading] = useState(true);
 
@@ -60,6 +60,8 @@ export default function Tag() {
   };
 
   const updateData = async (data: TagUpdate) => {
+    if (!selectedTag) return;
+
     setLoading(true);
 
     try {

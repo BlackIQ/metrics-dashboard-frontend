@@ -27,7 +27,7 @@ import { GroupRead, GroupCreate, GroupUpdate } from "@/types/group";
 
 export default function Group() {
   const [groups, setGroups] = useState<GroupRead[]>([]);
-  const [selectedGroup, setSelectedGroup] = useState<GroupRead>(undefined);
+  const [selectedGroup, setSelectedGroup] = useState<GroupRead>();
 
   const [loading, setLoading] = useState(true);
 
@@ -65,6 +65,8 @@ export default function Group() {
   };
 
   const updateData = async (data: GroupUpdate) => {
+    if (!selectedGroup) return;
+
     setLoading(true);
 
     try {

@@ -27,7 +27,7 @@ import { HostRead, HostCreate, HostUpdate } from "@/types/host";
 
 export default function Host() {
   const [hosts, setHosts] = useState<HostRead[]>([]);
-  const [selectedHost, setSelectedHost] = useState<HostRead>(undefined);
+  const [selectedHost, setSelectedHost] = useState<HostRead>();
 
   const [loading, setLoading] = useState(true);
 
@@ -65,6 +65,8 @@ export default function Host() {
   };
 
   const updateData = async (data: HostUpdate) => {
+    if (!selectedHost) return;
+
     setLoading(true);
 
     try {

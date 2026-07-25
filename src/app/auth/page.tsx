@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 
 import { useState } from "react";
 
-import { setSession } from "@/redux/slices/session.slice";
+import { setToken } from "@/redux/slices/token.slice";
 
 import Form from "@/components/form/form.component";
 
@@ -15,7 +15,7 @@ import {
   signupAuthentication,
 } from "@/api/services/auth";
 
-import { Signin, Signup, Token } from "@/types/auth";
+import { Signin, Signup } from "@/types/auth";
 
 import { Box, Typography, Button, Grid, Link as MUILink } from "@mui/material";
 import { Google } from "@mui/icons-material";
@@ -34,9 +34,9 @@ const Auth = () => {
 
   const doLogin = async (callback: Signin) => {
     try {
-      const { access_token } = await signinAuthentication(callback);
+      const token = await signinAuthentication(callback);
 
-      dispatch(setSession(access_token));
+      dispatch(setToken(token));
     } catch (error) {
       console.log(error);
     }
@@ -44,9 +44,9 @@ const Auth = () => {
 
   const doRegister = async (callback: Signup) => {
     try {
-      const { access_token } = await signupAuthentication(callback);
+      const token = await signupAuthentication(callback);
 
-      dispatch(setSession(access_token));
+      dispatch(setToken(token));
     } catch (error) {
       console.log(error);
     }
@@ -124,21 +124,27 @@ const Auth = () => {
               />
 
               <Box sx={{ mb: 2 }}>
-                <Form
-                  name={mode}
-                  callback={mode === "login" ? doLogin : doRegister}
-                  button={
-                    mode === "login"
-                      ? "Login"
-                      : mode === "register"
-                        ? "Register"
-                        : "Send Reset Link"
-                  }
-                  btnStyle={{
-                    fullWidth: true,
-                    disabled: loading,
-                  }}
-                />
+                {mode == "login" ? (
+                  <Form<Signin>
+                    name={mode}
+                    callback={doLogin}
+                    button="Login"
+                    btnStyle={{
+                      fullWidth: true,
+                      disabled: loading,
+                    }}
+                  />
+                ) : (
+                  <Form<Signup>
+                    name={mode}
+                    callback={doRegister}
+                    button="Register"
+                    btnStyle={{
+                      fullWidth: true,
+                      disabled: loading,
+                    }}
+                  />
+                )}
               </Box>
 
               {mode === "login" && (

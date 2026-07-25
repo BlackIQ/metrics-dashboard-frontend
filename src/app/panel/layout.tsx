@@ -27,12 +27,13 @@ import {
 
 import { useRouter } from "next/navigation";
 
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 
 import { useEffect, useState } from "react";
 
+import { useAppSelector } from "@/redux/hooks";
 import { setUser, clearUser } from "@/redux/slices/user.slice";
-import { clearSession } from "@/redux/slices/session.slice";
+import { clearToken } from "@/redux/slices/token.slice";
 
 import { API } from "@/api";
 import { me } from "@/api/services/user";
@@ -84,12 +85,7 @@ export default function PanelLayout({
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const {
-    session: { token },
-    user,
-  } = useSelector((state) => state);
-
-  console.log(user.user);
+  const { token, user } = useAppSelector((state) => state);
 
   const handleDrawer = () => {
     setOpen((prev) => !prev);
@@ -108,7 +104,7 @@ export default function PanelLayout({
 
   useEffect(() => {
     if (token) {
-      API.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      API.defaults.headers.common["Authorization"] = `Bearer ${token.token?.access_token}`;
 
       getData();
     } else {
@@ -118,12 +114,12 @@ export default function PanelLayout({
 
   const logout = async () => {
     dispatch(clearUser());
-    dispatch(clearSession());
+    dispatch(clearToken());
 
     router.push("/");
   };
 
-  const getIcon = (value) => {
+  const getIcon = (value: string) => {
     switch (value) {
       case "home":
         return <Home />;
@@ -241,7 +237,7 @@ export default function PanelLayout({
             <ListItemIcon sx={{ color: "primary.main" }}>
               {getIcon("me")}
             </ListItemIcon>
-            {open && <ListItemText primary={user.user.first_name} />}
+            {open && <ListItemText primary={user.user?.first_name} />}
           </ListItemButton>
           <ListItemButton
             onClick={logout}

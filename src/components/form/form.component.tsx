@@ -56,7 +56,9 @@ interface FormConfig {
   [key: string]: FormField;
 }
 
-interface FormProps {
+interface FormProps<
+  T extends Record<string, any> = Record<string, string | number | boolean>,
+> {
   name: string;
   button?: string;
   btnStyle?: {
@@ -64,11 +66,16 @@ interface FormProps {
     fullWidth?: boolean;
     disabled?: boolean;
   };
-  def?: Record<string, any>;
-  callback: (data: Record<string, any>) => void;
-  change?: (data: Record<string, any>) => void;
+  def?: Partial<T>;
+  callback: (data: T) => void;
+  change?: (data: T) => void;
   selectData?: Record<string, SelectDataOption[]>;
-  disables?: string[]; // new prop from your usage
+  disables?: string[];
+}
+
+interface Option {
+  label: string;
+  value: string;
 }
 
 const fieldComponents: Record<FieldType, React.FC<any>> = {
@@ -131,20 +138,20 @@ const fieldComponents: Record<FieldType, React.FC<any>> = {
         {field.label}
       </FormLabel>
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5 }}>
-        {selectData?.[field.name]?.map((option) => (
+        {selectData?.[field.name]?.map((option: Option) => (
           <FormControlLabel
-            key={option._id}
+            key={option.value}
             label={option.label}
             control={
               <Checkbox
-                defaultChecked={def.includes(option._id)}
+                defaultChecked={def.includes(option.value)}
                 color="primary"
                 {...register(field.name, field.advanced)}
                 onChange={(e) => {
                   const current = getValues(field.name) || [];
                   const newValues = e.target.checked
-                    ? [...current, option._id]
-                    : current.filter((id: string) => id !== option._id);
+                    ? [...current, option.value]
+                    : current.filter((id: string) => id !== option.value);
                   onChange?.(field.name, newValues, getValues());
                 }}
               />
@@ -169,9 +176,9 @@ const fieldComponents: Record<FieldType, React.FC<any>> = {
         {...register(field.name, field.advanced)}
         onChange={(e) => onChange?.(field.name, e.target.value, getValues())}
       >
-        {field.options?.map((opt) => (
-          <MenuItem key={opt.value} value={opt.value}>
-            {opt.label}
+        {field.options?.map((option: Option) => (
+          <MenuItem key={option.value} value={option.value}>
+            {option.label}
           </MenuItem>
         ))}
       </Select>
@@ -200,9 +207,9 @@ const fieldComponents: Record<FieldType, React.FC<any>> = {
         {...register(field.name, field.advanced)}
         onChange={(e) => onChange?.(field.name, e.target.value, getValues())}
       >
-        {selectData?.[field.name]?.map((opt) => (
-          <MenuItem key={opt._id} value={opt._id}>
-            {opt.label}
+        {selectData?.[field.name]?.map((option: Option) => (
+          <MenuItem key={option.value} value={option.value}>
+            {option.label}
           </MenuItem>
         ))}
       </Select>
@@ -275,43 +282,43 @@ const fieldComponents: Record<FieldType, React.FC<any>> = {
 
 // ====================== MAIN COMPONENT ======================
 
-const Form: React.FC<FormProps> = ({
+const Form = <
+  T extends Record<string, any> = Record<string, string | number | boolean>,
+>({
   name,
   button = "Submit",
   btnStyle = {},
-  def = {},
+  def = {} as Partial<T>,
   callback,
   change,
   selectData = {},
   disables = [],
-}) => {
+}: FormProps<T>) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
     getValues,
-  } = useForm({ defaultValues: def });
+  } = useForm<T>({ defaultValues: def as any });
 
   const formConfig: FormConfig = (forms as any)[name];
 
-  const onSubmit: SubmitHandler<Record<string, any>> = (data) => {
-    const payload: Record<string, any> = {};
+  const onSubmit: SubmitHandler<T> = (data) => {
+    const payload = {} as T;
     Object.keys(formConfig || {}).forEach((key) => {
-      if (data[key] !== undefined) payload[key] = data[key];
+      if ((data as any)[key] !== undefined) {
+        (payload as any)[key] = (data as any)[key];
+      }
     });
     callback(payload);
   };
 
-  const handleFieldChange = (
-    fieldName: string,
-    value: any,
-    values: Record<string, any>,
-  ) => {
-    change?.({ ...values, [fieldName]: value });
+  const handleFieldChange = (fieldName: string, value: any, values: T) => {
+    change?.({ ...values, [fieldName]: value } as T);
   };
 
   return (
-    <Box sx={{ width: "100%", py: 1, }}>
+    <Box sx={{ width: "100%", py: 1 }}>
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
         <Grid container spacing={2.5}>
           {" "}
