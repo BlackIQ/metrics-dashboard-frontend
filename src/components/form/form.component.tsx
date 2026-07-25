@@ -311,7 +311,7 @@ const Form: React.FC<FormProps> = ({
   };
 
   return (
-    <Box sx={{ width: "100%" }}>
+    <Box sx={{ width: "100%", py: 1, }}>
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
         <Grid container spacing={2.5}>
           {" "}

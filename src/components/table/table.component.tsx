@@ -107,33 +107,31 @@ export default function TableComponent({
     const value = key.split(".").reduce((acc, prop) => acc?.[prop], row);
 
     switch (key) {
-      case "createdAt":
-      case "updatedAt":
       case "created_at":
       case "updated_at":
         return value ? dateFormat(new Date(value), "yyyy/MM/dd") : "—";
 
-      case "agentAvailable":
+      case "agent_availability":
         return (
           <Tooltip title={row.latestActionMessage || ""} arrow>
-            {row.isActive ? (
-              value ? (
-                <Chip label="Connected" color="success" size="small" />
-              ) : (
-                <Chip label="Disconnected" color="error" size="small" />
-              )
+            {row.agent_availability ? (
+              <Chip label="Connected" color="success" size="small" />
+            ) : (
+              <Chip label="Disconnected" color="error" size="small" />
+            )}
+          </Tooltip>
+        );
+
+      case "is_active":
+        return (
+          <Tooltip title={row.latestActionMessage || ""} arrow>
+            {row.is_active ? (
+              <Chip label="Active" color="success" size="small" />
             ) : (
               <Chip label="Inactive" color="default" size="small" />
             )}
           </Tooltip>
         );
-
-      case "alertStatus":
-        if (value === "non-exists")
-          return <Chip label="Not Implemented" color="default" size="small" />;
-        if (value === "active")
-          return <Chip label="Active" color="success" size="small" />;
-        return <Chip label="Inactive" color="error" size="small" />;
 
       default:
         return value ?? "—";
