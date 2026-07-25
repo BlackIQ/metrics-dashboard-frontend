@@ -179,6 +179,128 @@ const forms = {
       },
     },
   },
+  host: {
+    name: {
+      type: "text",
+      label: "Name",
+      placeholder: "Enter group name",
+      secure: false,
+      size: {
+        xs: 12,
+        sm: 12,
+        md: 12,
+        lg: 12,
+      },
+      advanced: {
+        required: true,
+      },
+    },
+    ipv4: {
+      type: "text",
+      label: "IPv4",
+      placeholder: "Address of Agent",
+      secure: false,
+      size: {
+        xs: 12,
+        sm: 12,
+        md: 6,
+        lg: 6,
+      },
+      advanced: {
+        required: true,
+      },
+    },
+    dns: {
+      type: "text",
+      label: "Domain",
+      placeholder: "Domain that points to Agent",
+      secure: false,
+      size: {
+        xs: 12,
+        sm: 12,
+        md: 6,
+        lg: 6,
+      },
+      advanced: {
+        required: true,
+      },
+    },
+    port: {
+      type: "number",
+      label: "Port",
+      placeholder: "Which port is Agent exposing",
+      secure: false,
+      size: {
+        xs: 12,
+        sm: 12,
+        md: 6,
+        lg: 6,
+      },
+      advanced: {
+        required: true,
+      },
+    },
+    api_key: {
+      type: "text",
+      label: "API Key",
+      placeholder: "What key you defined for Agent",
+      secure: true,
+      size: {
+        xs: 12,
+        sm: 12,
+        md: 6,
+        lg: 6,
+      },
+      advanced: {
+        required: true,
+      },
+    },
+    communication: {
+      type: "text",
+      label: "Communication",
+      placeholder: "How shoud OpenHubble connect to Agent",
+      secure: false,
+      size: {
+        xs: 12,
+        sm: 12,
+        md: 12,
+        lg: 12,
+      },
+      advanced: {
+        required: true,
+      },
+    },
+    description: {
+      type: "textarea",
+      label: "Description",
+      placeholder: "Enter a description for this host",
+      secure: false,
+      size: {
+        xs: 12,
+        sm: 12,
+        md: 12,
+        lg: 12,
+      },
+      advanced: {
+        required: true,
+      },
+    },
+    is_active: {
+      type: "checkbox",
+      label: "Is Agent active?",
+      placeholder: "Enter a description for this host",
+      secure: false,
+      size: {
+        xs: 12,
+        sm: 12,
+        md: 12,
+        lg: 12,
+      },
+      advanced: {
+        required: false,
+      },
+    },
+  },
 };
 
 export default forms;

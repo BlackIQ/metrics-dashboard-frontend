@@ -1,19 +1,9 @@
 const tables = {
-  host: {
-    title: "Hosts",
-    fields: {
-      name: "Hostname",
-      agentAvailable: "Status",
-      ip: "IP",
-      dns: "DNS",
-      port: "Port",
-    },
-  },
   tag: {
     title: "Tags",
     fields: {
       name: "Name",
-      update: "Update",
+      update: "Edit",
       delete: "Delete",
     },
   },
@@ -21,7 +11,21 @@ const tables = {
     title: "Groups",
     fields: {
       name: "Name",
-      update: "Update",
+      update: "Edit",
+      delete: "Delete",
+    },
+  },
+  host: {
+    title: "Hosts",
+    fields: {
+      name: "Name",
+      ipv4: "IPv4",
+      dns: "Domain",
+      port: "Port",
+      communication: "Communication",
+      agent_availability: "Availability",
+      is_active: "Active",
+      update: "Edit",
       delete: "Delete",
     },
   },
