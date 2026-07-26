@@ -18,17 +18,11 @@ import {
 } from "@mui/material";
 import { Add, Edit, Delete } from "@mui/icons-material";
 import { useEffect, useState, useMemo } from "react";
-import tables from "@/core/table/table.config";
+import tables, { TableConfig, TableName } from "@/core/table/table.config";
 import { format as dateFormat } from "date-fns";
 
-// ====================== TYPES ======================
-interface TableConfig {
-  title: string;
-  fields: Record<string, string>;
-}
-
 interface TableProps {
-  table: string;
+  table: TableName;
   data: any[];
   addText?: string;
   add?: () => void;
@@ -59,15 +53,19 @@ export default function TableComponent({
   addItems = {},
   details,
 }: TableProps) {
-  const baseConfig = tables[table] as TableConfig | undefined;
+  const baseConfig = tables[table];
 
   // Merge config dynamically
   const config = useMemo(() => {
-    if (!baseConfig) return { title: "Table", fields: {} };
+    if (!baseConfig)
+      return { title: "Table", fields: {} as Record<string, string> };
 
-    const fields = { ...baseConfig.fields };
+    const fields: Record<string, string> = { ...baseConfig.fields };
 
-    removeItems.forEach((item) => delete fields[item]);
+    removeItems.forEach((item) => {
+      delete fields[item];
+    });
+
     Object.entries(addItems).forEach(([key, value]) => {
       fields[key] = value;
     });
@@ -107,33 +105,31 @@ export default function TableComponent({
     const value = key.split(".").reduce((acc, prop) => acc?.[prop], row);
 
     switch (key) {
-      case "createdAt":
-      case "updatedAt":
       case "created_at":
       case "updated_at":
         return value ? dateFormat(new Date(value), "yyyy/MM/dd") : "—";
 
-      case "agentAvailable":
+      case "agent_availability":
         return (
           <Tooltip title={row.latestActionMessage || ""} arrow>
-            {row.isActive ? (
-              value ? (
-                <Chip label="Connected" color="success" size="small" />
-              ) : (
-                <Chip label="Disconnected" color="error" size="small" />
-              )
+            {row.agent_availability ? (
+              <Chip label="Connected" color="success" size="small" />
+            ) : (
+              <Chip label="Disconnected" color="error" size="small" />
+            )}
+          </Tooltip>
+        );
+
+      case "is_active":
+        return (
+          <Tooltip title={row.latestActionMessage || ""} arrow>
+            {row.is_active ? (
+              <Chip label="Active" color="success" size="small" />
             ) : (
               <Chip label="Inactive" color="default" size="small" />
             )}
           </Tooltip>
         );
-
-      case "alertStatus":
-        if (value === "non-exists")
-          return <Chip label="Not Implemented" color="default" size="small" />;
-        if (value === "active")
-          return <Chip label="Active" color="success" size="small" />;
-        return <Chip label="Inactive" color="error" size="small" />;
 
       default:
         return value ?? "—";

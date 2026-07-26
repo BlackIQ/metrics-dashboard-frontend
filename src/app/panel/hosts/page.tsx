@@ -16,13 +16,18 @@ import Loading from "@/components/loading/loading.component";
 
 import { useDisclosure } from "@/hooks/useDisclosure/useDisclosure.hook";
 
-import { allTags, createTag, updateTag, deleteTag } from "@/api/services/tag";
+import {
+  allHosts,
+  createHost,
+  updateHost,
+  deleteHost,
+} from "@/api/services/host";
 
-import { TagRead, TagUpdate, TagCreate } from "@/types/tag";
+import { HostRead, HostCreate, HostUpdate } from "@/types/host";
 
-export default function Tag() {
-  const [tags, setTags] = useState<TagRead[]>([]);
-  const [selectedTag, setSelectedTag] = useState<TagRead>();
+export default function Host() {
+  const [hosts, setHosts] = useState<HostRead[]>([]);
+  const [selectedHost, setSelectedHost] = useState<HostRead>();
 
   const [loading, setLoading] = useState(true);
 
@@ -36,21 +41,21 @@ export default function Tag() {
     setLoading(true);
 
     try {
-      const tags = await allTags();
+      const hosts = await allHosts();
 
-      setTags(tags);
+      setHosts(hosts);
     } catch (error) {}
 
     setLoading(false);
   };
 
-  const addData = async (data: TagCreate) => {
+  const addData = async (data: HostCreate) => {
     setLoading(true);
 
     try {
-      await createTag(data);
+      await createHost(data);
 
-      setSelectedTag(undefined);
+      setSelectedHost(undefined);
       handleDialog();
 
       getData();
@@ -59,15 +64,15 @@ export default function Tag() {
     setLoading(false);
   };
 
-  const updateData = async (data: TagUpdate) => {
-    if (!selectedTag) return;
+  const updateData = async (data: HostUpdate) => {
+    if (!selectedHost) return;
 
     setLoading(true);
 
     try {
-      await updateTag(selectedTag.id, data);
+      await updateHost(selectedHost.id, data);
 
-      setSelectedTag(undefined);
+      setSelectedHost(undefined);
       handleDialog();
 
       getData();
@@ -80,7 +85,7 @@ export default function Tag() {
     setLoading(true);
 
     try {
-      await deleteTag(id);
+      await deleteHost(id);
 
       getData();
     } catch (error) {}
@@ -93,19 +98,19 @@ export default function Tag() {
       <Box>
         {!loading ? (
           <Table
-            table="tag"
-            data={tags}
-            addText="Add Tag"
+            table="host"
+            data={hosts}
+            addText="Add Host"
             add={() => {
-              setSelectedTag(undefined);
+              setSelectedHost(undefined);
               handleDialog();
             }}
             clk={(data) => {
-              setSelectedTag(data);
+              setSelectedHost(data);
               handleDialog();
             }}
             upd={(data) => {
-              setSelectedTag(data);
+              setSelectedHost(data);
               handleDialog();
             }}
             del={(data) => {
@@ -120,21 +125,21 @@ export default function Tag() {
       <Dialog open={dialogOpen} onClose={handleDialog}>
         <DialogTitle>
           <Typography variant="h6" color="primary.main">
-            {selectedTag ? "Edit Tag" : "Add Tag"}
+            {selectedHost ? "Edit Add Host" : "Add Host"}
           </Typography>
         </DialogTitle>
         <DialogContent>
           <Form
-            name="tag"
-            callback={selectedTag ? updateData : addData}
+            name="host"
+            callback={selectedHost ? updateData : addData}
             disables={[]}
             btnStyle={{
               fullWidth: false,
               disabled: loading,
               color: "primary",
             }}
-            def={selectedTag ? selectedTag : {}}
-            button={selectedTag ? "Update" : "Create"}
+            def={selectedHost ? selectedHost : {}}
+            button={selectedHost ? "Update" : "Create"}
           />
         </DialogContent>
       </Dialog>

@@ -1,12 +1,10 @@
 const urls = {
   auth: "auth",
-  oauth: "oauth",
   user: "users",
-  host: "hosts",
   tag: "tags",
   group: "groups",
+  host: "hosts",
   pages: "pages",
-  graphs: "graphs",
 };
 
 export default urls;
