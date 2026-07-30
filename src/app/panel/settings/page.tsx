@@ -5,13 +5,24 @@ import {
   Box,
   Paper,
   Typography,
-  Tabs,
-  Tab,
   Divider,
   Button,
   Tooltip,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Avatar,
+  Chip,
+  Grid,
 } from "@mui/material";
-import { Person, Lock, Email, DeleteForever } from "@mui/icons-material";
+import {
+  Person,
+  Lock,
+  Email,
+  DeleteForever,
+  CheckCircle,
+} from "@mui/icons-material";
 import { useSelector, useDispatch } from "react-redux";
 
 import Form from "@/components/form/form.component";
@@ -29,31 +40,21 @@ import {
   UpdateEmailPayload,
 } from "@/types/user";
 
-interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
-}
-
-function CustomTabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
-  return (
-    <div role="tabpanel" hidden={value !== index} {...other}>
-      {value === index && <Box sx={{ py: 3 }}>{children}</Box>}
-    </div>
-  );
-}
-
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState(0);
+  const [activeSection, setActiveSection] = useState<
+    "profile" | "password" | "email" | "danger"
+  >("profile");
   const [loading, setLoading] = useState(false);
 
   const currentUser = useSelector((state: RootState) => state.user.user);
   const dispatch = useDispatch();
 
-  const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
-    setActiveTab(newValue);
-  };
+  const fullName =
+    `${currentUser?.first_name || ""} ${currentUser?.last_name || ""}`.trim() ||
+    "User Profile";
+  const userInitials =
+    `${currentUser?.first_name?.[0] || ""}${currentUser?.last_name?.[0] || ""}`.toUpperCase() ||
+    "U";
 
   const handleUpdateProfile = async (data: UpdateProfilePayload) => {
     setLoading(true);
@@ -96,142 +97,356 @@ export default function SettingsPage() {
     }
   };
 
-  return (
-    <Box sx={{ maxWidth: 800, mx: "auto", py: 2 }}>
-      <Typography
-        variant="h4"
-        gutterBottom
-        color="text.primary"
-        sx={{
-          fontWeight: 700,
-        }}
-      >
-        Account Settings
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
-        Manage your profile details, security credentials, and preferences.
-      </Typography>
+  const navItems = [
+    {
+      id: "profile",
+      label: "Profile Information",
+      icon: <Person fontSize="small" />,
+    },
+    {
+      id: "password",
+      label: "Password & Security",
+      icon: <Lock fontSize="small" />,
+    },
+    {
+      id: "email",
+      label: "Email Preferences",
+      icon: <Email fontSize="small" />,
+    },
+    {
+      id: "danger",
+      label: "Danger Zone",
+      icon: <DeleteForever fontSize="small" />,
+      danger: true,
+    },
+  ] as const;
 
+  return (
+    <Box sx={{ maxWidth: 1100, mx: "auto", py: 2 }}>
+      {/* Top Banner Card */}
       <Paper
         elevation={0}
         sx={{
+          p: 3,
+          mb: 4,
+          borderRadius: 2,
           border: "1px solid",
           borderColor: "divider",
-          borderRadius: 2,
-          p: 3,
+          display: "flex",
+          alignItems: "center",
+          gap: 2.5,
+          background:
+            "linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)",
         }}
       >
-        <Tabs
-          value={activeTab}
-          onChange={handleTabChange}
-          indicatorColor="primary"
-          textColor="primary"
-          variant="scrollable"
-          scrollButtons="auto"
+        <Avatar
+          sx={{
+            width: 64,
+            height: 64,
+            bgcolor: "primary.main",
+            color: "primary.contrastText",
+            fontSize: "1.5rem",
+            fontWeight: 700,
+          }}
         >
-          <Tab
-            icon={<Person fontSize="small" />}
-            iconPosition="start"
-            label="Profile"
-          />
-          <Tab
-            icon={<Lock fontSize="small" />}
-            iconPosition="start"
-            label="Password"
-          />
-          <Tab
-            icon={<Email fontSize="small" />}
-            iconPosition="start"
-            label="Email"
-          />
-          <Tab
-            icon={<DeleteForever fontSize="small" />}
-            iconPosition="start"
-            label="Danger Zone"
-          />
-        </Tabs>
-        <Divider sx={{ mt: 0 }} />
-
-        {/* Profile Tab */}
-        <CustomTabPanel value={activeTab} index={0}>
-          <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-            Personal Details
-          </Typography>
-          <Form
-            name="user_profile"
-            callback={handleUpdateProfile}
-            def={{
-              first_name: currentUser?.first_name || "",
-              last_name: currentUser?.last_name || "",
-            }}
-            button="Save Profile"
-            btnStyle={{ disabled: loading }}
-          />
-        </CustomTabPanel>
-
-        {/* Password Tab */}
-        <CustomTabPanel value={activeTab} index={1}>
-          <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-            Change Password
-          </Typography>
-          <Form
-            name="user_password"
-            callback={handleUpdatePassword}
-            button="Update Password"
-            btnStyle={{ disabled: loading }}
-          />
-        </CustomTabPanel>
-
-        {/* Email Tab */}
-        <CustomTabPanel value={activeTab} index={2}>
-          <Typography variant="h6" sx={{ mb: 1, fontWeight: 600 }}>
-            Update Email Address
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-            Current email: <strong>{currentUser?.email || "—"}</strong>
-          </Typography>
-          <Form
-            name="user_email"
-            callback={handleUpdateEmail}
-            def={{ email: currentUser?.email || "" }}
-            button="Update Email"
-            btnStyle={{ disabled: loading }}
-          />
-        </CustomTabPanel>
-
-        {/* Danger Zone Tab */}
-        <CustomTabPanel value={activeTab} index={3}>
-          <Typography
-            variant="h6"
-            color="error.main"
-            sx={{ mb: 1, fontWeight: 600 }}
+          {userInitials}
+        </Avatar>
+        <Box sx={{ flexGrow: 1 }}>
+          <Box
+            sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 0.5 }}
           >
-            Delete Account
+            <Typography
+              variant="h5"
+              color="text.primary"
+              sx={{
+                fontWeight: 700,
+              }}
+            >
+              {fullName}
+            </Typography>
+            {currentUser?.is_active && (
+              <Chip
+                icon={<CheckCircle fontSize="small" />}
+                label="Active Account"
+                color="success"
+                size="small"
+                variant="outlined"
+                sx={{ height: 24, fontSize: "0.75rem" }}
+              />
+            )}
+          </Box>
+          <Typography variant="body2" color="text.secondary">
+            {currentUser?.email || "No email set"}
           </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-            Once you delete your account, there is no going back. Please be
-            certain.
-          </Typography>
-
-          <Tooltip
-            title="Account deletion is currently unavailable"
-            arrow
-            placement="top-start"
-          >
-            <span>
-              <Button
-                variant="contained"
-                color="error"
-                startIcon={<DeleteForever />}
-                disabled
-                sx={{ textTransform: "none" }}
-              >
-                Delete Account
-              </Button>
-            </span>
-          </Tooltip>
-        </CustomTabPanel>
+        </Box>
       </Paper>
+
+      {/* Main Grid: Sidebar + Content */}
+      <Grid container spacing={3}>
+        {/* Left Navigation Sidebar */}
+        <Grid size={{ xs: 12, md: 4, lg: 3 }}>
+          <Paper
+            elevation={0}
+            sx={{
+              borderRadius: 2,
+              border: "1px solid",
+              borderColor: "divider",
+              overflow: "hidden",
+            }}
+          >
+            <Box
+              sx={{ p: 2, borderBottom: "1px solid", borderColor: "divider" }}
+            >
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{
+                  textTransform: "uppercase",
+                  letterSpacing: 1,
+                  fontWeight: 700,
+                }}
+              >
+                Settings Navigation
+              </Typography>
+            </Box>
+            <List disablePadding>
+              {navItems.map((item) => {
+                const isSelected = activeSection === item.id;
+                return (
+                  <ListItemButton
+                    key={item.id}
+                    selected={isSelected}
+                    onClick={() => setActiveSection(item.id)}
+                    sx={{
+                      py: 1.5,
+                      px: 2,
+                      borderLeft: isSelected
+                        ? "3px solid"
+                        : "3px solid transparent",
+                      borderLeftColor: isSelected
+                        ? item.danger
+                          ? "error.main"
+                          : "primary.main"
+                        : "transparent",
+                      color: isSelected
+                        ? item.danger
+                          ? "error.main"
+                          : "primary.main"
+                        : "text.secondary",
+                      "&.Mui-selected": {
+                        bgcolor: item.danger
+                          ? "rgba(211, 47, 47, 0.08)"
+                          : "action.selected",
+                        ":hover": {
+                          bgcolor: "rgba(211, 47, 47, 0.08)",
+                        },
+                      },
+                    }}
+                  >
+                    <ListItemIcon
+                      sx={{
+                        minWidth: 36,
+                        color: isSelected
+                          ? item.danger
+                            ? "error.main"
+                            : "primary.main"
+                          : "text.secondary",
+                      }}
+                    >
+                      {item.icon}
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={item.label}
+                      sx={{
+                        fontSize: "0.875rem",
+                        fontWeight: isSelected ? 600 : 400,
+                      }}
+                    />
+                  </ListItemButton>
+                );
+              })}
+            </List>
+          </Paper>
+        </Grid>
+
+        {/* Right Content Panel */}
+        <Grid size={{ xs: 12, md: 8, lg: 9 }}>
+          <Paper
+            elevation={0}
+            sx={{
+              p: 3.5,
+              borderRadius: 2,
+              border: "1px solid",
+              borderColor: "divider",
+              minHeight: 400,
+            }}
+          >
+            {/* Profile Section */}
+            {activeSection === "profile" && (
+              <Box>
+                <Box sx={{ mb: 3 }}>
+                  <Typography
+                    variant="h6"
+                    color="text.primary"
+                    sx={{
+                      fontWeight: 700,
+                    }}
+                  >
+                    Profile Details
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Update your public display name and account details.
+                  </Typography>
+                </Box>
+                <Divider sx={{ mb: 3 }} />
+                <Form
+                  name="user_profile"
+                  callback={handleUpdateProfile}
+                  def={{
+                    first_name: currentUser?.first_name || "",
+                    last_name: currentUser?.last_name || "",
+                  }}
+                  button="Save Changes"
+                  btnStyle={{ disabled: loading }}
+                />
+              </Box>
+            )}
+
+            {/* Password Section */}
+            {activeSection === "password" && (
+              <Box>
+                <Box sx={{ mb: 3 }}>
+                  <Typography
+                    variant="h6"
+                    color="text.primary"
+                    sx={{
+                      fontWeight: 700,
+                    }}
+                  >
+                    Password & Security
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Ensure your account is using a long, random password to stay
+                    secure.
+                  </Typography>
+                </Box>
+                <Divider sx={{ mb: 3 }} />
+                <Form
+                  name="user_password"
+                  callback={handleUpdatePassword}
+                  button="Change Password"
+                  btnStyle={{ disabled: loading }}
+                />
+              </Box>
+            )}
+
+            {/* Email Section */}
+            {activeSection === "email" && (
+              <Box>
+                <Box sx={{ mb: 3 }}>
+                  <Typography
+                    variant="h6"
+                    color="text.primary"
+                    sx={{
+                      fontWeight: 700,
+                    }}
+                  >
+                    Email Address
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Your current registered email address is{" "}
+                    <strong>{currentUser?.email || "—"}</strong>.
+                  </Typography>
+                </Box>
+                <Divider sx={{ mb: 3 }} />
+                <Form
+                  name="user_email"
+                  callback={handleUpdateEmail}
+                  def={{ email: currentUser?.email || "" }}
+                  button="Update Email Address"
+                  btnStyle={{ disabled: loading }}
+                />
+              </Box>
+            )}
+
+            {/* Danger Zone Section */}
+            {activeSection === "danger" && (
+              <Box>
+                <Box sx={{ mb: 3 }}>
+                  <Typography
+                    variant="h6"
+                    color="error.main"
+                    sx={{
+                      fontWeight: 700,
+                    }}
+                  >
+                    Danger Zone
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Irreversible and destructive actions regarding your cloud
+                    account.
+                  </Typography>
+                </Box>
+                <Divider sx={{ mb: 3 }} />
+
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 2.5,
+                    border: "1px solid",
+                    borderColor: "error.main",
+                    borderRadius: 1.5,
+                    bgcolor: "rgba(211, 47, 47, 0.03)",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    flexWrap: "wrap",
+                    gap: 2,
+                  }}
+                >
+                  <Box>
+                    <Typography
+                      variant="subtitle2"
+                      color="text.primary"
+                      sx={{
+                        fontWeight: 700,
+                      }}
+                    >
+                      Delete Account
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ fontSize: "0.8rem" }}
+                    >
+                      Once deleted, all your hosts, groups, and tags will be
+                      purged forever.
+                    </Typography>
+                  </Box>
+
+                  <Tooltip
+                    title="Account deletion is currently disabled"
+                    arrow
+                    placement="top"
+                  >
+                    <span>
+                      <Button
+                        variant="contained"
+                        color="error"
+                        startIcon={<DeleteForever />}
+                        disabled
+                        sx={{ textTransform: "none", fontWeight: 600 }}
+                      >
+                        Delete Account
+                      </Button>
+                    </span>
+                  </Tooltip>
+                </Paper>
+              </Box>
+            )}
+          </Paper>
+        </Grid>
+      </Grid>
     </Box>
   );
 }
