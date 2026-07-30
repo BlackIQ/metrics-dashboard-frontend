@@ -12,8 +12,11 @@ import {
   signupAuthentication,
   forgotPassword,
 } from "@/api/services/auth";
+import { googleAuthentication } from "@/api/services/oauth";
 import { Signin, Signup, Forgot } from "@/types/auth";
+import { OAuthSignIn } from "@/types/oauth";
 
+import { signInWithGoogle } from "@/utils/firebase.util";
 import { showToast } from "@/utils/toast.util";
 
 import {
@@ -70,10 +73,25 @@ const Auth = () => {
   const doForget = async (data: Forgot) => {
     setLoading(true);
     try {
-      // await forgotPassword(data);
+      await forgotPassword(data);
       showToast.success("Reset password email is sent");
     } catch (error) {
       showToast.error("Error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const doGoogleLogin = async () => {
+    setLoading(true);
+    try {
+      const idToken = await signInWithGoogle();
+      const token = await googleAuthentication({ id_token: idToken });
+      dispatch(setToken(token));
+      showToast.success("Welcome back dear user");
+      router.push("/panel");
+    } catch (error) {
+      showToast.error("Google login failed");
     } finally {
       setLoading(false);
     }
@@ -207,7 +225,7 @@ const Auth = () => {
                 fullWidth
                 variant="outlined"
                 startIcon={<Google />}
-                onClick={() => showToast.info("Google Authentication")}
+                onClick={doGoogleLogin}
                 sx={{ mb: 2 }}
               >
                 Continue with Google
