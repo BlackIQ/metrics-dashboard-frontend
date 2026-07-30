@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { ReactElement, useState } from "react";
 import {
   Box,
   Paper,
@@ -40,10 +40,17 @@ import {
   UpdateEmailPayload,
 } from "@/types/user";
 
+type ActiveTabType = "profile" | "password" | "email" | "danger";
+
+interface NavItem {
+  id: ActiveTabType;
+  label: string;
+  icon: ReactElement;
+  danger?: boolean;
+}
+
 export default function SettingsPage() {
-  const [activeSection, setActiveSection] = useState<
-    "profile" | "password" | "email" | "danger"
-  >("profile");
+  const [activeSection, setActiveSection] = useState<ActiveTabType>("profile");
   const [loading, setLoading] = useState(false);
 
   const currentUser = useSelector((state: RootState) => state.user.user);
@@ -97,21 +104,24 @@ export default function SettingsPage() {
     }
   };
 
-  const navItems = [
+  const navItems: NavItem[] = [
     {
       id: "profile",
       label: "Profile Information",
       icon: <Person fontSize="small" />,
+      danger: false,
     },
     {
       id: "password",
       label: "Password & Security",
       icon: <Lock fontSize="small" />,
+      danger: false,
     },
     {
       id: "email",
       label: "Email Preferences",
       icon: <Email fontSize="small" />,
+      danger: false,
     },
     {
       id: "danger",
@@ -198,11 +208,8 @@ export default function SettingsPage() {
               sx={{ p: 2, borderBottom: "1px solid", borderColor: "divider" }}
             >
               <Typography
-                variant="caption"
                 color="text.secondary"
                 sx={{
-                  textTransform: "uppercase",
-                  letterSpacing: 1,
                   fontWeight: 700,
                 }}
               >
@@ -237,9 +244,6 @@ export default function SettingsPage() {
                         bgcolor: item.danger
                           ? "rgba(211, 47, 47, 0.08)"
                           : "action.selected",
-                        ":hover": {
-                          bgcolor: "rgba(211, 47, 47, 0.08)",
-                        },
                       },
                     }}
                   >

@@ -161,6 +161,7 @@ const Auth = () => {
                     button="Create Account"
                     btnStyle={{
                       disabled: loading,
+                      fullWidth: true,
                     }}
                   />
                 )}
