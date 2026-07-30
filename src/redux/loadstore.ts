@@ -1,22 +1,40 @@
-const key = "openhubble-metrics";
+const KEY = "openhubble_metrics_state";
 
-export const loadState = (): any => {
+export const loadState = () => {
+  if (typeof window === "undefined") {
+    return undefined;
+  }
   try {
-    const serializedState = localStorage.getItem(key);
+    const serializedState = localStorage.getItem(KEY);
     if (serializedState === null) {
       return undefined;
     }
     return JSON.parse(serializedState);
   } catch (error) {
+    console.error("Failed to load state from localStorage:", error);
     return undefined;
   }
 };
 
-export const saveState = (state: any) => {
+export const saveState = (state: unknown) => {
+  if (typeof window === "undefined") {
+    return;
+  }
   try {
     const serializedState = JSON.stringify(state);
-    localStorage.setItem(key, serializedState);
+    localStorage.setItem(KEY, serializedState);
   } catch (error) {
-    // die
+    console.error("Failed to save state to localStorage:", error);
+  }
+};
+
+export const clearState = () => {
+  if (typeof window === "undefined") {
+    return;
+  }
+  try {
+    localStorage.removeItem(KEY);
+  } catch (error) {
+    console.error("Failed to clear localStorage state:", error);
   }
 };

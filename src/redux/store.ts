@@ -8,7 +8,7 @@ export const store = configureStore({
     token: tokenReducer,
     user: userReducer,
   },
-  preloadedState: loadState() as any,
+  preloadedState: loadState(),
 });
 
 store.subscribe(() => {
