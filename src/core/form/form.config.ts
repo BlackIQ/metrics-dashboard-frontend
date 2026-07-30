@@ -78,6 +78,45 @@ const forms: Record<string, FormConfig> = {
     },
   },
 
+  user_profile: {
+    first_name: {
+      type: "text",
+      label: "First Name",
+      advanced: { required: true },
+    },
+    last_name: {
+      type: "text",
+      label: "Last Name",
+      advanced: { required: true },
+    },
+  },
+
+  user_password: {
+    current_password: {
+      type: "password",
+      label: "Current Password",
+      advanced: { required: true },
+    },
+    new_password: {
+      type: "password",
+      label: "New Password",
+      advanced: { required: true },
+    },
+    confirm_password: {
+      type: "password",
+      label: "Confirm New Password",
+      advanced: { required: true },
+    },
+  },
+
+  user_email: {
+    email: {
+      type: "text",
+      label: "New Email Address",
+      advanced: { required: true },
+    },
+  },
+
   tag: {
     name: {
       type: "text",
