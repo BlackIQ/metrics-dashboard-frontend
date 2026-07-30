@@ -10,3 +10,17 @@ export const googleAuthentication = async (
   const response = await API.post<Token>(`${oauth}/google`, data);
   return response.data;
 };
+
+export const facebookAuthentication = async (
+  data: OAuthSignIn,
+): Promise<Token> => {
+  const response = await API.post<Token>(`${oauth}/facebook`, data);
+  return response.data;
+};
+
+export const githubAuthentication = async (
+  data: OAuthSignIn,
+): Promise<Token> => {
+  const response = await API.post<Token>(`${oauth}/github`, data);
+  return response.data;
+};
