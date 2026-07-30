@@ -76,10 +76,23 @@ export default function HostsPage() {
     onOpen();
   };
 
-  const handleAdd = async (data: HostCreate) => {
+  const handleAdd = async (formData: any) => {
     setLoading(true);
     try {
-      await createHost(data);
+      const payload: HostCreate = {
+        name: formData.name,
+        description: formData.description || "",
+        ipv4: formData.ipv4 || "",
+        dns: formData.dns || "",
+        port: Number(formData.port),
+        api_key: formData.api_key,
+        communication: formData.communication,
+        is_active: Boolean(formData.is_active),
+        group_id: formData.group_id,
+        tag_ids: formData.tag_ids || [],
+      };
+
+      await createHost(payload);
       onClose();
       await getData();
     } catch (error) {
@@ -89,11 +102,24 @@ export default function HostsPage() {
     }
   };
 
-  const handleUpdate = async (data: HostUpdate) => {
+  const handleUpdate = async (formData: any) => {
     if (!selectedHost) return;
     setLoading(true);
     try {
-      await updateHost(selectedHost.id, data);
+      const payload: HostUpdate = {
+        name: formData.name,
+        description: formData.description,
+        ipv4: formData.ipv4,
+        dns: formData.dns,
+        port: formData.port ? Number(formData.port) : undefined,
+        api_key: formData.api_key,
+        communication: formData.communication,
+        is_active: formData.is_active,
+        group_id: formData.group_id,
+        tag_ids: formData.tag_ids,
+      };
+
+      await updateHost(selectedHost.id, payload);
       onClose();
       await getData();
     } catch (error) {
@@ -114,6 +140,14 @@ export default function HostsPage() {
       setLoading(false);
     }
   };
+
+  const defaultFormValues = selectedHost
+    ? {
+        ...selectedHost,
+        group_id: selectedHost.group?.id || "",
+        tag_ids: selectedHost.tags?.map((t) => t.id) || [],
+      }
+    : {};
 
   return (
     <Box sx={{ maxWidth: 1200, mx: "auto" }}>
@@ -144,7 +178,7 @@ export default function HostsPage() {
           <Form
             name="host"
             callback={selectedHost ? handleUpdate : handleAdd}
-            def={selectedHost || {}}
+            def={defaultFormValues}
             selectData={selectOptions}
             button={selectedHost ? "Save Changes" : "Register Host"}
             btnStyle={{ disabled: loading }}
