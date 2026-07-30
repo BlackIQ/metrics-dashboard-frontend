@@ -10,9 +10,20 @@ import useAuth from "@/hooks/useAuth/useAuth.hook";
 import {
   signinAuthentication,
   signupAuthentication,
+  forgotPassword,
 } from "@/api/services/auth";
-import { Signin, Signup } from "@/types/auth";
+import {
+  googleAuthentication,
+  facebookAuthentication,
+  githubAuthentication,
+} from "@/api/services/oauth";
+import { Signin, Signup, Forgot } from "@/types/auth";
 
+import {
+  signInWithGoogle,
+  signInWithFacebook,
+  signInWithGitHub,
+} from "@/utils/firebase.util";
 import { showToast } from "@/utils/toast.util";
 
 import {
@@ -23,7 +34,9 @@ import {
   Link as MUILink,
   Divider,
 } from "@mui/material";
-import { Google } from "@mui/icons-material";
+import { Facebook, GitHub, Google } from "@mui/icons-material";
+
+type modeType = "login" | "register" | "forgot";
 
 const Auth = () => {
   useAuth(false);
@@ -32,13 +45,9 @@ const Auth = () => {
   const router = useRouter();
 
   const [loading, setLoading] = useState<boolean>(false);
-  const [mode, setMode] = useState<"login" | "register" | "forgotPassword">(
-    "login",
-  );
+  const [mode, setMode] = useState<modeType>("login");
 
-  const changeMode = (newMode: "login" | "register" | "forgotPassword") => {
-    setMode(newMode);
-  };
+  const changeMode = (newMode: modeType) => setMode(newMode);
 
   const doLogin = async (data: Signin) => {
     setLoading(true);
@@ -63,6 +72,63 @@ const Auth = () => {
       router.push("/panel");
     } catch (error) {
       showToast.error("Error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const doForget = async (data: Forgot) => {
+    setLoading(true);
+    try {
+      await forgotPassword(data);
+      showToast.success("Reset password email is sent");
+    } catch (error) {
+      showToast.error("Error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const doGoogleLogin = async () => {
+    setLoading(true);
+    try {
+      const idToken = await signInWithGoogle();
+      const token = await googleAuthentication({ id_token: idToken });
+      dispatch(setToken(token));
+      showToast.success("Welcome back dear user");
+      router.push("/panel");
+    } catch (error) {
+      showToast.error("Google login failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const doFacebookLogin = async () => {
+    setLoading(true);
+    try {
+      const idToken = await signInWithFacebook();
+      const token = await facebookAuthentication({ id_token: idToken });
+      dispatch(setToken(token));
+      showToast.success("Welcome back dear user");
+      router.push("/panel");
+    } catch (error) {
+      showToast.error("Facebook login failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const doGitHubLogin = async () => {
+    setLoading(true);
+    try {
+      const idToken = await signInWithGitHub();
+      const token = await githubAuthentication({ id_token: idToken });
+      dispatch(setToken(token));
+      showToast.success("Welcome back dear user");
+      router.push("/panel");
+    } catch (error) {
+      showToast.error("GitHub login failed");
     } finally {
       setLoading(false);
     }
@@ -165,6 +231,18 @@ const Auth = () => {
                     }}
                   />
                 )}
+
+                {mode === "forgot" && (
+                  <Form
+                    name="forget"
+                    callback={doForget}
+                    button="Send email"
+                    btnStyle={{
+                      disabled: loading,
+                      fullWidth: true,
+                    }}
+                  />
+                )}
               </Box>
 
               {mode === "login" && (
@@ -172,7 +250,7 @@ const Auth = () => {
                   <MUILink
                     component="button"
                     variant="caption"
-                    onClick={() => changeMode("forgotPassword")}
+                    onClick={() => changeMode("forgot")}
                     sx={{ color: "text.secondary" }}
                   >
                     Forgot Password?
@@ -180,14 +258,41 @@ const Auth = () => {
                 </Box>
               )}
 
+              <Divider
+                sx={{
+                  mb: 3,
+                  borderColor: "primary.main",
+                }}
+              />
+
               <Button
                 fullWidth
                 variant="outlined"
                 startIcon={<Google />}
-                onClick={() => {}}
+                onClick={doGoogleLogin}
                 sx={{ mb: 2 }}
               >
                 Continue with Google
+              </Button>
+
+              <Button
+                fullWidth
+                variant="outlined"
+                startIcon={<Facebook />}
+                onClick={doFacebookLogin}
+                sx={{ mb: 2 }}
+              >
+                Continue with Facebook
+              </Button>
+
+              <Button
+                fullWidth
+                variant="outlined"
+                startIcon={<GitHub />}
+                onClick={doGitHubLogin}
+                sx={{ mb: 2 }}
+              >
+                Continue with GitHub
               </Button>
 
               <Button

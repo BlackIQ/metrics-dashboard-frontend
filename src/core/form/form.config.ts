@@ -78,6 +78,16 @@ const forms: Record<string, FormConfig> = {
     },
   },
 
+  forget: {
+    email: {
+      type: "text",
+      label: "Email Address",
+      placeholder: "name@domain.com",
+      size: { xs: 12 },
+      advanced: { required: "Email is required" },
+    },
+  },
+
   user_profile: {
     first_name: {
       type: "text",
