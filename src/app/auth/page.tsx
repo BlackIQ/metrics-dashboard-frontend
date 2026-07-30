@@ -12,11 +12,18 @@ import {
   signupAuthentication,
   forgotPassword,
 } from "@/api/services/auth";
-import { googleAuthentication } from "@/api/services/oauth";
+import {
+  googleAuthentication,
+  facebookAuthentication,
+  githubAuthentication,
+} from "@/api/services/oauth";
 import { Signin, Signup, Forgot } from "@/types/auth";
-import { OAuthSignIn } from "@/types/oauth";
 
-import { signInWithGoogle } from "@/utils/firebase.util";
+import {
+  signInWithGoogle,
+  signInWithFacebook,
+  signInWithGitHub,
+} from "@/utils/firebase.util";
 import { showToast } from "@/utils/toast.util";
 
 import {
@@ -27,7 +34,7 @@ import {
   Link as MUILink,
   Divider,
 } from "@mui/material";
-import { Google } from "@mui/icons-material";
+import { Facebook, GitHub, Google } from "@mui/icons-material";
 
 type modeType = "login" | "register" | "forgot";
 
@@ -92,6 +99,36 @@ const Auth = () => {
       router.push("/panel");
     } catch (error) {
       showToast.error("Google login failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const doFacebookLogin = async () => {
+    setLoading(true);
+    try {
+      const idToken = await signInWithFacebook();
+      const token = await facebookAuthentication({ id_token: idToken });
+      dispatch(setToken(token));
+      showToast.success("Welcome back dear user");
+      router.push("/panel");
+    } catch (error) {
+      showToast.error("Facebook login failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const doGitHubLogin = async () => {
+    setLoading(true);
+    try {
+      const idToken = await signInWithGitHub();
+      const token = await githubAuthentication({ id_token: idToken });
+      dispatch(setToken(token));
+      showToast.success("Welcome back dear user");
+      router.push("/panel");
+    } catch (error) {
+      showToast.error("GitHub login failed");
     } finally {
       setLoading(false);
     }
@@ -221,6 +258,13 @@ const Auth = () => {
                 </Box>
               )}
 
+              <Divider
+                sx={{
+                  mb: 3,
+                  borderColor: "primary.main",
+                }}
+              />
+
               <Button
                 fullWidth
                 variant="outlined"
@@ -229,6 +273,26 @@ const Auth = () => {
                 sx={{ mb: 2 }}
               >
                 Continue with Google
+              </Button>
+
+              <Button
+                fullWidth
+                variant="outlined"
+                startIcon={<Facebook />}
+                onClick={doFacebookLogin}
+                sx={{ mb: 2 }}
+              >
+                Continue with Facebook
+              </Button>
+
+              <Button
+                fullWidth
+                variant="outlined"
+                startIcon={<GitHub />}
+                onClick={doGitHubLogin}
+                sx={{ mb: 2 }}
+              >
+                Continue with GitHub
               </Button>
 
               <Button
