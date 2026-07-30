@@ -1,18 +1,22 @@
-import { useState } from "react";
+"use client";
 
-export const useDisclosure = (initialState: boolean = false) => {
-  const [isOpen, setIsOpen] = useState<boolean>(initialState);
+import { useState, useCallback } from "react";
 
-  const onOpen = () => setIsOpen(true);
+export interface UseDisclosureReturn {
+  isOpen: boolean;
+  onOpen: () => void;
+  onClose: () => void;
+  onToggle: () => void;
+}
 
-  const onClose = () => setIsOpen(false);
+export const useDisclosure = (initialState = false): UseDisclosureReturn => {
+  const [isOpen, setIsOpen] = useState(initialState);
 
-  const onToggle = () => setIsOpen((prev) => !prev);
+  const onOpen = useCallback(() => setIsOpen(true), []);
+  const onClose = useCallback(() => setIsOpen(false), []);
+  const onToggle = useCallback(() => setIsOpen((prev) => !prev), []);
 
-  return {
-    isOpen,
-    onOpen,
-    onClose,
-    onToggle,
-  };
+  return { isOpen, onOpen, onClose, onToggle };
 };
+
+export default useDisclosure;
