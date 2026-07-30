@@ -1,375 +1,287 @@
 "use client";
 
-import { useForm, SubmitHandler } from "react-hook-form";
+import React from "react";
+import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import {
   Box,
   TextField,
   Button,
   FormControl,
-  FormLabel,
-  RadioGroup,
-  FormControlLabel,
-  Radio,
   InputLabel,
   Select,
   MenuItem,
-  Checkbox,
+  FormControlLabel,
+  Switch,
   Grid,
-  Typography,
+  Chip,
+  OutlinedInput,
+  FormHelperText,
 } from "@mui/material";
-import forms from "@/core/form/form.config";
 
-type FieldType =
-  | "text"
-  | "textarea"
-  | "color"
-  | "file"
-  | "select"
-  | "selectData"
-  | "radio"
-  | "checkbox"
-  | "checkData";
+import forms, { FormConfig, SelectOption } from "@/core/form/form.config";
 
-interface FieldOption {
-  value: string;
-  label: string;
-}
-
-interface SelectDataOption {
-  _id: string;
-  label: string;
-}
-
-interface FormField {
-  type: FieldType;
-  label: string;
-  placeholder?: string;
-  secure?: boolean;
-  accepts?: string;
-  size?: { xs?: number; sm?: number; md?: number; lg?: number }; // responsive
-  options?: FieldOption[];
-  items?: FieldOption[];
-  advanced?: any;
-}
-
-interface FormConfig {
-  [key: string]: FormField;
-}
-
-interface FormProps<
-  T extends Record<string, any> = Record<string, string | number | boolean>,
-> {
+export interface FormProps<T extends Record<string, any>> {
   name: string;
   button?: string;
   btnStyle?: {
-    color?: "primary" | "secondary";
+    color?: "primary" | "secondary" | "error" | "info" | "success" | "warning";
     fullWidth?: boolean;
     disabled?: boolean;
   };
   def?: Partial<T>;
   callback: (data: T) => void;
-  change?: (data: T) => void;
-  selectData?: Record<string, SelectDataOption[]>;
+  selectData?: Record<string, SelectOption[]>;
   disables?: string[];
 }
 
-interface Option {
-  label: string;
-  value: string;
-}
-
-const fieldComponents: Record<FieldType, React.FC<any>> = {
-  radio: ({ field, register, errors, def, onChange, getValues }) => (
-    <FormControl fullWidth>
-      <FormLabel sx={{ color: "text.primary", fontWeight: 600, mb: 1 }}>
-        {field.label}
-      </FormLabel>
-      <RadioGroup
-        row
-        defaultValue={def}
-        onChange={(e) => onChange?.(field.name, e.target.value, getValues())}
-      >
-        {field.items?.map((item: FieldOption) => (
-          <FormControlLabel
-            key={item.value}
-            value={item.value}
-            label={item.label}
-            control={<Radio color="primary" />}
-            {...register(field.name, field.advanced)}
-          />
-        ))}
-      </RadioGroup>
-      {errors && (
-        <Typography variant="caption" color="error" sx={{ mt: 0.5 }}>
-          {errors.message}
-        </Typography>
-      )}
-    </FormControl>
-  ),
-
-  checkbox: ({ field, register, errors, def, onChange, getValues }) => (
-    <FormControlLabel
-      sx={{ mt: 1 }}
-      label={<Typography>{field.label}</Typography>}
-      control={
-        <Checkbox
-          defaultChecked={def}
-          color="primary"
-          {...register(field.name, field.advanced)}
-          onChange={(e) =>
-            onChange?.(field.name, e.target.checked, getValues())
-          }
-        />
-      }
-    />
-  ),
-
-  checkData: ({
-    field,
-    register,
-    errors,
-    def = [],
-    selectData,
-    onChange,
-    getValues,
-  }) => (
-    <FormControl fullWidth>
-      <FormLabel sx={{ color: "text.primary", fontWeight: 600, mb: 1.5 }}>
-        {field.label}
-      </FormLabel>
-      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5 }}>
-        {selectData?.[field.name]?.map((option: Option) => (
-          <FormControlLabel
-            key={option.value}
-            label={option.label}
-            control={
-              <Checkbox
-                defaultChecked={def.includes(option.value)}
-                color="primary"
-                {...register(field.name, field.advanced)}
-                onChange={(e) => {
-                  const current = getValues(field.name) || [];
-                  const newValues = e.target.checked
-                    ? [...current, option.value]
-                    : current.filter((id: string) => id !== option.value);
-                  onChange?.(field.name, newValues, getValues());
-                }}
-              />
-            }
-          />
-        ))}
-      </Box>
-      {errors && (
-        <Typography variant="caption" color="error" sx={{ mt: 0.5 }}>
-          {errors.message}
-        </Typography>
-      )}
-    </FormControl>
-  ),
-
-  select: ({ field, register, errors, def, onChange, getValues }) => (
-    <FormControl fullWidth>
-      <InputLabel>{field.label}</InputLabel>
-      <Select
-        defaultValue={def || ""}
-        label={field.label}
-        {...register(field.name, field.advanced)}
-        onChange={(e) => onChange?.(field.name, e.target.value, getValues())}
-      >
-        {field.options?.map((option: Option) => (
-          <MenuItem key={option.value} value={option.value}>
-            {option.label}
-          </MenuItem>
-        ))}
-      </Select>
-      {errors && (
-        <Typography variant="caption" color="error" sx={{ mt: 0.5 }}>
-          {errors.message}
-        </Typography>
-      )}
-    </FormControl>
-  ),
-
-  selectData: ({
-    field,
-    register,
-    errors,
-    def,
-    selectData,
-    onChange,
-    getValues,
-  }) => (
-    <FormControl fullWidth>
-      <InputLabel>{field.label}</InputLabel>
-      <Select
-        defaultValue={def || ""}
-        label={field.label}
-        {...register(field.name, field.advanced)}
-        onChange={(e) => onChange?.(field.name, e.target.value, getValues())}
-      >
-        {selectData?.[field.name]?.map((option: Option) => (
-          <MenuItem key={option.value} value={option.value}>
-            {option.label}
-          </MenuItem>
-        ))}
-      </Select>
-      {errors && (
-        <Typography variant="caption" color="error" sx={{ mt: 0.5 }}>
-          {errors.message}
-        </Typography>
-      )}
-    </FormControl>
-  ),
-
-  textarea: ({ field, register, errors, onChange, getValues }) => (
-    <TextField
-      fullWidth
-      label={field.label}
-      placeholder={field.placeholder}
-      multiline
-      rows={4}
-      {...register(field.name, field.advanced)}
-      onChange={(e) => onChange?.(field.name, e.target.value, getValues())}
-      error={!!errors}
-      helperText={errors?.message}
-    />
-  ),
-
-  color: ({ field, register, errors, onChange, getValues }) => (
-    <TextField
-      fullWidth
-      label={field.label}
-      type="color"
-      {...register(field.name, field.advanced)}
-      onChange={(e) => onChange?.(field.name, e.target.value, getValues())}
-      error={!!errors}
-      helperText={errors?.message}
-    />
-  ),
-
-  file: ({ field, register, errors, onChange, getValues }) => (
-    <TextField
-      fullWidth
-      label={field.label}
-      type="file"
-      inputProps={{ accept: field.accepts || "*" }}
-      {...register(field.name, field.advanced)}
-      onChange={(e) =>
-        onChange?.(
-          field.name,
-          (e.target as HTMLInputElement).files?.[0],
-          getValues(),
-        )
-      }
-      error={!!errors}
-      helperText={errors?.message}
-    />
-  ),
-
-  text: ({ field, register, errors, onChange, getValues }) => (
-    <TextField
-      fullWidth
-      label={field.label}
-      placeholder={field.placeholder}
-      type={field.secure ? "password" : "text"}
-      {...register(field.name, field.advanced)}
-      onChange={(e) => onChange?.(field.name, e.target.value, getValues())}
-      error={!!errors}
-      helperText={errors?.message}
-    />
-  ),
-};
-
-// ====================== MAIN COMPONENT ======================
-
-const Form = <
-  T extends Record<string, any> = Record<string, string | number | boolean>,
->({
+export default function Form<T extends Record<string, any>>({
   name,
-  button = "Submit",
+  button = "Save",
   btnStyle = {},
-  def = {} as Partial<T>,
+  def = {},
   callback,
-  change,
   selectData = {},
   disables = [],
-}: FormProps<T>) => {
+}: FormProps<T>) {
+  const formConfig: FormConfig = forms[name] || {};
+
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
-    getValues,
-  } = useForm<T>({ defaultValues: def as any });
-
-  const formConfig: FormConfig = (forms as any)[name];
+  } = useForm<T>({
+    defaultValues: def as any,
+  });
 
   const onSubmit: SubmitHandler<T> = (data) => {
-    const payload = {} as T;
-    Object.keys(formConfig || {}).forEach((key) => {
-      if ((data as any)[key] !== undefined) {
-        (payload as any)[key] = (data as any)[key];
-      }
-    });
-    callback(payload);
+    callback(data);
   };
 
-  const handleFieldChange = (fieldName: string, value: any, values: T) => {
-    change?.({ ...values, [fieldName]: value } as T);
+  const getOptions = (
+    fieldName: string,
+    field: (typeof formConfig)[string],
+  ): SelectOption[] => {
+    if (field.optionsKey && selectData[field.optionsKey]) {
+      return selectData[field.optionsKey];
+    }
+    return field.options || selectData[fieldName] || [];
   };
 
   return (
-    <Box sx={{ width: "100%", py: 1 }}>
-      <form onSubmit={handleSubmit(onSubmit)} noValidate>
-        <Grid container spacing={2.5}>
-          {" "}
-          {/* Reduced spacing */}
-          {Object.entries(formConfig || {}).map(([fieldName, field]) => {
-            const Component =
-              fieldComponents[field.type] || fieldComponents.text;
-            const isDisabled = disables.includes(fieldName);
+    <Box
+      component="form"
+      onSubmit={handleSubmit(onSubmit)}
+      noValidate
+      sx={{ width: "100%", py: 1 }}
+    >
+      <Grid container spacing={2}>
+        {Object.entries(formConfig).map(([fieldName, field]) => {
+          const isDisabled = disables.includes(fieldName);
+          const fieldError = errors[fieldName]?.message as string | undefined;
 
-            return (
-              <Grid key={fieldName} size={field.size ?? { xs: 12 }}>
-                <Component
-                  field={{ ...field, name: fieldName }}
-                  register={register}
-                  errors={errors[fieldName]}
-                  def={def[fieldName]}
-                  selectData={selectData}
-                  onChange={handleFieldChange}
-                  getValues={getValues}
+          return (
+            <Grid key={fieldName} size={field.size || { xs: 12 }}>
+              {/* TEXT, NUMBER, PASSWORD */}
+              {(field.type === "text" ||
+                field.type === "number" ||
+                field.type === "password") && (
+                <TextField
+                  fullWidth
+                  size="small"
+                  label={field.label}
+                  placeholder={field.placeholder}
+                  type={
+                    field.type === "password"
+                      ? "password"
+                      : field.type === "number"
+                        ? "number"
+                        : "text"
+                  }
                   disabled={isDisabled}
+                  error={!!fieldError}
+                  helperText={fieldError}
+                  {...register(fieldName as any, field.advanced)}
                 />
-              </Grid>
-            );
-          })}
-        </Grid>
+              )}
 
-        {button && (
-          <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}>
-            <Button
-              variant="contained"
-              color={btnStyle.color || "primary"}
-              type="submit"
-              fullWidth={btnStyle.fullWidth !== false}
-              disabled={btnStyle.disabled}
-              disableElevation
-              sx={{
-                borderRadius: 1, // as you wanted
-                px: 5,
-                py: 1.25,
-                textTransform: "none",
-                fontWeight: 600,
-                boxShadow: "none",
-              }}
-            >
-              {button}
-            </Button>
-          </Box>
-        )}
-      </form>
+              {/* TEXTAREA */}
+              {field.type === "textarea" && (
+                <TextField
+                  fullWidth
+                  size="small"
+                  multiline
+                  rows={3}
+                  label={field.label}
+                  placeholder={field.placeholder}
+                  disabled={isDisabled}
+                  error={!!fieldError}
+                  helperText={fieldError}
+                  {...register(fieldName as any, field.advanced)}
+                />
+              )}
+
+              {/* SWITCH */}
+              {field.type === "switch" && (
+                <Controller
+                  name={fieldName as any}
+                  control={control}
+                  defaultValue={(def[fieldName] ?? true) as any}
+                  render={({ field: { onChange, value } }) => (
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={Boolean(value)}
+                          onChange={(e) => onChange(e.target.checked)}
+                          disabled={isDisabled}
+                          color="primary"
+                        />
+                      }
+                      label={field.label}
+                      sx={{ color: "text.primary" }}
+                    />
+                  )}
+                />
+              )}
+
+              {/* SINGLE SELECT (Binds to ID) */}
+              {field.type === "select" && (
+                <Controller
+                  name={fieldName as any}
+                  control={control}
+                  rules={field.advanced}
+                  defaultValue={(def[fieldName] ?? "") as any}
+                  render={({ field: { onChange, value } }) => {
+                    const options = getOptions(fieldName, field);
+                    return (
+                      <FormControl
+                        fullWidth
+                        size="small"
+                        error={!!fieldError}
+                        disabled={isDisabled}
+                      >
+                        <InputLabel id={`${fieldName}-label`}>
+                          {field.label}
+                        </InputLabel>
+                        <Select
+                          labelId={`${fieldName}-label`}
+                          value={value ?? ""}
+                          label={field.label}
+                          onChange={(e) => onChange(e.target.value)}
+                        >
+                          {options.map((opt) => (
+                            <MenuItem key={opt.id} value={opt.id}>
+                              {opt.label}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                        {fieldError && (
+                          <FormHelperText>{fieldError}</FormHelperText>
+                        )}
+                      </FormControl>
+                    );
+                  }}
+                />
+              )}
+
+              {/* MULTI SELECT (Binds to Array of IDs: [id1, id2]) */}
+              {field.type === "multiselect" && (
+                <Controller
+                  name={fieldName as any}
+                  control={control}
+                  rules={field.advanced}
+                  defaultValue={(def[fieldName] ?? []) as any}
+                  render={({ field: { onChange, value } }) => {
+                    const options = getOptions(fieldName, field);
+                    const selectedIds: (string | number)[] = Array.isArray(
+                      value,
+                    )
+                      ? value
+                      : [];
+
+                    return (
+                      <FormControl
+                        fullWidth
+                        size="small"
+                        error={!!fieldError}
+                        disabled={isDisabled}
+                      >
+                        <InputLabel id={`${fieldName}-multi-label`}>
+                          {field.label}
+                        </InputLabel>
+                        <Select
+                          labelId={`${fieldName}-multi-label`}
+                          multiple
+                          value={selectedIds}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            onChange(
+                              typeof val === "string" ? val.split(",") : val,
+                            );
+                          }}
+                          input={<OutlinedInput label={field.label} />}
+                          renderValue={(selected) => (
+                            <Box
+                              sx={{
+                                display: "flex",
+                                flexWrap: "wrap",
+                                gap: 0.5,
+                              }}
+                            >
+                              {(selected as (string | number)[]).map((id) => {
+                                const found = options.find((o) => o.id === id);
+                                return (
+                                  <Chip
+                                    key={id}
+                                    label={found ? found.label : id}
+                                    size="small"
+                                    sx={{ height: 22, fontSize: "0.75rem" }}
+                                  />
+                                );
+                              })}
+                            </Box>
+                          )}
+                        >
+                          {options.map((opt) => (
+                            <MenuItem key={opt.id} value={opt.id}>
+                              {opt.label}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                        {fieldError && (
+                          <FormHelperText>{fieldError}</FormHelperText>
+                        )}
+                      </FormControl>
+                    );
+                  }}
+                />
+              )}
+            </Grid>
+          );
+        })}
+      </Grid>
+
+      {button && (
+        <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}>
+          <Button
+            variant="contained"
+            color={btnStyle.color || "primary"}
+            type="submit"
+            fullWidth={btnStyle.fullWidth}
+            disabled={btnStyle.disabled}
+            disableElevation
+            sx={{
+              px: 4,
+              py: 1,
+              borderRadius: 1,
+              textTransform: "none",
+              fontWeight: 600,
+            }}
+          >
+            {button}
+          </Button>
+        </Box>
+      )}
     </Box>
   );
-};
-
-export default Form;
+}

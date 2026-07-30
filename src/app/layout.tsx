@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-
 import Providers from "@/app/providers";
-import { Box } from "@mui/material";
+
+import { Toaster } from "react-hot-toast";
 
 export const metadata: Metadata = {
   title: "OpenHubble Metrics",
@@ -14,17 +14,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body>
+    <html lang="en" style={{ margin: 0, padding: 0 }}>
+      <body style={{ margin: 0, padding: 0, backgroundColor: "#0B0F17" }}>
         <Providers>
-          <Box
-            sx={{
-              width: "100%",
-              maxWidth: "100%",
-            }}
-          >
-            {children}
-          </Box>
+          {children}
+          <Toaster />
         </Providers>
       </body>
     </html>

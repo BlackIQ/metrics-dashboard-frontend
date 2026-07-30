@@ -4,11 +4,14 @@ export default function Loading() {
   return (
     <Box
       sx={{
-        py: 5,
-        textAlign: "center",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        py: 6,
+        width: "100%",
       }}
     >
-      <CircularProgress />
+      <CircularProgress size={28} thickness={4} />
     </Box>
   );
 }

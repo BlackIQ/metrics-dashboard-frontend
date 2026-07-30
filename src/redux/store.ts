@@ -1,14 +1,18 @@
-import { configureStore } from "@reduxjs/toolkit";
+import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import { loadState, saveState } from "./loadstore";
 import tokenReducer from "@/redux/slices/token.slice";
 import userReducer from "@/redux/slices/user.slice";
 
+const rootReducer = combineReducers({
+  token: tokenReducer,
+  user: userReducer,
+});
+
+export type RootState = ReturnType<typeof rootReducer>;
+
 export const store = configureStore({
-  reducer: {
-    token: tokenReducer,
-    user: userReducer,
-  },
-  preloadedState: loadState() as any,
+  reducer: rootReducer,
+  preloadedState: loadState() as Partial<RootState> | undefined,
 });
 
 store.subscribe(() => {
@@ -18,5 +22,4 @@ store.subscribe(() => {
   });
 });
 
-export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

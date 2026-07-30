@@ -1,304 +1,184 @@
-// ----- GRID BEGIN -----
-// xs: Extra small (default, for mobile, typically <600px)
-// sm: Small (tablets, 600px+)
-// md: Medium (desktops, 900px+)
-// lg: Large (larger screens, 1200px+)
-// ----- GRID FINISH ----
+export type FieldType =
+  | "text"
+  | "number"
+  | "textarea"
+  | "password"
+  | "select"
+  | "multiselect"
+  | "switch";
 
-const forms = {
+export interface SelectOption {
+  id: string | number;
+  label: string;
+}
+
+export interface FormFieldConfig {
+  type: FieldType;
+  label: string;
+  placeholder?: string;
+  size?: { xs?: number; sm?: number; md?: number; lg?: number };
+  options?: SelectOption[];
+  optionsKey?: string;
+  advanced?: {
+    required?: boolean | string;
+    min?: number;
+    max?: number;
+    pattern?: RegExp;
+  };
+}
+
+export type FormConfig = Record<string, FormFieldConfig>;
+
+const forms: Record<string, FormConfig> = {
   login: {
     email: {
       type: "text",
-      label: "Email",
-      placeholder: "Enter your email",
-      secure: false,
-      size: {
-        xs: 12,
-        sm: 12,
-        md: 12,
-        lg: 12,
-      },
-      advanced: {
-        required: true,
-      },
+      label: "Email Address",
+      placeholder: "name@domain.com",
+      size: { xs: 12 },
+      advanced: { required: "Email is required" },
     },
     password: {
-      type: "text",
+      type: "password",
       label: "Password",
-      placeholder: "Enter your password",
-      secure: true,
-      size: {
-        xs: 12,
-        sm: 12,
-        md: 12,
-        lg: 12,
-      },
-      advanced: {
-        required: true,
-      },
+      placeholder: "Enter password",
+      size: { xs: 12 },
+      advanced: { required: "Password is required" },
     },
   },
+
   register: {
     firstName: {
       type: "text",
       label: "First Name",
-      placeholder: "Enter your firstname",
-      secure: false,
-      size: {
-        xs: 12,
-        sm: 12,
-        md: 12,
-        lg: 6,
-      },
-      advanced: {
-        required: true,
-      },
+      placeholder: "John",
+      size: { xs: 12, sm: 6 },
+      advanced: { required: "First name is required" },
     },
     lastName: {
       type: "text",
       label: "Last Name",
-      placeholder: "Enter your lastname",
-      secure: false,
-      size: {
-        xs: 12,
-        sm: 12,
-        md: 12,
-        lg: 6,
-      },
-      advanced: {
-        required: true,
-      },
+      placeholder: "Doe",
+      size: { xs: 12, sm: 6 },
+      advanced: { required: "Last name is required" },
     },
     email: {
       type: "text",
-      label: "Email",
-      placeholder: "Enter your email",
-      secure: false,
-      size: {
-        xs: 12,
-        sm: 12,
-        md: 12,
-        lg: 12,
-      },
-      advanced: {
-        required: true,
-      },
+      label: "Email Address",
+      placeholder: "john@example.com",
+      size: { xs: 12 },
+      advanced: { required: "Email is required" },
     },
     password: {
-      type: "text",
+      type: "password",
       label: "Password",
-      placeholder: "Choose a strong password",
-      secure: true,
-      size: {
-        xs: 12,
-        sm: 12,
-        md: 12,
-        lg: 12,
-      },
-      advanced: {
-        required: true,
-      },
-    },
-    confirm_password: {
-      type: "text",
-      label: "Confirm Password",
-      placeholder: "Repeat strong password",
-      secure: true,
-      size: {
-        xs: 12,
-        sm: 12,
-        md: 12,
-        lg: 12,
-      },
-      advanced: {
-        required: true,
-      },
+      placeholder: "Create strong password",
+      size: { xs: 12 },
+      advanced: { required: "Password is required" },
     },
   },
+
   tag: {
     name: {
       type: "text",
-      label: "Name",
-      placeholder: "Enter tag name",
-      secure: false,
-      size: {
-        xs: 12,
-        sm: 12,
-        md: 12,
-        lg: 12,
-      },
-      advanced: {
-        required: true,
-      },
+      label: "Tag Name",
+      placeholder: "e.g., production, k8s, region-us",
+      size: { xs: 12 },
+      advanced: { required: "Tag name is required" },
     },
     description: {
       type: "textarea",
       label: "Description",
-      placeholder: "Enter a description for this tag",
-      secure: false,
-      size: {
-        xs: 12,
-        sm: 12,
-        md: 12,
-        lg: 12,
-      },
-      advanced: {
-        required: true,
-      },
+      placeholder: "Brief note about this tag usage...",
+      size: { xs: 12 },
     },
   },
+
   group: {
     name: {
       type: "text",
-      label: "Name",
-      placeholder: "Enter group name",
-      secure: false,
-      size: {
-        xs: 12,
-        sm: 12,
-        md: 12,
-        lg: 12,
-      },
-      advanced: {
-        required: true,
-      },
+      label: "Group Name",
+      placeholder: "e.g., Infrastructure, Analytics Cluster",
+      size: { xs: 12 },
+      advanced: { required: "Group name is required" },
     },
     description: {
       type: "textarea",
       label: "Description",
-      placeholder: "Enter a description for this group",
-      secure: false,
-      size: {
-        xs: 12,
-        sm: 12,
-        md: 12,
-        lg: 12,
-      },
-      advanced: {
-        required: true,
-      },
+      placeholder: "Scope and responsibility of this group...",
+      size: { xs: 12 },
     },
   },
+
   host: {
     name: {
       type: "text",
-      label: "Name",
-      placeholder: "Enter group name",
-      secure: false,
-      size: {
-        xs: 12,
-        sm: 12,
-        md: 12,
-        lg: 12,
-      },
-      advanced: {
-        required: true,
-      },
+      label: "Host Name",
+      placeholder: "node-01.prod",
+      size: { xs: 12, md: 6 },
+      advanced: { required: "Host name is required" },
+    },
+    communication: {
+      type: "select",
+      label: "Communication Protocol",
+      placeholder: "Select target",
+      size: { xs: 12, md: 6 },
+      options: [
+        { id: "IPv4", label: "IPv4 Address" },
+        { id: "DNS", label: "DNS Hostname" },
+      ],
+      advanced: { required: "Select communication method" },
     },
     ipv4: {
       type: "text",
-      label: "IPv4",
-      placeholder: "Address of Agent",
-      secure: false,
-      size: {
-        xs: 12,
-        sm: 12,
-        md: 6,
-        lg: 6,
-      },
-      advanced: {
-        required: true,
-      },
+      label: "IPv4 Address",
+      placeholder: "192.168.1.100",
+      size: { xs: 12, sm: 6 },
     },
     dns: {
       type: "text",
-      label: "Domain",
-      placeholder: "Domain that points to Agent",
-      secure: false,
-      size: {
-        xs: 12,
-        sm: 12,
-        md: 6,
-        lg: 6,
-      },
-      advanced: {
-        required: true,
-      },
+      label: "Domain Name",
+      placeholder: "agent.internal.domain",
+      size: { xs: 12, sm: 6 },
     },
     port: {
       type: "number",
       label: "Port",
-      placeholder: "Which port is Agent exposing",
-      secure: false,
-      size: {
-        xs: 12,
-        sm: 12,
-        md: 6,
-        lg: 6,
-      },
-      advanced: {
-        required: true,
-      },
+      placeholder: "9090",
+      size: { xs: 12, sm: 6 },
+      advanced: { required: "Port number is required" },
     },
     api_key: {
-      type: "text",
-      label: "API Key",
-      placeholder: "What key you defined for Agent",
-      secure: true,
-      size: {
-        xs: 12,
-        sm: 12,
-        md: 6,
-        lg: 6,
-      },
-      advanced: {
-        required: true,
-      },
+      type: "password",
+      label: "Agent API Key",
+      placeholder: "Secret token for handshake",
+      size: { xs: 12, sm: 6 },
+      advanced: { required: "API key is required" },
     },
-    communication: {
-      type: "text",
-      label: "Communication",
-      placeholder: "How shoud OpenHubble connect to Agent",
-      secure: false,
-      size: {
-        xs: 12,
-        sm: 12,
-        md: 12,
-        lg: 12,
-      },
-      advanced: {
-        required: true,
-      },
+    groups: {
+      type: "multiselect",
+      label: "Assigned Groups",
+      placeholder: "Select groups...",
+      optionsKey: "groups",
+      size: { xs: 12, md: 6 },
+    },
+    tags: {
+      type: "multiselect",
+      label: "Assigned Tags",
+      placeholder: "Select tags...",
+      optionsKey: "tags",
+      size: { xs: 12, md: 6 },
     },
     description: {
       type: "textarea",
       label: "Description",
-      placeholder: "Enter a description for this host",
-      secure: false,
-      size: {
-        xs: 12,
-        sm: 12,
-        md: 12,
-        lg: 12,
-      },
-      advanced: {
-        required: true,
-      },
+      placeholder: "Host purpose, region, or metadata...",
+      size: { xs: 12 },
     },
     is_active: {
-      type: "checkbox",
-      label: "Is Agent active?",
-      placeholder: "Enter a description for this host",
-      secure: false,
-      size: {
-        xs: 12,
-        sm: 12,
-        md: 12,
-        lg: 12,
-      },
-      advanced: {
-        required: false,
-      },
+      type: "switch",
+      label: "Agent Active Status",
+      size: { xs: 12 },
     },
   },
 };

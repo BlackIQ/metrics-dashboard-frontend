@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
-
+import { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Dialog,
@@ -12,8 +11,6 @@ import {
 
 import Table from "@/components/table/table.component";
 import Form from "@/components/form/form.component";
-import Loading from "@/components/loading/loading.component";
-
 import { useDisclosure } from "@/hooks/useDisclosure/useDisclosure.hook";
 
 import {
@@ -22,127 +19,138 @@ import {
   updateHost,
   deleteHost,
 } from "@/api/services/host";
+import { allGroups } from "@/api/services/group";
+import { allTags } from "@/api/services/tag";
 
 import { HostRead, HostCreate, HostUpdate } from "@/types/host";
+import { SelectOption } from "@/core/form/form.config";
 
-export default function Host() {
+export default function HostsPage() {
   const [hosts, setHosts] = useState<HostRead[]>([]);
-  const [selectedHost, setSelectedHost] = useState<HostRead>();
-
+  const [selectedHost, setSelectedHost] = useState<HostRead | undefined>();
   const [loading, setLoading] = useState(true);
 
-  const { isOpen: dialogOpen, onToggle: handleDialog } = useDisclosure();
+  const [selectOptions, setSelectOptions] = useState<{
+    groups: SelectOption[];
+    tags: SelectOption[];
+  }>({
+    groups: [],
+    tags: [],
+  });
+
+  const { isOpen: dialogOpen, onOpen, onClose } = useDisclosure();
+
+  const getData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [hostsData, groupsData, tagsData] = await Promise.all([
+        allHosts(),
+        allGroups(),
+        allTags(),
+      ]);
+
+      setHosts(hostsData);
+
+      setSelectOptions({
+        groups: groupsData.map((g) => ({ id: g.id, label: g.name })),
+        tags: tagsData.map((t) => ({ id: t.id, label: t.name })),
+      });
+    } catch (error) {
+      console.error("Failed to load hosts dashboard data:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     getData();
-  }, []);
+  }, [getData]);
 
-  const getData = async () => {
-    setLoading(true);
-
-    try {
-      const hosts = await allHosts();
-
-      setHosts(hosts);
-    } catch (error) {}
-
-    setLoading(false);
+  const handleOpenCreate = () => {
+    setSelectedHost(undefined);
+    onOpen();
   };
 
-  const addData = async (data: HostCreate) => {
-    setLoading(true);
+  const handleOpenEdit = (host: HostRead) => {
+    setSelectedHost(host);
+    onOpen();
+  };
 
+  const handleAdd = async (data: HostCreate) => {
+    setLoading(true);
     try {
       await createHost(data);
-
-      setSelectedHost(undefined);
-      handleDialog();
-
-      getData();
-    } catch (error) {}
-
-    setLoading(false);
+      onClose();
+      await getData();
+    } catch (error) {
+      console.error("Failed to create host:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const updateData = async (data: HostUpdate) => {
+  const handleUpdate = async (data: HostUpdate) => {
     if (!selectedHost) return;
-
     setLoading(true);
-
     try {
       await updateHost(selectedHost.id, data);
-
-      setSelectedHost(undefined);
-      handleDialog();
-
-      getData();
-    } catch (error) {}
-
-    setLoading(false);
+      onClose();
+      await getData();
+    } catch (error) {
+      console.error("Failed to update host:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const deleteData = async (id: string) => {
+  const handleDelete = async (id: string) => {
     setLoading(true);
-
     try {
       await deleteHost(id);
-
-      getData();
-    } catch (error) {}
-
-    setLoading(false);
+      await getData();
+    } catch (error) {
+      console.error("Failed to delete host:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <>
-      <Box>
-        {!loading ? (
-          <Table
-            table="host"
-            data={hosts}
-            addText="Add Host"
-            add={() => {
-              setSelectedHost(undefined);
-              handleDialog();
-            }}
-            clk={(data) => {
-              setSelectedHost(data);
-              handleDialog();
-            }}
-            upd={(data) => {
-              setSelectedHost(data);
-              handleDialog();
-            }}
-            del={(data) => {
-              deleteData(data.id);
-            }}
-          />
-        ) : (
-          <Loading />
-        )}
-      </Box>
+    <Box sx={{ maxWidth: 1200, mx: "auto" }}>
+      <Table
+        table="host"
+        data={hosts}
+        loading={loading}
+        addText="Add Host"
+        add={handleOpenCreate}
+        clk={handleOpenEdit}
+        upd={handleOpenEdit}
+        del={(row) => handleDelete(row.id)}
+      />
 
-      <Dialog open={dialogOpen} onClose={handleDialog}>
+      <Dialog open={dialogOpen} onClose={onClose} fullWidth maxWidth="md">
         <DialogTitle>
-          <Typography variant="h6" color="primary.main">
-            {selectedHost ? "Edit Add Host" : "Add Host"}
+          <Typography
+            variant="h6"
+            color="primary.main"
+            sx={{
+              fontWeight: 600,
+            }}
+          >
+            {selectedHost ? "Edit Host Configuration" : "Add New Host"}
           </Typography>
         </DialogTitle>
-        <DialogContent>
+        <DialogContent dividers>
           <Form
             name="host"
-            callback={selectedHost ? updateData : addData}
-            disables={[]}
-            btnStyle={{
-              fullWidth: false,
-              disabled: loading,
-              color: "primary",
-            }}
-            def={selectedHost ? selectedHost : {}}
-            button={selectedHost ? "Update" : "Create"}
+            callback={selectedHost ? handleUpdate : handleAdd}
+            def={selectedHost || {}}
+            selectData={selectOptions}
+            button={selectedHost ? "Save Changes" : "Register Host"}
+            btnStyle={{ disabled: loading }}
           />
         </DialogContent>
       </Dialog>
-    </>
+    </Box>
   );
 }

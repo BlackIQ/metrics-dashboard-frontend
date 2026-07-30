@@ -7,7 +7,7 @@ import { Provider } from "react-redux";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 
 import { store } from "@/redux/store";
-import theme from "@/theme";
+import { theme } from "@/theme";
 
 interface ProvidersProps {
   children: ReactNode;

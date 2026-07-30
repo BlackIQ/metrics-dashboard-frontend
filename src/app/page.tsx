@@ -1,9 +1,7 @@
 "use client";
 
-// - - - - - Next - - - - -
 import { useRouter } from "next/navigation";
 
-// - - - - - MUI - - - - -
 import { Typography, Box, Button } from "@mui/material";
 
 export default function Home() {
