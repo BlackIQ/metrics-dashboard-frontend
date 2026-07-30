@@ -1,87 +1,84 @@
 import { createTheme } from "@mui/material/styles";
 
-const theme = createTheme({
+export const theme = createTheme({
   palette: {
-    mode: "light",
+    mode: "dark",
+    background: {
+      default: "#0B0F17",
+      paper: "#111827",
+    },
     primary: {
-      main: "#111111",
+      main: "#3B82F6",
+      contrastText: "#FFFFFF",
     },
     secondary: {
-      main: "#6B7280",
+      main: "#64748B",
     },
-    background: {
-      default: "#FAFAFA",
-      paper: "#FFFFFF",
+    success: {
+      main: "#10B981",
     },
-    divider: "#E5E7EB",
+    error: {
+      main: "#EF4444",
+    },
     text: {
-      primary: "#111111",
-      secondary: "#6B7280",
+      primary: "#F3F4F6",
+      secondary: "#9CA3AF",
     },
-  },
-  shape: {
-    borderRadius: 10,
+    divider: "#1E293B",
   },
   typography: {
-    fontFamily:
-      "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
-    h3: {
-      fontWeight: 700,
-    },
-    h4: {
-      fontWeight: 700,
-    },
-    h5: {
-      fontWeight: 600,
-    },
-    button: {
-      textTransform: "none",
-      fontWeight: 600,
-    },
+    fontFamily: [
+      "-apple-system",
+      "BlinkMacSystemFont",
+      '"Segoe UI"',
+      "Roboto",
+      '"Helvetica Neue"',
+      "Arial",
+      "sans-serif",
+    ].join(","),
+    fontSize: 13,
+    h1: { fontSize: "1.75rem", fontWeight: 600 },
+    h2: { fontSize: "1.5rem", fontWeight: 600 },
+    h3: { fontSize: "1.25rem", fontWeight: 600 },
+    button: { textTransform: "none", fontWeight: 500 },
+  },
+  shape: {
+    borderRadius: 4,
   },
   components: {
-    MuiPaper: {
-      styleOverrides: {
-        root: {
-          boxShadow:
-            "0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.1)",
-        },
-      },
-    },
     MuiButton: {
       styleOverrides: {
         root: {
-          borderRadius: 8,
-          padding: "10px 18px",
           boxShadow: "none",
+          "&:hover": {
+            boxShadow: "none",
+          },
         },
       },
     },
-    MuiTextField: {
+    MuiPaper: {
       defaultProps: {
+        elevation: 0,
         variant: "outlined",
-        size: "medium",
-        fullWidth: true,
       },
-    },
-    MuiOutlinedInput: {
       styleOverrides: {
         root: {
-          borderRadius: 10,
-          "& fieldset": {
-            borderColor: "#E5E7EB",
-          },
-          "&:hover fieldset": {
-            borderColor: "#C7C7C7",
-          },
-          "&.Mui-focused fieldset": {
-            borderColor: "#111",
-            borderWidth: 2,
-          },
+          borderColor: "#1E293B",
+        },
+      },
+    },
+    MuiTableCell: {
+      styleOverrides: {
+        root: {
+          borderBottom: "1px solid #1E293B",
+          padding: "8px 12px",
+        },
+        head: {
+          fontWeight: 600,
+          backgroundColor: "#0F172A",
+          color: "#9CA3AF",
         },
       },
     },
   },
 });
-
-export default theme;
