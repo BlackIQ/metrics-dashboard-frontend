@@ -194,18 +194,19 @@ const forms: Record<string, FormConfig> = {
       size: { xs: 12, sm: 6 },
       advanced: { required: "API key is required" },
     },
-    groups: {
-      type: "multiselect",
-      label: "Assigned Groups",
-      placeholder: "Select groups...",
+    group_id: {
+      type: "select",
+      label: "Assigned Group",
+      placeholder: "Select group",
       optionsKey: "groups",
       size: { xs: 12, md: 6 },
+      advanced: { required: "Selecting a group is required" },
     },
-    tags: {
+    tag_ids: {
       type: "multiselect",
       label: "Assigned Tags",
       placeholder: "Select tags...",
-      optionsKey: "tags",
+      optionsKey: "tags", // matches selectOptions.tags
       size: { xs: 12, md: 6 },
     },
     description: {
