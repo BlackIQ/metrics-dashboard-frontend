@@ -13,6 +13,8 @@ import {
 } from "@/api/services/auth";
 import { Signin, Signup } from "@/types/auth";
 
+import { showToast } from "@/utils/toast.util";
+
 import {
   Box,
   Typography,
@@ -43,9 +45,10 @@ const Auth = () => {
     try {
       const token = await signinAuthentication(data);
       dispatch(setToken(token));
+      showToast.success("Welcome back dear user");
       router.push("/panel");
     } catch (error) {
-      console.error("Login failed:", error);
+      showToast.error("Error");
     } finally {
       setLoading(false);
     }
@@ -56,9 +59,10 @@ const Auth = () => {
     try {
       const token = await signupAuthentication(data);
       dispatch(setToken(token));
+      showToast.success("Welcome new dear user");
       router.push("/panel");
     } catch (error) {
-      console.error("Registration failed:", error);
+      showToast.error("Error");
     } finally {
       setLoading(false);
     }
