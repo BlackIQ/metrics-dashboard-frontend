@@ -163,7 +163,7 @@ export default function PanelLayout({
               color="primary.main"
               sx={{ pl: 1, fontWeight: 700 }}
             >
-              OpenHubble
+              OpenHubble Metrics
             </Typography>
           )}
           <IconButton
@@ -249,7 +249,12 @@ export default function PanelLayout({
           <Tooltip title={!open ? "Logout" : ""} placement="right">
             <ListItemButton
               onClick={handleLogout}
-              sx={{ minHeight: 40, borderRadius: 1, px: 1.5 }}
+              sx={{
+                minHeight: 40,
+                borderRadius: 1,
+                px: 1.5,
+                ":hover": { bgcolor: "rgba(211, 47, 47, 0.08)" },
+              }}
             >
               <ListItemIcon sx={{ minWidth: 32, color: "error.main" }}>
                 <Logout fontSize="small" />
