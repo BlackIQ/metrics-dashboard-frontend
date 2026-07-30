@@ -1,5 +1,9 @@
 "use client";
 
+import React, { useEffect, useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import { useDispatch } from "react-redux";
+
 import {
   Drawer as MuiDrawer,
   List,
@@ -11,6 +15,7 @@ import {
   CssBaseline,
   Divider,
   Typography,
+  Tooltip,
 } from "@mui/material";
 
 import {
@@ -20,57 +25,43 @@ import {
   Home,
   LocalOffer,
   Category,
-  Warning,
   Logout,
   Dashboard,
 } from "@mui/icons-material";
 
-import { useRouter } from "next/navigation";
-
-import { useDispatch } from "react-redux";
-
-import { useEffect, useState } from "react";
-
 import { useAppSelector } from "@/redux/hooks";
 import { setUser, clearUser } from "@/redux/slices/user.slice";
 import { clearToken } from "@/redux/slices/token.slice";
-
-import { API } from "@/api";
 import { me } from "@/api/services/user";
-
 import Loading from "@/components/loading/loading.component";
-
 import { styled } from "@mui/material/styles";
 
-const drawerWidth = 240;
+const drawerWidth = 220;
 
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "space-between",
-  padding: theme.spacing(0, 1),
+  padding: theme.spacing(0, 1.5),
   ...theme.mixins.toolbar,
 }));
 
 const Drawer = styled(MuiDrawer, {
   shouldForwardProp: (prop) => prop !== "open",
 })(({ theme, open }) => ({
-  width: open ? drawerWidth : `calc(${theme.spacing(7)} + 1px)`,
+  width: open ? drawerWidth : 64,
   flexShrink: 0,
   whiteSpace: "nowrap",
   boxSizing: "border-box",
   "& .MuiDrawer-paper": {
-    width: open ? drawerWidth : `calc(${theme.spacing(7)} + 1px)`,
-    [theme.breakpoints.up("sm")]: {
-      width: open ? drawerWidth : `calc(${theme.spacing(8)} + 1px)`,
-    },
+    width: open ? drawerWidth : 64,
     transition: theme.transitions.create("width", {
       easing: theme.transitions.easing.sharp,
-      duration: open
-        ? theme.transitions.duration.enteringScreen
-        : theme.transitions.duration.leavingScreen,
+      duration: theme.transitions.duration.enteringScreen,
     }),
     overflowX: "hidden",
+    backgroundColor: "#0B0F17",
+    borderColor: "#1E293B",
   },
 }));
 
@@ -80,6 +71,7 @@ export default function PanelLayout({
   children: React.ReactNode;
 }>) {
   const router = useRouter();
+  const pathname = usePathname();
   const dispatch = useDispatch();
 
   const [open, setOpen] = useState(false);
@@ -87,201 +79,196 @@ export default function PanelLayout({
 
   const { token, user } = useAppSelector((state) => state);
 
-  const handleDrawer = () => {
-    setOpen((prev) => !prev);
-  };
-
-  const getData = async () => {
-    try {
-      const user = await me();
-
-      dispatch(setUser(user));
-      setLoading(false);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  const handleDrawer = () => setOpen((prev) => !prev);
 
   useEffect(() => {
-    if (token) {
-      API.defaults.headers.common["Authorization"] = `Bearer ${token.token?.access_token}`;
-
-      getData();
-    } else {
+    if (!token.token) {
       router.push("/auth");
+      return;
     }
-  }, [token]);
 
-  const logout = async () => {
+    const fetchUserData = async () => {
+      try {
+        const userData = await me();
+        dispatch(setUser(userData));
+      } catch (error) {
+        console.error("Failed to fetch current user profile:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, [token, dispatch, router]);
+
+  const handleLogout = () => {
     dispatch(clearUser());
     dispatch(clearToken());
-
-    router.push("/");
+    router.push("/auth");
   };
 
-  const getIcon = (value: string) => {
-    switch (value) {
-      case "home":
-        return <Home />;
-      case "me":
-        return <Person />;
-      case "hosts":
-        return <Storage />;
-      case "tags":
-        return <LocalOffer />;
-      case "groups":
-        return <Category />;
-      case "dashboard":
-        return <Dashboard />;
-      case "logout":
-        return <Logout sx={{ color: "error.main" }} />;
-      default:
-        return <Warning />;
-    }
-  };
-
-  const menu = [
+  const navItems = [
+    { label: "Home", path: "/panel", icon: <Home fontSize="small" /> },
     {
-      name: "hosts",
       label: "Hosts",
+      path: "/panel/hosts",
+      icon: <Storage fontSize="small" />,
     },
     {
-      name: "tags",
       label: "Tags",
+      path: "/panel/tags",
+      icon: <LocalOffer fontSize="small" />,
     },
     {
-      name: "groups",
       label: "Groups",
+      path: "/panel/groups",
+      icon: <Category fontSize="small" />,
     },
     {
-      name: "dashboard",
       label: "Dashboard",
+      path: "/panel/dashboard",
+      icon: <Dashboard fontSize="small" />,
     },
   ];
 
-  return loading ? (
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          height: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Loading />
+      </Box>
+    );
+  }
+
+  return (
     <Box
       sx={{
-        height: "100vh",
         display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
+        minHeight: "100vh",
+        backgroundColor: "background.default",
       }}
     >
-      <Loading />
-    </Box>
-  ) : (
-    <Box sx={{ display: "flex", minHeight: "100vh" }}>
       <CssBaseline />
       <Drawer variant="permanent" open={open}>
         <DrawerHeader>
           {open && (
             <Typography
-              variant="h6"
+              variant="subtitle1"
+              fontWeight={700}
               color="primary.main"
-              sx={{
-                flexGrow: 1,
-                pl: 1,
-              }}
+              sx={{ pl: 1 }}
             >
               OpenHubble
             </Typography>
           )}
-          <IconButton onClick={handleDrawer} sx={{ borderRadius: 2 }}>
-            <MenuIcon color="primary" />
+          <IconButton
+            onClick={handleDrawer}
+            size="medium"
+            sx={{ color: "text.secondary" }}
+          >
+            <MenuIcon fontSize="small" />
           </IconButton>
         </DrawerHeader>
 
-        <List sx={{ px: open ? 1 : 0 }}>
-          <ListItemButton
-            onClick={() => {
-              router.push("/panel");
-            }}
-            sx={{
-              m: open ? 1 : 0,
-              borderRadius: open ? 1 : 0,
-            }}
-          >
-            <ListItemIcon sx={{ color: "primary.main" }}>
-              {getIcon("home")}
-            </ListItemIcon>
-            {open && <ListItemText primary="Home" />}
-          </ListItemButton>
-          {menu.map((item) => (
-            <ListItemButton
-              key={item.name}
-              onClick={() => {
-                router.push(`/panel/${item.name}`);
-                setOpen(false);
-              }}
-              sx={{
-                m: open ? 1 : 0,
-                borderRadius: open ? 1 : 0,
-              }}
-            >
-              <ListItemIcon sx={{ color: "primary.main" }}>
-                {getIcon(item.name)}
-              </ListItemIcon>
-              {open && <ListItemText primary={item.label} />}
-            </ListItemButton>
-          ))}
-          <ListItemButton
-            onClick={() => {
-              router.push("/panel/settings");
-            }}
-            sx={{
-              m: open ? 1 : 0,
-              borderRadius: open ? 1 : 0,
-            }}
-          >
-            <ListItemIcon sx={{ color: "primary.main" }}>
-              {getIcon("me")}
-            </ListItemIcon>
-            {open && <ListItemText primary={user.user?.first_name} />}
-          </ListItemButton>
-          <ListItemButton
-            onClick={logout}
-            sx={{
-              m: open ? 1 : 0,
-              borderRadius: open ? 1 : 0,
-            }}
-          >
-            <ListItemIcon>{getIcon("logout")}</ListItemIcon>
-            {open && (
-              <ListItemText primary="Logout" sx={{ color: "error.main" }} />
-            )}
-          </ListItemButton>
+        <Divider sx={{ borderColor: "divider" }} />
+
+        <List sx={{ px: 1, py: 1 }}>
+          {navItems.map((item) => {
+            const isActive = pathname === item.path;
+            return (
+              <Tooltip
+                key={item.path}
+                title={!open ? item.label : ""}
+                placement="right"
+              >
+                <ListItemButton
+                  onClick={() => router.push(item.path)}
+                  selected={isActive}
+                  sx={{
+                    minHeight: 40,
+                    borderRadius: 1,
+                    mb: 0.5,
+                    px: 1.5,
+                    backgroundColor: isActive
+                      ? "action.selected"
+                      : "transparent",
+                    "&.Mui-selected": {
+                      backgroundColor: "rgba(59, 130, 246, 0.12)",
+                      borderLeft: "3px solid #3B82F6",
+                    },
+                  }}
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 32,
+                      color: isActive ? "primary.main" : "text.secondary",
+                    }}
+                  >
+                    {item.icon}
+                  </ListItemIcon>
+                  {open && (
+                    <ListItemText
+                      primary={item.label}
+                      primaryTypographyProps={{
+                        fontSize: 13,
+                        fontWeight: isActive ? 600 : 400,
+                      }}
+                    />
+                  )}
+                </ListItemButton>
+              </Tooltip>
+            );
+          })}
         </List>
 
-        {open && (
-          <Box sx={{ mt: "auto", pb: 2 }}>
-            <Divider
-              sx={{
-                mx: 2,
-                bgcolor: "primary.main",
-                height: "2px",
-              }}
-            />
-            <Box sx={{ textAlign: "center", mt: 2 }}>
-              <Typography variant="h6" color="primary.main">
-                OpenHubble
-              </Typography>
-              <Typography variant="body2" color="white">
-                Cloud Metrics
-              </Typography>
-            </Box>
-          </Box>
-        )}
+        <Box sx={{ mt: "auto", px: 1, pb: 2 }}>
+          <Divider sx={{ borderColor: "divider", mb: 1 }} />
+
+          <Tooltip title={!open ? "Settings" : ""} placement="right">
+            <ListItemButton
+              onClick={() => router.push("/panel/settings")}
+              sx={{ minHeight: 40, borderRadius: 1, px: 1.5, mb: 0.5 }}
+            >
+              <ListItemIcon sx={{ minWidth: 32, color: "text.secondary" }}>
+                <Person fontSize="small" />
+              </ListItemIcon>
+              {open && (
+                <ListItemText
+                  primary={user.user?.first_name || "Account"}
+                  primaryTypographyProps={{ fontSize: 13 }}
+                />
+              )}
+            </ListItemButton>
+          </Tooltip>
+
+          <Tooltip title={!open ? "Logout" : ""} placement="right">
+            <ListItemButton
+              onClick={handleLogout}
+              sx={{ minHeight: 40, borderRadius: 1, px: 1.5 }}
+            >
+              <ListItemIcon sx={{ minWidth: 32, color: "error.main" }}>
+                <Logout fontSize="small" />
+              </ListItemIcon>
+              {open && (
+                <ListItemText
+                  primary="Logout"
+                  primaryTypographyProps={{ fontSize: 13, color: "error.main" }}
+                />
+              )}
+            </ListItemButton>
+          </Tooltip>
+        </Box>
       </Drawer>
 
       <Box
         component="main"
-        sx={{
-          flexGrow: 1,
-          p: 3,
-          position: "relative",
-          "& > *": { position: "relative", zIndex: 1 },
-        }}
+        sx={{ flexGrow: 1, p: 3, width: "100%", overflowX: "auto" }}
       >
         {children}
       </Box>
