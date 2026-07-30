@@ -103,7 +103,13 @@ export default function TagsPage() {
 
       <Dialog open={dialogOpen} onClose={onClose} fullWidth maxWidth="sm">
         <DialogTitle>
-          <Typography variant="h6" fontWeight={600} color="primary.main">
+          <Typography
+            variant="h6"
+            color="primary.main"
+            sx={{
+              fontWeight: 600,
+            }}
+          >
             {selectedTag ? "Edit Tag" : "Add Tag"}
           </Typography>
         </DialogTitle>

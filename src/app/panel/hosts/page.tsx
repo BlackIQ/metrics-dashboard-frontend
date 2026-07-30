@@ -130,7 +130,13 @@ export default function HostsPage() {
 
       <Dialog open={dialogOpen} onClose={onClose} fullWidth maxWidth="md">
         <DialogTitle>
-          <Typography variant="h6" fontWeight={600} color="primary.main">
+          <Typography
+            variant="h6"
+            color="primary.main"
+            sx={{
+              fontWeight: 600,
+            }}
+          >
             {selectedHost ? "Edit Host Configuration" : "Add New Host"}
           </Typography>
         </DialogTitle>

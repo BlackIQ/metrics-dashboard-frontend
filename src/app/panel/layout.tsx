@@ -160,9 +160,8 @@ export default function PanelLayout({
           {open && (
             <Typography
               variant="subtitle1"
-              fontWeight={700}
               color="primary.main"
-              sx={{ pl: 1 }}
+              sx={{ pl: 1, fontWeight: 700 }}
             >
               OpenHubble
             </Typography>
@@ -215,7 +214,7 @@ export default function PanelLayout({
                   {open && (
                     <ListItemText
                       primary={item.label}
-                      primaryTypographyProps={{
+                      sx={{
                         fontSize: 13,
                         fontWeight: isActive ? 600 : 400,
                       }}
@@ -241,7 +240,7 @@ export default function PanelLayout({
               {open && (
                 <ListItemText
                   primary={user.user?.first_name || "Account"}
-                  primaryTypographyProps={{ fontSize: 13 }}
+                  sx={{ fontSize: 13 }}
                 />
               )}
             </ListItemButton>
@@ -258,7 +257,7 @@ export default function PanelLayout({
               {open && (
                 <ListItemText
                   primary="Logout"
-                  primaryTypographyProps={{ fontSize: 13, color: "error.main" }}
+                  sx={{ fontSize: 13, color: "error.main" }}
                 />
               )}
             </ListItemButton>

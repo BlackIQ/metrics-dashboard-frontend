@@ -1,6 +1,8 @@
+import type { RootState } from "./store";
+
 const KEY = "openhubble_metrics_state";
 
-export const loadState = () => {
+export const loadState = (): Partial<RootState> | undefined => {
   if (typeof window === "undefined") {
     return undefined;
   }
@@ -9,14 +11,14 @@ export const loadState = () => {
     if (serializedState === null) {
       return undefined;
     }
-    return JSON.parse(serializedState);
+    return JSON.parse(serializedState) as Partial<RootState>;
   } catch (error) {
     console.error("Failed to load state from localStorage:", error);
     return undefined;
   }
 };
 
-export const saveState = (state: unknown) => {
+export const saveState = (state: Partial<RootState>) => {
   if (typeof window === "undefined") {
     return;
   }

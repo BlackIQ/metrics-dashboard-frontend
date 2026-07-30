@@ -89,9 +89,11 @@ const Auth = () => {
           >
             <Typography
               variant="h3"
-              fontWeight={700}
               gutterBottom
               color="text.primary"
+              sx={{
+                fontWeight: 700,
+              }}
             >
               OpenHubble
             </Typography>
@@ -123,7 +125,13 @@ const Auth = () => {
                 backgroundColor: "background.paper",
               }}
             >
-              <Typography variant="h5" fontWeight={600} mb={1}>
+              <Typography
+                variant="h5"
+                sx={{
+                  mb: 1,
+                  fontWeight: 600,
+                }}
+              >
                 {mode === "login"
                   ? "Sign In"
                   : mode === "register"

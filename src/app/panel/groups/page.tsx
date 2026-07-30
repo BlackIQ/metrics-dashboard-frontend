@@ -108,7 +108,13 @@ export default function GroupsPage() {
 
       <Dialog open={dialogOpen} onClose={onClose} fullWidth maxWidth="sm">
         <DialogTitle>
-          <Typography variant="h6" fontWeight={600} color="primary.main">
+          <Typography
+            variant="h6"
+            color="primary.main"
+            sx={{
+              fontWeight: 600,
+            }}
+          >
             {selectedGroup ? "Edit Group" : "Add Group"}
           </Typography>
         </DialogTitle>

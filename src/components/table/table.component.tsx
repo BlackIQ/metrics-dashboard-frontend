@@ -216,7 +216,13 @@ export default function TableComponent({
         }}
       >
         <Box>
-          <Typography variant="h5" fontWeight={700} color="text.primary">
+          <Typography
+            variant="h5"
+            color="text.primary"
+            sx={{
+              fontWeight: 700,
+            }}
+          >
             {config.title}
           </Typography>
           {details && (
