@@ -10,8 +10,9 @@ import useAuth from "@/hooks/useAuth/useAuth.hook";
 import {
   signinAuthentication,
   signupAuthentication,
+  forgotPassword,
 } from "@/api/services/auth";
-import { Signin, Signup } from "@/types/auth";
+import { Signin, Signup, Forgot } from "@/types/auth";
 
 import { showToast } from "@/utils/toast.util";
 
@@ -25,6 +26,8 @@ import {
 } from "@mui/material";
 import { Google } from "@mui/icons-material";
 
+type modeType = "login" | "register" | "forgot";
+
 const Auth = () => {
   useAuth(false);
 
@@ -32,13 +35,9 @@ const Auth = () => {
   const router = useRouter();
 
   const [loading, setLoading] = useState<boolean>(false);
-  const [mode, setMode] = useState<"login" | "register" | "forgotPassword">(
-    "login",
-  );
+  const [mode, setMode] = useState<modeType>("login");
 
-  const changeMode = (newMode: "login" | "register" | "forgotPassword") => {
-    setMode(newMode);
-  };
+  const changeMode = (newMode: modeType) => setMode(newMode);
 
   const doLogin = async (data: Signin) => {
     setLoading(true);
@@ -61,6 +60,18 @@ const Auth = () => {
       dispatch(setToken(token));
       showToast.success("Welcome new dear user");
       router.push("/panel");
+    } catch (error) {
+      showToast.error("Error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const doForget = async (data: Forgot) => {
+    setLoading(true);
+    try {
+      // await forgotPassword(data);
+      showToast.success("Reset password email is sent");
     } catch (error) {
       showToast.error("Error");
     } finally {
@@ -165,6 +176,18 @@ const Auth = () => {
                     }}
                   />
                 )}
+
+                {mode === "forgot" && (
+                  <Form
+                    name="forget"
+                    callback={doForget}
+                    button="Send email"
+                    btnStyle={{
+                      disabled: loading,
+                      fullWidth: true,
+                    }}
+                  />
+                )}
               </Box>
 
               {mode === "login" && (
@@ -172,7 +195,7 @@ const Auth = () => {
                   <MUILink
                     component="button"
                     variant="caption"
-                    onClick={() => changeMode("forgotPassword")}
+                    onClick={() => changeMode("forgot")}
                     sx={{ color: "text.secondary" }}
                   >
                     Forgot Password?
@@ -184,7 +207,7 @@ const Auth = () => {
                 fullWidth
                 variant="outlined"
                 startIcon={<Google />}
-                onClick={() => {}}
+                onClick={() => showToast.info("Google Authentication")}
                 sx={{ mb: 2 }}
               >
                 Continue with Google

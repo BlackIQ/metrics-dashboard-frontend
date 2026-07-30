@@ -36,7 +36,6 @@ export const showToast = {
   info: (message: string, options?: ToastOptions) =>
     toast(message, {
       ...defaultOptions,
-      icon: "ℹ️",
       style: {
         ...defaultOptions.style,
         borderLeft: "4px solid #0288d1",
