@@ -1,5 +1,6 @@
 "use client";
 
+import React, { useState, useMemo } from "react";
 import {
   Table,
   TableContainer,
@@ -15,11 +16,11 @@ import {
   Chip,
   Tooltip,
   Pagination,
+  Skeleton,
 } from "@mui/material";
 import { Add, Edit, Delete } from "@mui/icons-material";
-import { useEffect, useState, useMemo } from "react";
-import tables, { TableConfig, TableName } from "@/core/table/table.config";
-import { format as dateFormat } from "date-fns";
+import { format as dateFormat, isValid } from "date-fns";
+import tables, { TableName } from "@/core/table/table.config";
 
 interface TableProps {
   table: TableName;
@@ -28,9 +29,10 @@ interface TableProps {
   add?: () => void;
   clk?: (row: any) => void;
   del?: (row: any) => void;
-  upd?: (row: any) => void; // renamed from old "upd"
+  upd?: (row: any) => void;
   page?: number;
   totalPages?: number;
+  pageSize?: number;
   onPageChange?: (newPage: number) => void;
   removeItems?: string[];
   addItems?: Record<string, string>;
@@ -46,19 +48,23 @@ export default function TableComponent({
   clk,
   del,
   upd,
-  page = 1,
-  totalPages = 1,
+  page: serverPage,
+  totalPages: serverTotalPages,
+  pageSize = 10,
   onPageChange,
   removeItems = [],
   addItems = {},
   details,
+  loading = false,
 }: TableProps) {
   const baseConfig = tables[table];
 
-  // Merge config dynamically
+  const [internalPage, setInternalPage] = useState<number>(1);
+
   const config = useMemo(() => {
-    if (!baseConfig)
+    if (!baseConfig) {
       return { title: "Table", fields: {} as Record<string, string> };
+    }
 
     const fields: Record<string, string> = { ...baseConfig.fields };
 
@@ -73,92 +79,134 @@ export default function TableComponent({
     return { ...baseConfig, fields };
   }, [baseConfig, removeItems, addItems]);
 
-  const [renderRows, setRenderRows] = useState<any[]>([]);
+  const isServerPaginated = Boolean(serverTotalPages && onPageChange);
+  const activePage = isServerPaginated ? serverPage || 1 : internalPage;
 
-  // Enrich data with action buttons
-  useEffect(() => {
-    const enriched = data.map((row) => ({
-      ...row,
-      ...(del && {
-        delete: (
-          <Box sx={{ textAlign: "center" }}>
-            <IconButton onClick={() => del(row)} color="error" size="small">
-              <Delete fontSize="small" />
-            </IconButton>
-          </Box>
-        ),
-      }),
-      ...(upd && {
-        update: (
-          <Box sx={{ textAlign: "center" }}>
-            <IconButton onClick={() => upd(row)} color="primary" size="small">
-              <Edit fontSize="small" />
-            </IconButton>
-          </Box>
-        ),
-      }),
-    }));
-    setRenderRows(enriched);
-  }, [data, del, upd]);
+  const computedTotalPages = isServerPaginated
+    ? serverTotalPages || 1
+    : Math.ceil(data.length / pageSize) || 1;
 
-  const renderCell = (row: any, key: string) => {
+  const paginatedData = useMemo(() => {
+    if (isServerPaginated) return data;
+    const startIndex = (activePage - 1) * pageSize;
+    return data.slice(startIndex, startIndex + pageSize);
+  }, [data, isServerPaginated, activePage, pageSize]);
+
+  const handlePageChange = (newPage: number) => {
+    if (isServerPaginated && onPageChange) {
+      onPageChange(newPage);
+    } else {
+      setInternalPage(newPage);
+    }
+  };
+
+  const renderCellContent = (row: any, key: string) => {
+    if (key === "update") {
+      return upd ? (
+        <IconButton
+          onClick={(e) => {
+            e.stopPropagation();
+            upd(row);
+          }}
+          color="primary"
+          size="small"
+        >
+          <Edit fontSize="small" />
+        </IconButton>
+      ) : null;
+    }
+
+    if (key === "delete") {
+      return del ? (
+        <IconButton
+          onClick={(e) => {
+            e.stopPropagation();
+            del(row);
+          }}
+          color="error"
+          size="small"
+        >
+          <Delete fontSize="small" />
+        </IconButton>
+      ) : null;
+    }
+
     const value = key.split(".").reduce((acc, prop) => acc?.[prop], row);
 
     switch (key) {
       case "created_at":
-      case "updated_at":
-        return value ? dateFormat(new Date(value), "yyyy/MM/dd") : "—";
+      case "updated_at": {
+        if (!value) return "—";
+        const dateObj = new Date(value);
+        return isValid(dateObj) ? dateFormat(dateObj, "yyyy/MM/dd") : "—";
+      }
+
+      case "ipv4":
+      case "dns":
+        return value ? (
+          <Typography
+            variant="body2"
+            sx={{ fontFamily: "monospace", fontSize: "0.825rem" }}
+          >
+            {value}
+          </Typography>
+        ) : (
+          "—"
+        );
+
+      case "communication":
+        return value ? (
+          <Chip
+            label={String(value).toUpperCase()}
+            size="small"
+            variant="outlined"
+            sx={{ fontSize: "0.7rem", fontWeight: 600 }}
+          />
+        ) : (
+          "—"
+        );
 
       case "agent_availability":
         return (
-          <Tooltip title={row.latestActionMessage || ""} arrow>
-            {row.agent_availability ? (
-              <Chip label="Connected" color="success" size="small" />
-            ) : (
-              <Chip label="Disconnected" color="error" size="small" />
-            )}
+          <Tooltip
+            title={
+              row.latestActionMessage ||
+              (row.agent_availability ? "Online" : "Offline")
+            }
+            arrow
+          >
+            <Chip
+              label={row.agent_availability ? "Connected" : "Disconnected"}
+              color={row.agent_availability ? "success" : "error"}
+              size="small"
+              sx={{ fontSize: "0.75rem", fontWeight: 600 }}
+            />
           </Tooltip>
         );
 
       case "is_active":
         return (
-          <Tooltip title={row.latestActionMessage || ""} arrow>
-            {row.is_active ? (
-              <Chip label="Active" color="success" size="small" />
-            ) : (
-              <Chip label="Inactive" color="default" size="small" />
-            )}
-          </Tooltip>
+          <Chip
+            label={row.is_active ? "Active" : "Inactive"}
+            color={row.is_active ? "primary" : "default"}
+            size="small"
+            variant={row.is_active ? "filled" : "outlined"}
+            sx={{ fontSize: "0.75rem", fontWeight: 600 }}
+          />
         );
 
       default:
-        return value ?? "—";
+        return value !== undefined && value !== null && value !== ""
+          ? String(value)
+          : "—";
     }
   };
 
-  if (data.length === 0) {
-    return (
-      <Box sx={{ py: 10, textAlign: "center" }}>
-        <Typography variant="h6" color="text.secondary" gutterBottom>
-          No data available
-        </Typography>
-        {add && (
-          <Button
-            onClick={add}
-            variant="contained"
-            startIcon={<Add />}
-            sx={{ mt: 2, borderRadius: 1 }}
-          >
-            {addText}
-          </Button>
-        )}
-      </Box>
-    );
-  }
+  const fieldKeys = Object.keys(config.fields);
 
   return (
-    <Box sx={{ py: 2 }}>
-      {/* Header */}
+    <Box sx={{ width: "100%", py: 2 }}>
+      {/* Header Bar */}
       <Box
         sx={{
           display: "flex",
@@ -168,7 +216,7 @@ export default function TableComponent({
         }}
       >
         <Box>
-          <Typography variant="h4" color="text.primary">
+          <Typography variant="h5" fontWeight={700} color="text.primary">
             {config.title}
           </Typography>
           {details && (
@@ -182,33 +230,55 @@ export default function TableComponent({
           <Button
             onClick={add}
             variant="contained"
+            color="primary"
             startIcon={<Add />}
-            sx={{ borderRadius: 1, px: 3, py: 1 }}
             disableElevation
+            sx={{
+              borderRadius: 1,
+              px: 3,
+              textTransform: "none",
+              fontWeight: 600,
+            }}
           >
             {addText}
           </Button>
         )}
       </Box>
 
-      {/* Table */}
+      {/* Table Container */}
       <TableContainer
         component={Paper}
         elevation={0}
-        sx={{ borderRadius: 1, overflow: "hidden" }}
+        sx={{
+          borderRadius: 1,
+          border: "1px solid",
+          borderColor: "divider",
+          backgroundColor: "background.paper",
+        }}
       >
-        <Table>
+        <Table sx={{ minWidth: 650 }}>
           <TableHead>
-            <TableRow sx={{ bgcolor: "background.paper" }}>
+            <TableRow sx={{ backgroundColor: "rgba(255, 255, 255, 0.02)" }}>
               {Object.entries(config.fields).map(([key, label]) => (
                 <TableCell
                   key={key}
+                  align={
+                    [
+                      "update",
+                      "delete",
+                      "agent_availability",
+                      "is_active",
+                      "communication",
+                    ].includes(key)
+                      ? "center"
+                      : "left"
+                  }
                   sx={{
                     fontWeight: 600,
-                    color: "text.primary",
-                    textAlign: "center",
-                    borderBottom: "2px solid",
+                    fontSize: "0.825rem",
+                    color: "text.secondary",
                     borderColor: "divider",
+                    py: 1.5,
                   }}
                 >
                   {label}
@@ -218,45 +288,94 @@ export default function TableComponent({
           </TableHead>
 
           <TableBody>
-            {renderRows.map((row, idx) => (
-              <TableRow
-                key={idx}
-                hover
-                sx={{
-                  "&:last-child td": { borderBottom: 0 },
-                  cursor: clk ? "pointer" : "default",
-                }}
-                onClick={() => {
-                  if (clk) clk(row);
-                }}
-              >
-                {Object.keys(config.fields).map((key) => (
-                  <TableCell
-                    key={key}
-                    onClick={(e) => {
-                      if (["delete", "update"].includes(key))
-                        e.stopPropagation();
-                    }}
-                    sx={{ textAlign: "center", py: 2 }}
+            {loading ? (
+              Array.from({ length: 5 }).map((_, idx) => (
+                <TableRow key={idx}>
+                  {fieldKeys.map((key) => (
+                    <TableCell key={key} sx={{ borderColor: "divider", py: 2 }}>
+                      <Skeleton variant="text" width="80%" />
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : paginatedData.length === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={fieldKeys.length}
+                  sx={{ textAlign: "center", py: 8, borderColor: "divider" }}
+                >
+                  <Typography
+                    variant="body1"
+                    color="text.secondary"
+                    gutterBottom
                   >
-                    {renderCell(row, key)}
-                  </TableCell>
-                ))}
+                    No records found
+                  </Typography>
+                  {add && (
+                    <Button
+                      onClick={add}
+                      variant="outlined"
+                      size="small"
+                      startIcon={<Add />}
+                      sx={{ mt: 1, textTransform: "none" }}
+                    >
+                      {addText}
+                    </Button>
+                  )}
+                </TableCell>
               </TableRow>
-            ))}
+            ) : (
+              paginatedData.map((row, rowIdx) => (
+                <TableRow
+                  key={row.id || row._id || rowIdx}
+                  hover
+                  onClick={() => clk?.(row)}
+                  sx={{
+                    cursor: clk ? "pointer" : "default",
+                    "&:last-child td": { borderBottom: 0 },
+                  }}
+                >
+                  {fieldKeys.map((key) => (
+                    <TableCell
+                      key={key}
+                      align={
+                        [
+                          "update",
+                          "delete",
+                          "agent_availability",
+                          "is_active",
+                          "communication",
+                        ].includes(key)
+                          ? "center"
+                          : "left"
+                      }
+                      sx={{
+                        borderColor: "divider",
+                        py: 1.75,
+                        fontSize: "0.875rem",
+                        color: "text.primary",
+                      }}
+                    >
+                      {renderCellContent(row, key)}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </TableContainer>
 
-      {/* Pagination */}
-      {totalPages > 1 && onPageChange && (
-        <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+      {/* Pagination Bar */}
+      {!loading && computedTotalPages > 1 && (
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
           <Pagination
-            count={totalPages}
-            page={page}
-            onChange={(_, newPage) => onPageChange(newPage)}
+            count={computedTotalPages}
+            page={activePage}
+            onChange={(_, newPage) => handlePageChange(newPage)}
             color="primary"
             shape="rounded"
+            size="medium"
           />
         </Box>
       )}
