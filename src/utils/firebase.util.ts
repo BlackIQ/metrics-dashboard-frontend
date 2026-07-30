@@ -10,10 +10,12 @@ const firebaseConfig = {
   storageBucket: firebaseSettings.storageBucket,
   messagingSenderId: firebaseSettings.messagingSenderId,
   appId: firebaseSettings.appId,
+  measurementId: firebaseSettings.measurementId,
 };
 
 const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 const auth = getAuth(app);
+
 const googleProvider = new GoogleAuthProvider();
 
 export const signInWithGoogle = async (): Promise<string> => {
