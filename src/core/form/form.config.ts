@@ -88,6 +88,19 @@ const forms: Record<string, FormConfig> = {
     },
   },
 
+  reset: {
+    new_password: {
+      type: "password",
+      label: "New Password",
+      advanced: { required: true },
+    },
+    confirm_password: {
+      type: "password",
+      label: "Confirm New Password",
+      advanced: { required: true },
+    },
+  },
+
   user_profile: {
     first_name: {
       type: "text",
