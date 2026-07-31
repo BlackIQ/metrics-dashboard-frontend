@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { isAxiosError } from "axios";
 
 import { setToken } from "@/redux/slices/token.slice";
 import Form from "@/components/form/form.component";
@@ -11,6 +12,8 @@ import {
   signinAuthentication,
   signupAuthentication,
   forgotPassword,
+  confirmEmail,
+  resendConfirmationEmail,
 } from "@/api/services/auth";
 import {
   googleAuthentication,
@@ -33,31 +36,110 @@ import {
   Grid,
   Link as MUILink,
   Divider,
+  Alert,
+  AlertTitle,
 } from "@mui/material";
 import { Facebook, GitHub, Google } from "@mui/icons-material";
 
 type modeType = "login" | "register" | "forgot";
+
+interface AlertState {
+  type: "success" | "warning" | "error" | "info";
+  title: string;
+  message: string;
+  showResend?: boolean;
+}
 
 const Auth = () => {
   useAuth(false);
 
   const dispatch = useDispatch();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [loading, setLoading] = useState<boolean>(false);
   const [mode, setMode] = useState<modeType>("login");
+  const [alert, setAlert] = useState<AlertState | null>(null);
+  const [userEmail, setUserEmail] = useState<string>("");
 
-  const changeMode = (newMode: modeType) => setMode(newMode);
+  const changeMode = (newMode: modeType) => {
+    setAlert(null);
+    setMode(newMode);
+  };
+
+  // Check for email confirmation token in URL query params
+  useEffect(() => {
+    const token = searchParams.get("token");
+    if (token) {
+      handleConfirmEmail(token);
+    }
+  }, [searchParams]);
+
+  const handleConfirmEmail = async (token: string) => {
+    setLoading(true);
+    try {
+      const res = await confirmEmail(token);
+      setAlert({
+        type: "success",
+        title: "Account Confirmed",
+        message:
+          res.message || "Your email has been confirmed. You can now sign in.",
+      });
+      setMode("login");
+    } catch (error) {
+      setAlert({
+        type: "error",
+        title: "Confirmation Failed",
+        message:
+          "Invalid or expired token. Please request a new confirmation link.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const doLogin = async (data: Signin) => {
     setLoading(true);
+    setAlert(null);
+    setUserEmail(data.email);
+
     try {
       const token = await signinAuthentication(data);
       dispatch(setToken(token));
-      showToast.success("Welcome back dear user");
+      showToast.success("Welcome back!");
       router.push("/panel");
     } catch (error) {
-      showToast.error("Error");
+      if (isAxiosError(error) && error.response) {
+        const status = error.response.status;
+        const detail = error.response.data?.detail || "";
+
+        if (status === 401) {
+          if (detail.toLowerCase().includes("not confirmed")) {
+            setAlert({
+              type: "warning",
+              title: "Email Not Confirmed",
+              message:
+                "Your account is not confirmed yet. Please check your inbox or resend the link.",
+              showResend: true,
+            });
+            return;
+          }
+
+          if (detail.toLowerCase().includes("inactive")) {
+            setAlert({
+              type: "error",
+              title: "Account Inactive",
+              message:
+                "Your account is not active. Please contact support at support@openhubble.com.",
+            });
+            return;
+          }
+
+          showToast.error(detail || "Invalid email or password");
+          return;
+        }
+      }
+      showToast.error("An unexpected error occurred during sign in.");
     } finally {
       setLoading(false);
     }
@@ -65,13 +147,43 @@ const Auth = () => {
 
   const doRegister = async (data: Signup) => {
     setLoading(true);
+    setAlert(null);
+    setUserEmail(data.email);
+
     try {
-      const token = await signupAuthentication(data);
-      dispatch(setToken(token));
-      showToast.success("Welcome new dear user");
-      router.push("/panel");
+      const res = await signupAuthentication(data);
+      setAlert({
+        type: "info",
+        title: "Registration Successful",
+        message:
+          res.message ||
+          "Please check your email inbox to confirm your account before signing in.",
+        showResend: true,
+      });
+      setMode("login");
     } catch (error) {
-      showToast.error("Error");
+      if (isAxiosError(error) && error.response) {
+        showToast.error(error.response.data?.detail || "Registration failed");
+      } else {
+        showToast.error("Error during registration");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResendLink = async () => {
+    if (!userEmail) {
+      showToast.error("Please enter your email in the login form first.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await resendConfirmationEmail({ email: userEmail });
+      showToast.success(res.message || "Confirmation link sent!");
+    } catch (error) {
+      showToast.error("Failed to resend confirmation email.");
     } finally {
       setLoading(false);
     }
@@ -79,11 +191,17 @@ const Auth = () => {
 
   const doForget = async (data: Forgot) => {
     setLoading(true);
+    setAlert(null);
     try {
       await forgotPassword(data);
-      showToast.success("Reset password email is sent");
+      setAlert({
+        type: "success",
+        title: "Check Your Inbox",
+        message:
+          "Reset password instructions have been sent to your email address.",
+      });
     } catch (error) {
-      showToast.error("Error");
+      showToast.error("Error sending reset password email");
     } finally {
       setLoading(false);
     }
@@ -157,9 +275,7 @@ const Auth = () => {
               variant="h3"
               gutterBottom
               color="text.primary"
-              sx={{
-                fontWeight: 700,
-              }}
+              sx={{ fontWeight: 700 }}
             >
               OpenHubble
             </Typography>
@@ -191,13 +307,7 @@ const Auth = () => {
                 backgroundColor: "background.paper",
               }}
             >
-              <Typography
-                variant="h5"
-                sx={{
-                  mb: 1,
-                  fontWeight: 600,
-                }}
-              >
+              <Typography variant="h5" sx={{ mb: 1, fontWeight: 600 }}>
                 {mode === "login"
                   ? "Sign In"
                   : mode === "register"
@@ -206,6 +316,29 @@ const Auth = () => {
               </Typography>
 
               <Divider sx={{ mb: 3 }} />
+
+              {/* Status Banner */}
+              {alert && (
+                <Alert
+                  severity={alert.type}
+                  sx={{ mb: 3 }}
+                  action={
+                    alert.showResend ? (
+                      <Button
+                        color="inherit"
+                        size="small"
+                        onClick={handleResendLink}
+                        disabled={loading}
+                      >
+                        Resend
+                      </Button>
+                    ) : undefined
+                  }
+                >
+                  <AlertTitle>{alert.title}</AlertTitle>
+                  {alert.message}
+                </Alert>
+              )}
 
               <Box sx={{ mb: 2 }}>
                 {mode === "login" && (
@@ -221,7 +354,7 @@ const Auth = () => {
                 )}
 
                 {mode === "register" && (
-                  <Form
+                  <Form<Signup>
                     name="register"
                     callback={doRegister}
                     button="Create Account"
@@ -233,7 +366,7 @@ const Auth = () => {
                 )}
 
                 {mode === "forgot" && (
-                  <Form
+                  <Form<Forgot>
                     name="forget"
                     callback={doForget}
                     button="Send email"
@@ -258,12 +391,7 @@ const Auth = () => {
                 </Box>
               )}
 
-              <Divider
-                sx={{
-                  mb: 3,
-                  borderColor: "primary.main",
-                }}
-              />
+              <Divider sx={{ mb: 3, borderColor: "primary.main" }} />
 
               <Button
                 fullWidth
