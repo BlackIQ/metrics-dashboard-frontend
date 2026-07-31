@@ -11,11 +11,21 @@ export interface Signup {
   last_name: string;
 }
 
+export interface ResendConfirmation {
+  email: string;
+}
+
 export interface Forgot {
   email: string;
 }
 
-export interface Token {
-  access_token: string;
-  token_type: string;
+export interface ResetPassword {
+  new_password: string;
+  confirm_password: string;
+}
+
+export interface ResetPasswordPayload {
+  token: string;
+  new_password: string;
+  confirm_password: string;
 }
