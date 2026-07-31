@@ -12,6 +12,7 @@ import {
   signinAuthentication,
   signupAuthentication,
   forgotPassword,
+  resetPassword,
   confirmEmail,
   resendConfirmationEmail,
 } from "@/api/services/auth";
@@ -20,7 +21,7 @@ import {
   facebookAuthentication,
   githubAuthentication,
 } from "@/api/services/oauth";
-import { Signin, Signup, Forgot } from "@/types/auth";
+import { Signin, Signup, Forgot, ResetPassword } from "@/types/auth";
 
 import {
   signInWithGoogle,
@@ -41,7 +42,7 @@ import {
 } from "@mui/material";
 import { Facebook, GitHub, Google } from "@mui/icons-material";
 
-type modeType = "login" | "register" | "forgot";
+type modeType = "login" | "register" | "forgot" | "reset";
 
 interface AlertState {
   type: "success" | "warning" | "error" | "info";
@@ -61,17 +62,27 @@ const Auth = () => {
   const [mode, setMode] = useState<modeType>("login");
   const [alert, setAlert] = useState<AlertState | null>(null);
   const [userEmail, setUserEmail] = useState<string>("");
+  const [resetToken, setResetToken] = useState<string | null>(null);
 
   const changeMode = (newMode: modeType) => {
     setAlert(null);
     setMode(newMode);
   };
 
-  // Check for email confirmation token in URL query params
   useEffect(() => {
-    const token = searchParams.get("token");
-    if (token) {
-      handleConfirmEmail(token);
+    const confirmTok = searchParams.get("token");
+    const resetTok = searchParams.get("reset_token");
+
+    if (confirmTok) {
+      handleConfirmEmail(confirmTok);
+    } else if (resetTok) {
+      setResetToken(resetTok);
+      setMode("reset");
+      setAlert({
+        type: "info",
+        title: "Set New Password",
+        message: "Please enter and confirm your new password below.",
+      });
     }
   }, [searchParams]);
 
@@ -172,6 +183,66 @@ const Auth = () => {
     }
   };
 
+  const doForget = async (data: Forgot) => {
+    setLoading(true);
+    setAlert(null);
+    try {
+      await forgotPassword(data);
+      setAlert({
+        type: "success",
+        title: "Check Your Inbox",
+        message:
+          "If your email is registered, instructions to reset your password have been sent.",
+      });
+    } catch (error) {
+      showToast.error("Error sending reset password email");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const doResetPassword = async (data: ResetPassword) => {
+    if (!resetToken) {
+      showToast.error("Missing password reset token.");
+      return;
+    }
+
+    if (data.new_password !== data.confirm_password) {
+      showToast.error("Passwords do not match");
+      return;
+    }
+
+    setLoading(true);
+    setAlert(null);
+
+    try {
+      const res = await resetPassword({
+        token: resetToken,
+        new_password: data.new_password,
+        confirm_password: data.confirm_password,
+      });
+
+      setAlert({
+        type: "success",
+        title: "Password Reset Complete",
+        message:
+          res.message || "Your password has been changed. Please sign in.",
+      });
+      setMode("login");
+      setResetToken(null);
+    } catch (error) {
+      if (isAxiosError(error) && error.response) {
+        showToast.error(
+          error.response.data?.detail || "Failed to reset password.",
+        );
+      } else {
+        showToast.error("An error occurred while resetting password.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleResendLink = async () => {
     if (!userEmail) {
       showToast.error("Please enter your email in the login form first.");
@@ -184,24 +255,6 @@ const Auth = () => {
       showToast.success(res.message || "Confirmation link sent!");
     } catch (error) {
       showToast.error("Failed to resend confirmation email.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const doForget = async (data: Forgot) => {
-    setLoading(true);
-    setAlert(null);
-    try {
-      await forgotPassword(data);
-      setAlert({
-        type: "success",
-        title: "Check Your Inbox",
-        message:
-          "Reset password instructions have been sent to your email address.",
-      });
-    } catch (error) {
-      showToast.error("Error sending reset password email");
     } finally {
       setLoading(false);
     }
@@ -312,7 +365,9 @@ const Auth = () => {
                   ? "Sign In"
                   : mode === "register"
                     ? "Create Account"
-                    : "Reset Password"}
+                    : mode === "forgot"
+                      ? "Reset Password"
+                      : "New Password"}
               </Typography>
 
               <Divider sx={{ mb: 3 }} />
@@ -346,10 +401,7 @@ const Auth = () => {
                     name="login"
                     callback={doLogin}
                     button="Sign In"
-                    btnStyle={{
-                      fullWidth: true,
-                      disabled: loading,
-                    }}
+                    btnStyle={{ fullWidth: true, disabled: loading }}
                   />
                 )}
 
@@ -358,10 +410,7 @@ const Auth = () => {
                     name="register"
                     callback={doRegister}
                     button="Create Account"
-                    btnStyle={{
-                      disabled: loading,
-                      fullWidth: true,
-                    }}
+                    btnStyle={{ disabled: loading, fullWidth: true }}
                   />
                 )}
 
@@ -369,11 +418,17 @@ const Auth = () => {
                   <Form<Forgot>
                     name="forget"
                     callback={doForget}
-                    button="Send email"
-                    btnStyle={{
-                      disabled: loading,
-                      fullWidth: true,
-                    }}
+                    button="Send Reset Link"
+                    btnStyle={{ disabled: loading, fullWidth: true }}
+                  />
+                )}
+
+                {mode === "reset" && (
+                  <Form<ResetPassword>
+                    name="reset"
+                    callback={doResetPassword}
+                    button="Update Password"
+                    btnStyle={{ disabled: loading, fullWidth: true }}
                   />
                 )}
               </Box>
