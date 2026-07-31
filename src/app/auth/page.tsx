@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useDispatch } from "react-redux";
 import { useRouter, useSearchParams } from "next/navigation";
 import { isAxiosError } from "axios";
@@ -39,6 +39,7 @@ import {
   Divider,
   Alert,
   AlertTitle,
+  CircularProgress,
 } from "@mui/material";
 import { Facebook, GitHub, Google } from "@mui/icons-material";
 
@@ -51,7 +52,7 @@ interface AlertState {
   showResend?: boolean;
 }
 
-const Auth = () => {
+const AuthContent = () => {
   useAuth(false);
 
   const dispatch = useDispatch();
@@ -495,6 +496,28 @@ const Auth = () => {
         </Grid>
       </Grid>
     </Box>
+  );
+};
+
+const AuthFallback = () => (
+  <Box
+    sx={{
+      minHeight: "100vh",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: "background.default",
+    }}
+  >
+    <CircularProgress />
+  </Box>
+);
+
+const Auth = () => {
+  return (
+    <Suspense fallback={<AuthFallback />}>
+      <AuthContent />
+    </Suspense>
   );
 };
 
