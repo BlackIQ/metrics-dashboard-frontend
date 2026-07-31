@@ -1,6 +1,12 @@
 import { API } from "@/api";
 import URLs from "@/api/urls";
-import { Signin, Signup, Forgot, ResendConfirmation } from "@/types/auth";
+import {
+  Signin,
+  Signup,
+  Forgot,
+  ResendConfirmation,
+  ResetPasswordPayload,
+} from "@/types/auth";
 import { Token, MessageResponse } from "@/types/common";
 
 const { auth } = URLs;
@@ -37,6 +43,19 @@ export const resendConfirmationEmail = async (
 export const forgotPassword = async (
   data: Forgot,
 ): Promise<MessageResponse> => {
-  const response = await API.post<MessageResponse>(`${auth}/forgot`, data);
+  const response = await API.post<MessageResponse>(
+    `${auth}/forgot-password`,
+    data,
+  );
+  return response.data;
+};
+
+export const resetPassword = async (
+  data: ResetPasswordPayload,
+): Promise<MessageResponse> => {
+  const response = await API.post<MessageResponse>(
+    `${auth}/reset-password`,
+    data,
+  );
   return response.data;
 };
