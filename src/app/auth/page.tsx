@@ -98,6 +98,7 @@ const AuthContent = () => {
           res.message || "Your email has been confirmed. You can now sign in.",
       });
       setMode("login");
+      router.replace("/auth");
     } catch (error) {
       setAlert({
         type: "error",
