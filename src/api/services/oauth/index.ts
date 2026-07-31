@@ -1,6 +1,7 @@
 import { API } from "@/api";
 import URLs from "@/api/urls";
-import { OAuthSignIn, Token } from "@/types/oauth";
+import { OAuthSignIn } from "@/types/oauth";
+import { Token } from "@/types/common";
 
 const { oauth } = URLs;
 
