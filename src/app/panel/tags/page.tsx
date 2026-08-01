@@ -11,6 +11,7 @@ import {
 
 import Table from "@/components/table/table.component";
 import Form from "@/components/form/form.component";
+import Confirm from "@/components/confirm/confirm.component";
 import { useDisclosure } from "@/hooks/useDisclosure/useDisclosure.hook";
 
 import { allTags, createTag, updateTag, deleteTag } from "@/api/services/tag";
@@ -20,8 +21,16 @@ export default function TagsPage() {
   const [tags, setTags] = useState<TagRead[]>([]);
   const [selectedTag, setSelectedTag] = useState<TagRead | undefined>();
   const [loading, setLoading] = useState(true);
+  const [pendingDeleteTag, setPendingDeleteTag] = useState<TagRead | null>(
+    null,
+  );
 
   const { isOpen: dialogOpen, onOpen, onClose } = useDisclosure();
+  const {
+    isOpen: confirmOpen,
+    onOpen: openConfirm,
+    onClose: closeConfirm,
+  } = useDisclosure();
 
   const getData = useCallback(async () => {
     setLoading(true);
@@ -76,10 +85,19 @@ export default function TagsPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDeleteClick = (tag: TagRead) => {
+    setPendingDeleteTag(tag);
+    openConfirm();
+  };
+
+  const handleDelete = async () => {
+    if (!pendingDeleteTag) return;
+
     setLoading(true);
     try {
-      await deleteTag(id);
+      await deleteTag(pendingDeleteTag.id);
+      closeConfirm();
+      setPendingDeleteTag(null);
       await getData();
     } catch (error) {
       console.error("Failed to delete tag:", error);
@@ -98,7 +116,20 @@ export default function TagsPage() {
         add={handleOpenCreate}
         clk={handleOpenEdit}
         upd={handleOpenEdit}
-        del={(row) => handleDelete(row.id)}
+        del={(row) => handleDeleteClick(row)}
+      />
+
+      <Confirm
+        isOpen={confirmOpen}
+        onClose={() => {
+          closeConfirm();
+          setPendingDeleteTag(null);
+        }}
+        onConfirm={handleDelete}
+        title="Delete Tag"
+        message={`Are you sure you want to delete "${pendingDeleteTag?.name || "this tag"}"? This action cannot be undone.`}
+        confirmText="Delete"
+        loading={loading}
       />
 
       <Dialog open={dialogOpen} onClose={onClose} fullWidth maxWidth="sm">
