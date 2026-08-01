@@ -11,6 +11,7 @@ import {
 
 import Table from "@/components/table/table.component";
 import Form from "@/components/form/form.component";
+import Confirm from "@/components/confirm/confirm.component";
 import { useDisclosure } from "@/hooks/useDisclosure/useDisclosure.hook";
 
 import {
@@ -29,6 +30,9 @@ export default function HostsPage() {
   const [hosts, setHosts] = useState<HostRead[]>([]);
   const [selectedHost, setSelectedHost] = useState<HostRead | undefined>();
   const [loading, setLoading] = useState(true);
+  const [pendingDeleteHost, setPendingDeleteHost] = useState<HostRead | null>(
+    null,
+  );
 
   const [selectOptions, setSelectOptions] = useState<{
     groups: SelectOption[];
@@ -39,6 +43,11 @@ export default function HostsPage() {
   });
 
   const { isOpen: dialogOpen, onOpen, onClose } = useDisclosure();
+  const {
+    isOpen: confirmOpen,
+    onOpen: openConfirm,
+    onClose: closeConfirm,
+  } = useDisclosure();
 
   const getData = useCallback(async () => {
     setLoading(true);
@@ -129,10 +138,19 @@ export default function HostsPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDeleteClick = (host: HostRead) => {
+    setPendingDeleteHost(host);
+    openConfirm();
+  };
+
+  const handleDelete = async () => {
+    if (!pendingDeleteHost) return;
+
     setLoading(true);
     try {
-      await deleteHost(id);
+      await deleteHost(pendingDeleteHost.id);
+      closeConfirm();
+      setPendingDeleteHost(null);
       await getData();
     } catch (error) {
       console.error("Failed to delete host:", error);
@@ -159,7 +177,20 @@ export default function HostsPage() {
         add={handleOpenCreate}
         clk={handleOpenEdit}
         upd={handleOpenEdit}
-        del={(row) => handleDelete(row.id)}
+        del={(row) => handleDeleteClick(row)}
+      />
+
+      <Confirm
+        isOpen={confirmOpen}
+        onClose={() => {
+          closeConfirm();
+          setPendingDeleteHost(null);
+        }}
+        onConfirm={handleDelete}
+        title="Delete Host"
+        message={`Are you sure you want to delete "${pendingDeleteHost?.name || "this host"}"? This action cannot be undone.`}
+        confirmText="Delete"
+        loading={loading}
       />
 
       <Dialog open={dialogOpen} onClose={onClose} fullWidth maxWidth="md">

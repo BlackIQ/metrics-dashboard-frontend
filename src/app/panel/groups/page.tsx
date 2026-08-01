@@ -11,6 +11,7 @@ import {
 
 import Table from "@/components/table/table.component";
 import Form from "@/components/form/form.component";
+import Confirm from "@/components/confirm/confirm.component";
 import { useDisclosure } from "@/hooks/useDisclosure/useDisclosure.hook";
 
 import {
@@ -25,8 +26,15 @@ export default function GroupsPage() {
   const [groups, setGroups] = useState<GroupRead[]>([]);
   const [selectedGroup, setSelectedGroup] = useState<GroupRead | undefined>();
   const [loading, setLoading] = useState(true);
+  const [pendingDeleteGroup, setPendingDeleteGroup] =
+    useState<GroupRead | null>(null);
 
   const { isOpen: dialogOpen, onOpen, onClose } = useDisclosure();
+  const {
+    isOpen: confirmOpen,
+    onOpen: openConfirm,
+    onClose: closeConfirm,
+  } = useDisclosure();
 
   const getData = useCallback(async () => {
     setLoading(true);
@@ -81,10 +89,19 @@ export default function GroupsPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDeleteClick = (group: GroupRead) => {
+    setPendingDeleteGroup(group);
+    openConfirm();
+  };
+
+  const handleDelete = async () => {
+    if (!pendingDeleteGroup) return;
+
     setLoading(true);
     try {
-      await deleteGroup(id);
+      await deleteGroup(pendingDeleteGroup.id);
+      closeConfirm();
+      setPendingDeleteGroup(null);
       await getData();
     } catch (error) {
       console.error("Failed to delete group:", error);
@@ -103,7 +120,20 @@ export default function GroupsPage() {
         add={handleOpenCreate}
         clk={handleOpenEdit}
         upd={handleOpenEdit}
-        del={(row) => handleDelete(row.id)}
+        del={(row) => handleDeleteClick(row)}
+      />
+
+      <Confirm
+        isOpen={confirmOpen}
+        onClose={() => {
+          closeConfirm();
+          setPendingDeleteGroup(null);
+        }}
+        onConfirm={handleDelete}
+        title="Delete Group"
+        message={`Are you sure you want to delete "${pendingDeleteGroup?.name || "this group"}"? This action cannot be undone.`}
+        confirmText="Delete"
+        loading={loading}
       />
 
       <Dialog open={dialogOpen} onClose={onClose} fullWidth maxWidth="sm">
