@@ -28,7 +28,7 @@ import {
   signInWithFacebook,
   signInWithGitHub,
 } from "@/utils/firebase.util";
-import { showToast } from "@/utils/toast.util";
+import { getErrorMessage, showToast } from "@/utils/toast.util";
 
 import {
   Box,
@@ -97,6 +97,9 @@ const AuthContent = () => {
         message:
           res.message || "Your email has been confirmed. You can now sign in.",
       });
+      showToast.success(
+        res.message || "Your email has been confirmed. You can now sign in.",
+      );
       setMode("login");
       router.replace("/auth");
     } catch (error) {
@@ -106,6 +109,7 @@ const AuthContent = () => {
         message:
           "Invalid or expired token. Please request a new confirmation link.",
       });
+      showToast.error(getErrorMessage(error, "Confirmation failed."));
     } finally {
       setLoading(false);
     }
@@ -135,6 +139,9 @@ const AuthContent = () => {
                 "Your account is not confirmed yet. Please check your inbox or resend the link.",
               showResend: true,
             });
+            showToast.warning(
+              "Your account is not confirmed yet. Please check your inbox or resend the link.",
+            );
             return;
           }
 
@@ -145,6 +152,9 @@ const AuthContent = () => {
               message:
                 "Your account is not active. Please contact support at support@openhubble.com.",
             });
+            showToast.error(
+              "Your account is not active. Please contact support at support@openhubble.com.",
+            );
             return;
           }
 
@@ -173,6 +183,10 @@ const AuthContent = () => {
           "Please check your email inbox to confirm your account before signing in.",
         showResend: true,
       });
+      showToast.success(
+        res.message ||
+          "Please check your email inbox to confirm your account before signing in.",
+      );
       setMode("login");
     } catch (error) {
       if (isAxiosError(error) && error.response) {
@@ -196,8 +210,11 @@ const AuthContent = () => {
         message:
           "If your email is registered, instructions to reset your password have been sent.",
       });
+      showToast.success(
+        "If your email is registered, instructions to reset your password have been sent.",
+      );
     } catch (error) {
-      showToast.error("Error sending reset password email");
+      showToast.error(getErrorMessage(error, "Error sending reset password email"));
     } finally {
       setLoading(false);
     }
@@ -230,16 +247,13 @@ const AuthContent = () => {
         message:
           res.message || "Your password has been changed. Please sign in.",
       });
+      showToast.success(
+        res.message || "Your password has been changed. Please sign in.",
+      );
       setMode("login");
       setResetToken(null);
     } catch (error) {
-      if (isAxiosError(error) && error.response) {
-        showToast.error(
-          error.response.data?.detail || "Failed to reset password.",
-        );
-      } else {
-        showToast.error("An error occurred while resetting password.");
-      }
+      showToast.error(getErrorMessage(error, "An error occurred while resetting password."));
     } finally {
       setLoading(false);
     }
@@ -256,7 +270,9 @@ const AuthContent = () => {
       const res = await resendConfirmationEmail({ email: userEmail });
       showToast.success(res.message || "Confirmation link sent!");
     } catch (error) {
-      showToast.error("Failed to resend confirmation email.");
+      showToast.error(
+        getErrorMessage(error, "Failed to resend confirmation email."),
+      );
     } finally {
       setLoading(false);
     }
@@ -271,7 +287,7 @@ const AuthContent = () => {
       showToast.success("Welcome back dear user");
       router.push("/panel");
     } catch (error) {
-      showToast.error("Google login failed");
+      showToast.error(getErrorMessage(error, "Google login failed"));
     } finally {
       setLoading(false);
     }
@@ -286,7 +302,7 @@ const AuthContent = () => {
       showToast.success("Welcome back dear user");
       router.push("/panel");
     } catch (error) {
-      showToast.error("Facebook login failed");
+      showToast.error(getErrorMessage(error, "Facebook login failed"));
     } finally {
       setLoading(false);
     }
@@ -301,7 +317,7 @@ const AuthContent = () => {
       showToast.success("Welcome back dear user");
       router.push("/panel");
     } catch (error) {
-      showToast.error("GitHub login failed");
+      showToast.error(getErrorMessage(error, "GitHub login failed"));
     } finally {
       setLoading(false);
     }

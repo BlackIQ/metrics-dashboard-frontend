@@ -26,7 +26,7 @@ import {
 import { useSelector, useDispatch } from "react-redux";
 
 import Form from "@/components/form/form.component";
-import { showToast } from "@/utils/toast.util";
+import { getErrorMessage, showToast } from "@/utils/toast.util";
 import {
   updateProfile,
   updatePassword,
@@ -70,6 +70,7 @@ export default function SettingsPage() {
       dispatch(setUser(updatedUser));
       showToast.success("Profile updated successfully!");
     } catch (error) {
+      showToast.error(getErrorMessage(error, "Failed to update profile."));
     } finally {
       setLoading(false);
     }
@@ -87,6 +88,7 @@ export default function SettingsPage() {
       dispatch(setUser(updatedUser));
       showToast.success("Password changed successfully!");
     } catch (error) {
+      showToast.error(getErrorMessage(error, "Failed to change password."));
     } finally {
       setLoading(false);
     }
@@ -99,6 +101,7 @@ export default function SettingsPage() {
       dispatch(setUser(updatedUser));
       showToast.success("Email address updated!");
     } catch (error) {
+      showToast.error(getErrorMessage(error, "Failed to update email."));
     } finally {
       setLoading(false);
     }
