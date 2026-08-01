@@ -1,69 +1,58 @@
 import {
   Button,
   Dialog,
+  DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
-  Box,
   Typography,
 } from "@mui/material";
 
+interface ConfirmProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  title?: string;
+  message?: string;
+  confirmText?: string;
+  cancelText?: string;
+  loading?: boolean;
+}
+
 export default function Confirm({
   isOpen,
-  handleOpen,
+  onClose,
   onConfirm,
-  title = "Warning",
-  message = "Are you sure about doing this!?",
-}: {
-  isOpen: boolean;
-  handleOpen: void;
-  onConfirm: void;
-  title: string;
-  message: string;
-}) {
+  title = "Confirm Action",
+  message = "Are you sure you want to continue?",
+  confirmText = "Confirm",
+  cancelText = "Cancel",
+  loading = false,
+}: ConfirmProps) {
   return (
-    <Dialog
-      open={isOpen}
-      // onClose={handleOpen}
-      maxWidth="xs"
-      fullWidth
-    >
+    <Dialog open={isOpen} onClose={onClose} maxWidth="xs" fullWidth>
       <DialogTitle>
-        <Typography variant="h6" color="primary.main">
+        <Typography variant="h6" color="primary.main" sx={{ fontWeight: 600 }}>
           {title}
         </Typography>
       </DialogTitle>
       <DialogContent>
-        <DialogContentText sx={{ mb: 3 }}>{message}</DialogContentText>
-        <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}>
-          <Button
-            variant="contained"
-            color="error"
-            size="large"
-            // onClick={onConfirm}
-            disableElevation
-            sx={{
-              py: 1,
-              px: 3,
-            }}
-          >
-            Yes
-          </Button>
-          <Button
-            variant="outlined"
-            color="primary"
-            size="large"
-            // onClick={handleOpen}
-            disableElevation
-            sx={{
-              py: 1,
-              px: 3,
-            }}
-          >
-            No
-          </Button>
-        </Box>
+        <DialogContentText>{message}</DialogContentText>
       </DialogContent>
+      <DialogActions sx={{ px: 3, pb: 2 }}>
+        <Button onClick={onClose} color="inherit" disabled={loading}>
+          {cancelText}
+        </Button>
+        <Button
+          onClick={onConfirm}
+          color="error"
+          variant="contained"
+          disableElevation
+          disabled={loading}
+        >
+          {confirmText}
+        </Button>
+      </DialogActions>
     </Dialog>
   );
 }
