@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, Suspense, useRef } from "react";
 import { useDispatch } from "react-redux";
 import { useRouter, useSearchParams } from "next/navigation";
 import { isAxiosError } from "axios";
@@ -64,28 +64,12 @@ const AuthContent = () => {
   const [alert, setAlert] = useState<AlertState | null>(null);
   const [userEmail, setUserEmail] = useState<string>("");
   const [resetToken, setResetToken] = useState<string | null>(null);
+  const hasProcessedAuthParamsRef = useRef(false);
 
   const changeMode = (newMode: modeType) => {
     setAlert(null);
     setMode(newMode);
   };
-
-  useEffect(() => {
-    const confirmTok = searchParams.get("token");
-    const resetTok = searchParams.get("reset_token");
-
-    if (confirmTok) {
-      handleConfirmEmail(confirmTok);
-    } else if (resetTok) {
-      setResetToken(resetTok);
-      setMode("reset");
-      setAlert({
-        type: "info",
-        title: "Set New Password",
-        message: "Please enter and confirm your new password below.",
-      });
-    }
-  }, [searchParams]);
 
   const handleConfirmEmail = async (token: string) => {
     setLoading(true);
@@ -114,6 +98,31 @@ const AuthContent = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (hasProcessedAuthParamsRef.current) {
+      return;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const confirmTok = params.get("token") ?? searchParams.get("token");
+    const resetTok =
+      params.get("reset_token") ?? searchParams.get("reset_token");
+
+    if (confirmTok) {
+      hasProcessedAuthParamsRef.current = true;
+      void handleConfirmEmail(confirmTok);
+    } else if (resetTok) {
+      hasProcessedAuthParamsRef.current = true;
+      setResetToken(resetTok);
+      setMode("reset");
+      setAlert({
+        type: "info",
+        title: "Set New Password",
+        message: "Please enter and confirm your new password below.",
+      });
+    }
+  }, [searchParams]);
 
   const doLogin = async (data: Signin) => {
     setLoading(true);
@@ -161,8 +170,17 @@ const AuthContent = () => {
           showToast.error(detail || "Invalid email or password");
           return;
         }
+
+        if (status === 422) {
+          showToast.error(
+            getErrorMessage(error, "Please check your email and password."),
+          );
+          return;
+        }
       }
-      showToast.error("An unexpected error occurred during sign in.");
+      showToast.error(
+        getErrorMessage(error, "An unexpected error occurred during sign in."),
+      );
     } finally {
       setLoading(false);
     }
@@ -190,7 +208,7 @@ const AuthContent = () => {
       setMode("login");
     } catch (error) {
       if (isAxiosError(error) && error.response) {
-        showToast.error(error.response.data?.detail || "Registration failed");
+        showToast.error(getErrorMessage(error, "Registration failed"));
       } else {
         showToast.error("Error during registration");
       }
@@ -214,7 +232,9 @@ const AuthContent = () => {
         "If your email is registered, instructions to reset your password have been sent.",
       );
     } catch (error) {
-      showToast.error(getErrorMessage(error, "Error sending reset password email"));
+      showToast.error(
+        getErrorMessage(error, "Error sending reset password email"),
+      );
     } finally {
       setLoading(false);
     }
@@ -253,7 +273,9 @@ const AuthContent = () => {
       setMode("login");
       setResetToken(null);
     } catch (error) {
-      showToast.error(getErrorMessage(error, "An error occurred while resetting password."));
+      showToast.error(
+        getErrorMessage(error, "An error occurred while resetting password."),
+      );
     } finally {
       setLoading(false);
     }
